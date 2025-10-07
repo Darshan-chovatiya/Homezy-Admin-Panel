@@ -29,6 +29,19 @@ export interface Admin {
   updatedAt?: string;
 }
 
+export interface PaginatedResult<T> {
+  docs: T[];
+  totalDocs: number;
+  limit: number;
+  totalPages: number;
+  page?: number;
+  pagingCounter?: number;
+  hasPrevPage?: boolean;
+  hasNextPage?: boolean;
+  prevPage?: number | null;
+  nextPage?: number | null;
+}
+
 export interface Subcategory {
   _id: string;
   name: string;
@@ -149,6 +162,37 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
   async updateProfile(profileData: { name?: string; email?: string; id?: string }): Promise<ApiResponse<{ admin: Admin }>> {
     // Not implemented on backend yet; placeholder for future use
     throw new Error('updateProfile not implemented on backend');
+  }
+
+  // Admin CRUD
+  async getAdmins(params: PaginationParams): Promise<ApiResponse<PaginatedResult<Admin>>> {
+    return this.request('/admins', {
+      body: JSON.stringify(params)
+    });
+  }
+
+  async createAdmin(admin: { name: string; emailId: string; password: string; isActive?: boolean }): Promise<ApiResponse<Admin>> {
+    return this.request('/admins/create', {
+      body: JSON.stringify(admin)
+    });
+  }
+
+  async updateAdminBasic(payload: { id: string; name?: string; emailId?: string; isActive?: boolean }): Promise<ApiResponse<Admin>> {
+    return this.request('/admins/update', {
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async deleteAdmin(id: string): Promise<ApiResponse<boolean>> {
+    return this.request('/admins/delete', {
+      body: JSON.stringify({ id })
+    });
+  }
+
+  async toggleAdminActive(id: string, isActive?: boolean): Promise<ApiResponse<Admin>> {
+    return this.request('/admins/toggle', {
+      body: JSON.stringify({ id, isActive })
+    });
   }
 
   // Service Management

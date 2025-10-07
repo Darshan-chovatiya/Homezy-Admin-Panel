@@ -13,6 +13,7 @@ import BookingOversight from "./pages/Admin/BookingOversight";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import SupportModeration from "./pages/Admin/SupportModeration";
 import PromotionsMarketing from "./pages/Admin/PromotionsMarketing";
+import AdminManagement from "./pages/Admin/AdminManagement";
 import { AuthProvider } from "./context/AuthContext";
 import RequireAuth from "./components/auth/RequireAuth";
 
@@ -27,6 +28,7 @@ export default function App() {
               <Route element={<AppLayout />}>
                 <Route index path="/" element={<Home />} />
                 <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/admin/admins" element={<AdminManagement />} />
                 <Route path="/admin/services" element={<ServiceManagement />} />
                 <Route path="/admin/subcategories" element={<Subcategories />} />
                 <Route path="/admin/bookings" element={<BookingOversight />} />
