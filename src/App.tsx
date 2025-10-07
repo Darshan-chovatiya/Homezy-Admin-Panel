@@ -8,6 +8,7 @@ import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import UserManagement from "./pages/Admin/UserManagement";
 import ServiceManagement from "./pages/Admin/ServiceManagement";
+import Subcategories from "./pages/Admin/Subcategories";
 import BookingOversight from "./pages/Admin/BookingOversight";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import SupportModeration from "./pages/Admin/SupportModeration";
@@ -27,6 +28,7 @@ export default function App() {
                 <Route index path="/" element={<Home />} />
                 <Route path="/admin/users" element={<UserManagement />} />
                 <Route path="/admin/services" element={<ServiceManagement />} />
+                <Route path="/admin/subcategories" element={<Subcategories />} />
                 <Route path="/admin/bookings" element={<BookingOversight />} />
                 <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
                 <Route path="/admin/support" element={<SupportModeration />} />
