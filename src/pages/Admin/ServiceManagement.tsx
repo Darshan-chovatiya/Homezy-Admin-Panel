@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import apiService, { Service } from "../../services/api";
 
 type Status = "active" | "inactive";
 
-interface Subcategory {
+interface SubcategoryUI {
   id: string;
   name: string;
   description: string;
@@ -14,64 +15,66 @@ interface Subcategory {
   images?: string[];
 }
 
-interface Service {
+interface ServiceUI {
   id: string;
   name: string;
   description: string;
   status: Status;
-  subCategories: Subcategory[];
+  subCategories: SubcategoryUI[];
   image?: string;
 }
 
-const dummyServices: Service[] = [
-  {
-    id: "1",
-    name: "House Cleaning",
-    description: "Professional cleaning for homes, including bedrooms, kitchen, and bathrooms.",
-    status: "active",
-    image: "/images/product/product-01.jpg",
-    subCategories: [
-      { id: "1-1", name: "Basic Cleaning", description: "Quick clean of all rooms.", duration: "2 hours", status: "active", price: 799, images: ["/images/product/product-01.jpg", "/images/product/product-02.jpg"] },
-      { id: "1-2", name: "Deep Cleaning", description: "Detailed cleaning with appliances.", duration: "4 hours", status: "inactive", price: 1499, images: ["/images/product/product-03.jpg"] },
-      { id: "1-3", name: "Kitchen Focus", description: "Deep clean of kitchen.", duration: "2 hours", status: "active", price: 899, images: ["/images/product/product-04.jpg", "/images/product/product-05.jpg", "/images/product/product-01.jpg"] },
-    ],
-  },
-  {
-    id: "2",
-    name: "Plumbing Services",
-    description: "Repairs for leaks, clogs, and fitting replacements.",
-    status: "active",
-    image: "/images/product/product-02.jpg",
-    subCategories: [
-      { id: "2-1", name: "Leak Fix", description: "Pipe and tap leak resolution.", duration: "1 hour", status: "active", price: 499, images: ["/images/product/product-02.jpg"] },
-      { id: "2-2", name: "Clog Removal", description: "Drain and pipe clog removal.", duration: "1.5 hours", status: "inactive", price: 799, images: ["/images/product/product-03.jpg", "/images/product/product-04.jpg"] },
-    ],
-  },
-  {
-    id: "3",
-    name: "Electrical Work",
-    description: "Safe electrical repairs, installations, and maintenance.",
-    status: "inactive",
-    image: "/images/product/product-03.jpg",
-    subCategories: [
-      { id: "3-1", name: "Switch Installation", description: "Install/replace switches.", duration: "45 mins", status: "active", price: 299, images: ["/images/product/product-05.jpg", "/images/product/product-01.jpg", "/images/product/product-02.jpg", "/images/product/product-03.jpg", "/images/product/product-04.jpg"] },
-      { id: "3-2", name: "Fan Installation", description: "Ceiling/Wall fan install.", duration: "1.5 hours", status: "inactive", price: 999 },
-      { id: "3-3", name: "Wiring Repair", description: "Minor wiring fixes.", duration: "2 hours", status: "active", price: 1299, images: ["/images/product/product-04.jpg"] },
-      { id: "3-4", name: "MCB Replacement", description: "MCB diagnosis & replace.", duration: "1 hour", status: "active", price: 799, images: ["/images/product/product-05.jpg", "/images/product/product-01.jpg"] },
-    ],
-  },
-];
+// Helper function to convert API data to UI format
+const convertServiceToUI = (service: Service): ServiceUI => {
+  return {
+    id: service._id,
+    name: service.name,
+    description: service.description,
+    status: service.isActive ? "active" : "inactive",
+    image: service.image,
+    subCategories: (service.subCategories || []).map(sub => ({
+      id: sub._id,
+      name: sub.name,
+      description: sub.description,
+      duration: `${Math.floor(sub.duration / 60)}h ${sub.duration % 60}m`,
+      status: sub.isActive ? "active" : "inactive",
+      price: sub.basePrice,
+      images: sub.images || []
+    }))
+  };
+};
 
-// Removed global categories; services now contain multiple subcategories
 
 export default function ServiceManagement() {
-  const [services, setServices] = useState<Service[]>(dummyServices);
+  const [services, setServices] = useState<ServiceUI[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<"all" | Status>("all");
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceUI | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+
+  // Load services on component mount
+  useEffect(() => {
+    loadServices();
+  }, []);
+
+  const loadServices = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiService.getServices({ page: 1, limit: 100 });
+      const uiServices = response.data.docs.map(convertServiceToUI);
+      setServices(uiServices);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load services');
+      console.error('Error loading services:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredServices = services.filter((service) => {
     const text = searchTerm.toLowerCase();
@@ -93,10 +96,16 @@ export default function ServiceManagement() {
     return matchesText && matchesStatus;
   });
 
-  const handleStatusChange = (serviceId: string, newStatus: Status) => {
-    setServices(services.map(service => 
-      service.id === serviceId ? { ...service, status: newStatus } : service
-    ));
+  const handleStatusChange = async (serviceId: string, newStatus: Status) => {
+    try {
+      await apiService.updateServiceStatus(serviceId, newStatus);
+      setServices(services.map(service => 
+        service.id === serviceId ? { ...service, status: newStatus } : service
+      ));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update service status');
+      console.error('Error updating service status:', err);
+    }
   };
 
   const getStatusBadge = (status: Status) => {
@@ -123,6 +132,22 @@ export default function ServiceManagement() {
       <PageBreadcrumb pageTitle="Service Management" />
       
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
+        {error && (
+          <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 dark:bg-red-900/20 dark:border-red-800">
+            <div className="flex">
+              <div className="text-sm text-red-800 dark:text-red-200">
+                {error}
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="ml-auto text-red-400 hover:text-red-600"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
+        
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
             Service Management
@@ -165,66 +190,78 @@ export default function ServiceManagement() {
         </div>
 
         {/* Services Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredServices.map((service) => (
-            <div
-              key={service.id}
-              className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
-              onClick={() => {
-                setSelectedService(service);
-                setShowModal(true);
-              }}
-              role="button"
-              tabIndex={0}
-            >
-              <div className="mb-4 flex items-start justify-between">
-              <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {service.name}
-                  </h4>
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{service.description}</p>
-                <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">{service.subCategories.length} Subcategories</div>
-                  </div>
-              {service.image && (
-                <div className="ml-4 flex-shrink-0">
-                  <img
-                    src={service.image}
-                    alt={service.name}
-                    className="h-16 w-16 rounded-lg object-cover"
-                  />
-                </div>
-              )}
-                <div className="text-right" onClick={(e) => e.stopPropagation()}>
-                  <select
-                    value={service.status}
-                    onChange={(e) => handleStatusChange(service.id, e.target.value as Status)}
-                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-gray-500 dark:text-gray-400">Loading services...</div>
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredServices.map((service) => (
+                <div
+                  key={service.id}
+                  className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md dark:border-gray-700 dark:bg-gray-800 cursor-pointer"
+                  onClick={() => {
                     setSelectedService(service);
                     setShowModal(true);
                   }}
-                  className="flex-1 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90"
+                  role="button"
+                  tabIndex={0}
                 >
-                  View Details
-                </button>
-              </div>
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {service.name}
+                      </h4>
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{service.description}</p>
+                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">{service.subCategories.length} Subcategories</div>
+                    </div>
+                    {service.image && (
+                      <div className="ml-4 flex-shrink-0">
+                        <img
+                          src={service.image}
+                          alt={service.name}
+                          className="h-16 w-16 rounded-lg object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="text-right" onClick={(e) => e.stopPropagation()}>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={service.status === 'active'}
+                          onChange={(e) => handleStatusChange(service.id, e.target.checked ? 'active' : 'inactive')}
+                          className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
+                          {service.status === 'active' ? 'Active' : 'Inactive'}
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedService(service);
+                        setShowModal(true);
+                      }}
+                      className="flex-1 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {filteredServices.length === 0 && (
-          <div className="py-12 text-center">
-            <div className="text-gray-500 dark:text-gray-400">No services found matching your criteria.</div>
-          </div>
+            {filteredServices.length === 0 && (
+              <div className="py-12 text-center">
+                <div className="text-gray-500 dark:text-gray-400">No services found matching your criteria.</div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -347,17 +384,21 @@ export default function ServiceManagement() {
             
             {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto">
-              <AddEditServiceForm formId="add-service-form" onSubmit={(payload) => {
-                const newService: Service = {
-                  id: String(Date.now()),
-                  name: payload.name,
-                  description: payload.description,
-                  status: payload.status as Status,
-                  subCategories: payload.subCategories,
-                  image: payload.image,
-                };
-                setServices((prev) => [newService, ...prev]);
-                setShowAddModal(false);
+              <AddEditServiceForm formId="add-service-form" onSubmit={async (payload) => {
+                try {
+                  await apiService.createService({
+                    name: payload.name,
+                    description: payload.description,
+                    status: payload.status,
+                    image: payload.image
+                  });
+                  
+                  await loadServices();
+                  setShowAddModal(false);
+                } catch (err) {
+                  setError(err instanceof Error ? err.message : 'Failed to create service');
+                  console.error('Error creating service:', err);
+                }
               }} />
             </div>
 
@@ -384,16 +425,24 @@ export default function ServiceManagement() {
               <AddEditServiceForm
                 formId="edit-service-form"
                 initial={selectedService}
-                onSubmit={(payload) => {
-                  setServices((prev) => prev.map((s) => (s.id === selectedService.id ? {
-                    id: selectedService.id,
-                    name: payload.name,
-                    description: payload.description,
-                    status: payload.status as Status,
-                    subCategories: payload.subCategories,
-                    image: payload.image,
-                  } : s)));
-                  setShowEditModal(false);
+                onSubmit={async (payload) => {
+                  if (!selectedService) return;
+                  try {
+                    await apiService.updateService(selectedService.id, {
+                      name: payload.name,
+                      description: payload.description,
+                      status: payload.status,
+                      image: payload.image
+                    });
+                    
+                    // Update subcategories separately if needed
+                    // For now, we'll just update the service and reload
+                    await loadServices();
+                    setShowEditModal(false);
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Failed to update service');
+                    console.error('Error updating service:', err);
+                  }
                 }}
               />
             </div>
@@ -414,53 +463,20 @@ type ServiceFormPayload = {
   name: string;
   description: string;
   status: Status;
-  subCategories: Subcategory[];
   image?: string;
 };
 
-function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: Service; onSubmit: (payload: ServiceFormPayload) => void; formId?: string; }) {
+function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI; onSubmit: (payload: ServiceFormPayload) => void; formId?: string; }) {
   const [name, setName] = useState(initial?.name || "");
   const [description, setDescription] = useState(initial?.description || "");
   const [status, setStatus] = useState<Status>(initial?.status || "active");
   const [serviceImage, setServiceImage] = useState<File | null>(null);
-  const [subCategories, setSubCategories] = useState<Subcategory[]>(initial?.subCategories || [
-    { id: String(Date.now()), name: "", description: "", duration: "", status: "active", price: 0 }
-  ]);
-
-  const addSub = () => {
-    setSubCategories(prev => [...prev, { id: String(Date.now() + Math.random()), name: "", description: "", duration: "", status: "active", price: 0, images: [] }]);
-  };
-
-  const removeSub = (id: string) => {
-    setSubCategories(prev => prev.filter(s => s.id !== id));
-  };
-
-  const updateSub = (id: string, patch: Partial<Subcategory>) => {
-    setSubCategories(prev => prev.map(s => s.id === id ? { ...s, ...patch } : s));
-  };
-
-  const addSubImage = (subId: string, file: File) => {
-    const sub = subCategories.find(s => s.id === subId);
-    if (sub && (!sub.images || sub.images.length < 5)) {
-      const imageUrl = URL.createObjectURL(file);
-      updateSub(subId, { images: [...(sub.images || []), imageUrl] });
-    }
-  };
-
-  const removeSubImage = (subId: string, imageIndex: number) => {
-    const sub = subCategories.find(s => s.id === subId);
-    if (sub && sub.images) {
-      const newImages = sub.images.filter((_, idx) => idx !== imageIndex);
-      updateSub(subId, { images: newImages });
-    }
-  };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     if (!name.trim() || !description.trim()) return;
-    const validSubs = subCategories.filter(s => s.name.trim() && s.description.trim() && s.price >= 0);
     const serviceImageUrl = serviceImage ? URL.createObjectURL(serviceImage) : initial?.image;
-    onSubmit({ name: name.trim(), description: description.trim(), status, subCategories: validSubs, image: serviceImageUrl });
+    onSubmit({ name: name.trim(), description: description.trim(), status, image: serviceImageUrl });
   };
 
   return (
@@ -509,77 +525,6 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: Service; 
                   />
                 </div>
               </div>
-
-        <fieldset className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-          <legend className="px-1 text-sm font-medium text-gray-800 dark:text-gray-200">Subcategories</legend>
-          <div className="space-y-3">
-            {subCategories.map((s) => (
-              <div key={s.id} className="space-y-2">
-                <div className="grid grid-cols-12 gap-2">
-                  <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Name</label>
-                    <input value={s.name} onChange={(e) => updateSub(s.id, { name: e.target.value })} type="text" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
-                  </div>
-                  <div className="col-span-4">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Description</label>
-                    <input value={s.description} onChange={(e) => updateSub(s.id, { description: e.target.value })} type="text" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
-                  </div>
-                  <div className="col-span-2">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Duration</label>
-                    <input value={s.duration} onChange={(e) => updateSub(s.id, { duration: e.target.value })} type="text" placeholder="e.g., 2 hours" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
-                  </div>
-                  <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Status</label>
-                    <select value={s.status} onChange={(e) => updateSub(s.id, { status: e.target.value as Status })} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white">
-                      <option value="active">Active</option>
-                      <option value="inactive">Inactive</option>
-                    </select>
-                  </div>
-                  <div className="col-span-3">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Price (₹)</label>
-                    <input value={s.price} onChange={(e) => updateSub(s.id, { price: Number(e.target.value) })} type="number" className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-2 py-1.5 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" />
-                  </div>
-                  <div className="col-span-1 flex items-end">
-                    <button type="button" onClick={() => removeSub(s.id)} className="h-9 w-full rounded-md bg-red-600 text-xs font-medium text-white hover:bg-red-700">Del</button>
-                  </div>
-              </div>
-
-                {/* Subcategory Images */}
-                <div className="mt-2">
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Images (Optional, max 5)</label>
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {s.images?.map((img, idx) => (
-                      <div key={idx} className="relative">
-                        <img src={img} alt={`${s.name} ${idx + 1}`} className="h-12 w-12 rounded object-cover" />
-                <button
-                  type="button"
-                          onClick={() => removeSubImage(s.id, idx)}
-                          className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center hover:bg-red-600"
-                >
-                          ×
-                </button>
-                      </div>
-                    ))}
-                  </div>
-                  {(!s.images || s.images.length < 5) && (
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) addSubImage(s.id, file);
-                      }}
-                      className="w-full rounded-lg border border-dashed border-gray-300 bg-white px-2 py-1 text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                  )}
-                </div>
-              </div>
-            ))}
-            <div>
-              <button type="button" onClick={addSub} className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">+ Add Subcategory</button>
-            </div>
-          </div>
-        </fieldset>
         </div>
     </form>
   );
