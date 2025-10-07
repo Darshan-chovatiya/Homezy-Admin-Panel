@@ -15,6 +15,7 @@ import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import SupportModeration from "./pages/Admin/SupportModeration";
 import PromotionsMarketing from "./pages/Admin/PromotionsMarketing";
 import AdminManagement from "./pages/Admin/AdminManagement";
+import Slot from "./pages/Admin/Slot";
 import { AuthProvider } from "./context/AuthContext";
 import RequireAuth from "./components/auth/RequireAuth";
 
@@ -32,6 +33,7 @@ export default function App() {
                 <Route path="/admin/customers" element={<CustomerManagement />} />
                 <Route path="/admin/admins" element={<AdminManagement />} />
                 <Route path="/admin/services" element={<ServiceManagement />} />
+                <Route path="/admin/services/slots" element={<Slot />} />
                 <Route path="/admin/subcategories" element={<Subcategories />} />
                 <Route path="/admin/bookings" element={<BookingOversight />} />
                 <Route path="/admin/analytics" element={<AnalyticsDashboard />} />

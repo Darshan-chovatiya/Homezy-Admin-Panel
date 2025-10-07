@@ -195,6 +195,31 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
+  // Slots
+  async getAvailableSlots(params: { subcategoryId: string; date: string }): Promise<ApiResponse<any>> {
+    return this.request('/availableSlots', {
+      body: JSON.stringify(params)
+    });
+  }
+
+  async assignSlot(params: { slotId: string; subcategoryId: string; date: string }): Promise<ApiResponse<any>> {
+    return this.request('/assignSlot', {
+      body: JSON.stringify(params)
+    });
+  }
+
+  async assignSlotByAdmin(params: { slotId: string; subcategoryId: string; date: string; vendorId: string }): Promise<ApiResponse<any>> {
+    return this.request('/assignSlotByAdmin', {
+      body: JSON.stringify(params)
+    });
+  }
+
+  async updateSlotAvailability(params: { slotId: string; subcategoryId: string; date: string; isAvailable: boolean }): Promise<ApiResponse<any>> {
+    return this.request('/updateSlotAvailability', {
+      body: JSON.stringify(params)
+    });
+  }
+
   // Service Management
   async getServices(params?: PaginationParams): Promise<ApiResponse<{ docs: Service[]; totalDocs: number; limit: number; page: number; totalPages: number }>> {
     return this.request('/services/list', {
