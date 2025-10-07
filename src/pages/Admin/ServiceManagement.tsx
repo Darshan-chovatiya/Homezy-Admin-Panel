@@ -110,10 +110,8 @@ export default function ServiceManagement() {
 
     const matchesText = matchesServiceText || matchesSubText;
 
-    const matchesStatus =
-      filterStatus === "all" ||
-      service.status === filterStatus ||
-      service.subCategories.some((s) => s.status === filterStatus);
+    // Apply status filter only to the service itself
+    const matchesStatus = filterStatus === "all" ? true : service.status === filterStatus;
 
     return matchesText && matchesStatus;
   });
