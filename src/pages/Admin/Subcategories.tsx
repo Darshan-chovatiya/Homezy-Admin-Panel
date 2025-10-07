@@ -434,15 +434,16 @@ export default function Subcategories() {
               <AddEditSubcategoryForm 
                 formId="add-subcategory-form" 
                 services={services}
-                onSubmit={async (payload) => {
+                onSubmit={async (payload: any) => {
                   try {
+                    const files: any[] = Array.isArray(payload.newImages) ? payload.newImages : [];
                     await apiService.createSubcategory(payload.serviceId, {
                       name: payload.name,
                       description: payload.description,
                       price: payload.price,
                       duration: parseDurationToMinutes(payload.duration),
                       status: payload.status,
-                      images: payload.images || []
+                      images: files.length ? files : (payload.images || [])
                     });
                     
                     await loadData();
@@ -477,16 +478,17 @@ export default function Subcategories() {
                 formId="edit-subcategory-form"
                 services={services}
                 initial={selectedSubcategory}
-                onSubmit={async (payload) => {
+                onSubmit={async (payload: any) => {
                   if (!selectedSubcategory) return;
                   try {
+                    const files: any[] = Array.isArray(payload.newImages) ? payload.newImages : [];
                     await apiService.updateSubcategory(selectedSubcategory.id, {
                       name: payload.name,
                       description: payload.description,
                       price: payload.price,
                       duration: parseDurationToMinutes(payload.duration),
                       status: payload.status,
-                      images: payload.images || []
+                      images: files.length ? files : (payload.images || [])
                     });
                     
                     await loadData();
@@ -537,32 +539,46 @@ function AddEditSubcategoryForm({
   const [duration, setDuration] = useState(initial?.duration || "");
   const [status, setStatus] = useState<Status>(initial?.status || "active");
   const [price, setPrice] = useState(initial?.price || 0);
-  const [images, setImages] = useState<string[]>(initial?.images || []);
+  // Existing images persisted in DB (string paths)
+  const [existingImages, setExistingImages] = useState<string[]>(initial?.images || []);
+  // New images selected in the form (File objects)
+  const [newImages, setNewImages] = useState<File[]>([]);
 
   const addImage = (file: File) => {
-    if (images.length < 5) {
-      const imageUrl = URL.createObjectURL(file);
-      setImages(prev => [...prev, imageUrl]);
-    }
+    const totalCount = existingImages.length + newImages.length;
+    if (totalCount >= 5) return;
+    setNewImages(prev => [...prev, file]);
   };
 
-  const removeImage = (imageIndex: number) => {
-    setImages(prev => prev.filter((_, idx) => idx !== imageIndex));
+  const removeExistingImage = (imageIndex: number) => {
+    setExistingImages(prev => prev.filter((_, idx) => idx !== imageIndex));
+  };
+
+  const removeNewImage = (imageIndex: number) => {
+    setNewImages(prev => prev.filter((_, idx) => idx !== imageIndex));
   };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     if (!name.trim() || !description.trim() || !serviceId) return;
     
-    onSubmit({ 
-      serviceId, 
-      name: name.trim(), 
-      description: description.trim(), 
-      duration, 
-      status, 
-      price, 
-      images 
-    });
+    // We pass existingImages in payload so backend can merge it with uploaded new files
+    const payload: any = {
+      serviceId,
+      name: name.trim(),
+      description: description.trim(),
+      duration,
+      status,
+      price,
+      images: existingImages,
+    };
+    // Attach files via caller; api.ts will detect File(s) and send multipart
+    // We temporarily add a marker property to be read by caller (same key name used)
+    (payload as any).images = existingImages;
+    (payload as any).image = undefined; // no single thumbnail here
+    // We call onSubmit with a cast; the handler in parent will pass payload along with files
+    (payload as any).newImages = newImages; // not serialized; parent will map to files param
+    onSubmit(payload);
   };
 
   return (
@@ -647,12 +663,24 @@ function AddEditSubcategoryForm({
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Images (Optional, max 5)</label>
           <div className="flex flex-wrap gap-2 mb-2">
-            {images.map((img, idx) => (
-              <div key={idx} className="relative">
-                <img src={img} alt={`Subcategory ${idx + 1}`} className="h-16 w-16 rounded object-cover" />
+            {existingImages.map((img, idx) => (
+              <div key={`ex-${idx}`} className="relative">
+                <img src={apiService.resolveImageUrl(img)} alt={`Existing ${idx + 1}`} className="h-16 w-16 rounded object-cover" />
                 <button
                   type="button"
-                  onClick={() => removeImage(idx)}
+                  onClick={() => removeExistingImage(idx)}
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center hover:bg-red-600"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {newImages.map((file, idx) => (
+              <div key={`new-${idx}`} className="relative">
+                <img src={URL.createObjectURL(file)} alt={`New ${idx + 1}`} className="h-16 w-16 rounded object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeNewImage(idx)}
                   className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center hover:bg-red-600"
                 >
                   ×
@@ -660,7 +688,7 @@ function AddEditSubcategoryForm({
               </div>
             ))}
           </div>
-          {images.length < 5 && (
+          {existingImages.length + newImages.length < 5 && (
             <input
               type="file"
               accept="image/*"

@@ -1,4 +1,5 @@
 const API_BASE_URL = 'http://localhost:5000/api/admin';
+export const IMAGE_BASE_URL = 'http://localhost:5000';
 
 
 // Types
@@ -106,6 +107,26 @@ class ApiService {
     }
   }
 
+  private async requestForm<T>(endpoint: string, form: FormData): Promise<ApiResponse<T>> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const headers: Record<string, string> = {};
+    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+    const config: RequestInit = { method: 'POST', body: form, headers };
+    const response = await fetch(url, config);
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+
+  // Resolve relative paths from backend to absolute URLs
+  resolveImageUrl(path?: string | null): string | undefined {
+    if (!path) return undefined;
+    if (path.startsWith('blob:')) return undefined;
+    if (path.startsWith('http://') || path.startsWith('https://')) return path;
+    if (path.startsWith('/')) return `${IMAGE_BASE_URL}${path}`;
+    return `${IMAGE_BASE_URL}/${path}`;
+  }
+
   // Authentication
   async login(email: string, password: string): Promise<ApiResponse<string>> {
   const response = await this.request<string>('/signin', {
@@ -191,9 +212,20 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
       tags?: string[];
     }>;
   }): Promise<ApiResponse<Service>> {
-    return this.request('/services/create', {
-      body: JSON.stringify(serviceData)
-    });
+    // If caller passed a File in image, use multipart
+    const anyData = serviceData as any;
+    if (anyData.image instanceof File) {
+      const form = new FormData();
+      form.append('name', serviceData.name);
+      if (serviceData.description) form.append('description', serviceData.description);
+      form.append('status', serviceData.status || 'active');
+      form.append('image', anyData.image);
+      if (serviceData.icon) form.append('icon', serviceData.icon);
+      if (serviceData.displayOrder != null) form.append('displayOrder', String(serviceData.displayOrder));
+      if (serviceData.popularServices) form.append('popularServices', JSON.stringify(serviceData.popularServices));
+      return this.requestForm('/services/create', form);
+    }
+    return this.request('/services/create', { body: JSON.stringify(serviceData) });
   }
 
   async updateService(id: string, serviceData: {
@@ -205,9 +237,20 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     displayOrder?: number;
     popularServices?: string[];
   }): Promise<ApiResponse<Service>> {
-    return this.request('/services/update', {
-      body: JSON.stringify({ id, ...serviceData })
-    });
+    const anyData = serviceData as any;
+    if (anyData.image instanceof File) {
+      const form = new FormData();
+      form.append('id', id);
+      if (serviceData.name) form.append('name', serviceData.name);
+      if (serviceData.description) form.append('description', serviceData.description);
+      if (serviceData.status) form.append('status', serviceData.status);
+      form.append('image', anyData.image);
+      if (serviceData.icon) form.append('icon', serviceData.icon);
+      if (serviceData.displayOrder != null) form.append('displayOrder', String(serviceData.displayOrder));
+      if (serviceData.popularServices) form.append('popularServices', JSON.stringify(serviceData.popularServices));
+      return this.requestForm('/services/update', form);
+    }
+    return this.request('/services/update', { body: JSON.stringify({ id, ...serviceData }) });
   }
 
   async deleteService(id: string): Promise<ApiResponse<boolean>> {
@@ -237,9 +280,26 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     requirements?: string[];
     tags?: string[];
   }): Promise<ApiResponse<Subcategory>> {
-    return this.request('/subcategories/create', {
-      body: JSON.stringify({ serviceId, ...subcategoryData })
-    });
+    const anyData = subcategoryData as any;
+    const hasFile = anyData.image instanceof File || (Array.isArray(anyData.images) && anyData.images.some((f: any) => f instanceof File));
+    if (hasFile) {
+      const form = new FormData();
+      form.append('serviceId', serviceId);
+      form.append('name', subcategoryData.name);
+      if (subcategoryData.description) form.append('description', subcategoryData.description);
+      if (anyData.image instanceof File) form.append('image', anyData.image);
+      if (Array.isArray(anyData.images)) anyData.images.forEach((f: any) => { if (f instanceof File) form.append('images', f); });
+      if (subcategoryData.icon) form.append('icon', subcategoryData.icon);
+      if (subcategoryData.price != null) form.append('price', String(subcategoryData.price));
+      if (subcategoryData.priceType) form.append('priceType', subcategoryData.priceType);
+      if (subcategoryData.duration != null) form.append('duration', String(subcategoryData.duration));
+      if (subcategoryData.status) form.append('status', subcategoryData.status);
+      if (subcategoryData.displayOrder != null) form.append('displayOrder', String(subcategoryData.displayOrder));
+      if (subcategoryData.requirements) form.append('requirements', JSON.stringify(subcategoryData.requirements));
+      if (subcategoryData.tags) form.append('tags', JSON.stringify(subcategoryData.tags));
+      return this.requestForm('/subcategories/create', form);
+    }
+    return this.request('/subcategories/create', { body: JSON.stringify({ serviceId, ...subcategoryData }) });
   }
 
   async updateSubcategory(id: string, subcategoryData: {
@@ -257,9 +317,29 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     requirements?: string[];
     tags?: string[];
   }): Promise<ApiResponse<Subcategory>> {
-    return this.request('/subcategories/update', {
-      body: JSON.stringify({ id, ...subcategoryData })
-    });
+    const anyData = subcategoryData as any;
+    const hasFile = anyData.image instanceof File || (Array.isArray(anyData.images) && anyData.images.some((f: any) => f instanceof File));
+    if (hasFile) {
+      const form = new FormData();
+      form.append('id', id);
+      if (subcategoryData.name) form.append('name', subcategoryData.name);
+      if (subcategoryData.description) form.append('description', subcategoryData.description);
+      if (anyData.image instanceof File) form.append('image', anyData.image);
+      if (Array.isArray(anyData.images)) anyData.images.forEach((f: any) => { if (f instanceof File) form.append('images', f); });
+      // include existing images array (string paths) if provided
+      if (Array.isArray(subcategoryData.images)) form.append('images', JSON.stringify(subcategoryData.images));
+      if (subcategoryData.icon) form.append('icon', subcategoryData.icon);
+      if (subcategoryData.price != null) form.append('price', String(subcategoryData.price));
+      if (subcategoryData.basePrice != null) form.append('basePrice', String(subcategoryData.basePrice));
+      if (subcategoryData.priceType) form.append('priceType', subcategoryData.priceType);
+      if (subcategoryData.duration != null) form.append('duration', String(subcategoryData.duration));
+      if (subcategoryData.status) form.append('status', subcategoryData.status);
+      if (subcategoryData.displayOrder != null) form.append('displayOrder', String(subcategoryData.displayOrder));
+      if (subcategoryData.requirements) form.append('requirements', JSON.stringify(subcategoryData.requirements));
+      if (subcategoryData.tags) form.append('tags', JSON.stringify(subcategoryData.tags));
+      return this.requestForm('/subcategories/update', form);
+    }
+    return this.request('/subcategories/update', { body: JSON.stringify({ id, ...subcategoryData }) });
   }
 
   async deleteSubcategory(id: string): Promise<ApiResponse<boolean>> {

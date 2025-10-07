@@ -32,7 +32,7 @@ const convertServiceToUI = (service: Service): ServiceUI => {
     name: service.name,
     description: service.description,
     status: service.isActive ? "active" : "inactive",
-    image: service.image,
+    image: apiService.resolveImageUrl(service.image),
     subCategories: (service.subCategories || []).map(sub => ({
       id: sub._id,
       name: sub.name,
@@ -40,7 +40,7 @@ const convertServiceToUI = (service: Service): ServiceUI => {
       duration: `${Math.floor(sub.duration / 60)}h ${sub.duration % 60}m`,
       status: sub.isActive ? "active" : "inactive",
       price: sub.basePrice,
-      images: sub.images || []
+      images: (sub.images || []).map(img => apiService.resolveImageUrl(img) || img)
     }))
   };
 };
@@ -398,12 +398,13 @@ export default function ServiceManagement() {
             <div className="flex-1 overflow-y-auto">
               <AddEditServiceForm formId="add-service-form" onSubmit={async (payload) => {
                 try {
-                  await apiService.createService({
+                  const svc: any = {
                     name: payload.name,
                     description: payload.description,
                     status: payload.status,
-                    image: payload.image
-                  });
+                  };
+                  if (payload.image) (svc as any).image = payload.image as any;
+                  await apiService.createService(svc);
                   
                   await loadServices();
                   setShowAddModal(false);
@@ -440,12 +441,13 @@ export default function ServiceManagement() {
                 onSubmit={async (payload) => {
                   if (!selectedService) return;
                   try {
-                    await apiService.updateService(selectedService.id, {
+                    const svc: any = {
                       name: payload.name,
                       description: payload.description,
                       status: payload.status,
-                      image: payload.image
-                    });
+                    };
+                    if (payload.image) (svc as any).image = payload.image as any;
+                    await apiService.updateService(selectedService.id, svc);
                     
                     // Update subcategories separately if needed
                     // For now, we'll just update the service and reload
@@ -475,7 +477,7 @@ type ServiceFormPayload = {
   name: string;
   description: string;
   status: Status;
-  image?: string;
+  image?: File | string;
 };
 
 function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI; onSubmit: (payload: ServiceFormPayload) => void; formId?: string; }) {
@@ -487,8 +489,9 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     if (!name.trim() || !description.trim()) return;
-    const serviceImageUrl = serviceImage ? URL.createObjectURL(serviceImage) : initial?.image;
-    onSubmit({ name: name.trim(), description: description.trim(), status, image: serviceImageUrl });
+    // Pass File directly if selected so API can use multipart; otherwise omit to keep existing
+    const imagePayload: File | string | undefined = serviceImage ? serviceImage : (initial?.image || undefined);
+    onSubmit({ name: name.trim(), description: description.trim(), status, image: imagePayload });
   };
 
   return (
