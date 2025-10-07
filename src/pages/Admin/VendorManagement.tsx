@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import vendorService, { Vendor } from "../../services/vendor";
+import Swal from "sweetalert2";
 
 export default function VendorManagement() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
@@ -93,9 +94,20 @@ export default function VendorManagement() {
     }
   };
 
-  // Handle delete
+  // Handle delete with confirmation
   const handleDelete = async (vendorId: string) => {
-    if (confirm("Are you sure you want to delete this vendor?")) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
       try {
         await vendorService.deleteVendor(vendorId);
         fetchVendors();
@@ -122,10 +134,8 @@ export default function VendorManagement() {
         businessDescription: ""
       });
       fetchVendors();
-      alert("Vendor created successfully!");
     } catch (error) {
       console.error("Error creating vendor:", error);
-      alert("Failed to create vendor. Please try again.");
     } finally {
       setFormLoading(false);
     }
@@ -154,10 +164,8 @@ export default function VendorManagement() {
       await vendorService.updateVendor(editFormData);
       setShowEditModal(false);
       fetchVendors();
-      alert("Vendor updated successfully!");
     } catch (error) {
       console.error("Error updating vendor:", error);
-      alert("Failed to update vendor. Please try again.");
     } finally {
       setFormLoading(false);
     }
