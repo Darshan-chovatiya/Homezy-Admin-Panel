@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import customerService, { Customer } from "../../services/customer";
+import Swal from "sweetalert2";
 
 export default function CustomerManagement() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -90,9 +91,20 @@ export default function CustomerManagement() {
     }
   };
 
-  // Handle delete
+  // Handle delete with confirmation
   const handleDelete = async (customerId: string) => {
-    if (confirm("Are you sure you want to delete this customer?")) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (result.isConfirmed) {
       try {
         await customerService.deleteCustomer(customerId);
         fetchCustomers();
@@ -117,10 +129,8 @@ export default function CustomerManagement() {
         emailId: ""
       });
       fetchCustomers();
-      alert("Customer created successfully!");
     } catch (error) {
       console.error("Error creating customer:", error);
-      alert("Failed to create customer. Please try again.");
     } finally {
       setFormLoading(false);
     }
@@ -148,10 +158,8 @@ export default function CustomerManagement() {
       await customerService.updateCustomer(editFormData);
       setShowEditModal(false);
       fetchCustomers();
-      alert("Customer updated successfully!");
     } catch (error) {
       console.error("Error updating customer:", error);
-      alert("Failed to update customer. Please try again.");
     } finally {
       setFormLoading(false);
     }
