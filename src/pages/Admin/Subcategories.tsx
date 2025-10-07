@@ -210,7 +210,7 @@ export default function Subcategories() {
         title="Subcategories Management | Homezy Admin Panel"
         description="Manage service subcategories and pricing on the Homezy platform"
       />
-      <PageBreadcrumb pageTitle="Subcategories Management" />
+      {/* <PageBreadcrumb pageTitle="Subcategories Management" /> */}
       
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         {error && (
