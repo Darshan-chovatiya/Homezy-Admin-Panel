@@ -30,7 +30,6 @@ export default function App() {
                 <Route index path="/" element={<Home />} />
                 <Route path="/admin/vendors" element={<VendorManagement />} />
                 <Route path="/admin/customers" element={<CustomerManagement />} />
-                {/* <Route path="/admin/users" element={<UserManagement />} /> */}
                 <Route path="/admin/admins" element={<AdminManagement />} />
                 <Route path="/admin/services" element={<ServiceManagement />} />
                 <Route path="/admin/subcategories" element={<Subcategories />} />
