@@ -127,18 +127,18 @@ class VendorService {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    body: any = {},
+    method: string = 'POST'
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     
     const config: RequestInit = {
-      method: 'POST',
+      method: method,
       headers: {
         'Content-Type': 'application/json',
         ...(this.token && { Authorization: `Bearer ${this.token}` }),
-        ...options.headers,
       },
-      ...options,
+      body: JSON.stringify(body),
     };
 
     try {
@@ -158,37 +158,27 @@ class VendorService {
 
   // Create Vendor
   async createVendor(vendorData: CreateVendorData): Promise<ApiResponse<Vendor>> {
-    return this.request('/vendor/createVendor', {
-      body: JSON.stringify(vendorData),
-    });
+    return this.request('/vendor/createVendor', vendorData);
   }
 
   // Get All Vendors
   async getAllVendors(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Vendor>>> {
-    return this.request('/vendor/getAllVendors', {
-      body: JSON.stringify(params || {}),
-    });
+    return this.request('/vendor/getAllVendors', params || {});
   }
 
   // Get Vendor by ID
   async getVendorById(vendorId: string): Promise<ApiResponse<Vendor>> {
-    return this.request(`/vendor/getVendorById/${vendorId}`, {
-      body: JSON.stringify({}),
-    });
+    return this.request(`/vendor/getVendorById/${vendorId}`, {});
   }
 
   // Update Vendor
   async updateVendor(updateData: UpdateVendorData): Promise<ApiResponse<Vendor>> {
-    return this.request('/vendor/updateVendor', {
-      body: JSON.stringify(updateData),
-    });
+    return this.request('/vendor/updateVendor', updateData);
   }
 
   // Delete Vendor
   async deleteVendor(vendorId: string): Promise<ApiResponse> {
-    return this.request('/vendor/deleteVendor', {
-      body: JSON.stringify({ vendorId }),
-    });
+    return this.request('/vendor/deleteVendor', { vendorId });
   }
 }
 
