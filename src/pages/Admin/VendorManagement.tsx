@@ -2,7 +2,7 @@ import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 
-interface User {
+interface Vendor {
   id: string;
   name: string;
   email: string;
@@ -19,7 +19,7 @@ interface User {
   documents?: string[];
 }
 
-const dummyUsers: User[] = [
+const dummyVendors: Vendor[] = [
   {
     id: "1",
     name: "John Doe",
@@ -96,31 +96,31 @@ const dummyUsers: User[] = [
   }
 ];
 
-export default function UserManagement() {
-  const [users, setUsers] = useState<User[]>(dummyUsers);
+export default function VendorManagement() {
+  const [users, setUsers] = useState<Vendor[]>(dummyVendors); // Kept variable names as is to avoid breaking logic
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState<"all" | "customer" | "service_partner">("all");
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive" | "pending" | "suspended">("all");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [showModal, setShowModal] = useState(false);
 
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.phone.includes(searchTerm);
-    const matchesType = filterType === "all" || user.type === filterType;
-    const matchesStatus = filterStatus === "all" || user.status === filterStatus;
+  const filteredUsers = users.filter(vendor => { // Kept variable name as is
+    const matchesSearch = vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vendor.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         vendor.phone.includes(searchTerm);
+    const matchesType = filterType === "all" || vendor.type === filterType;
+    const matchesStatus = filterStatus === "all" || vendor.status === filterStatus;
     
     return matchesSearch && matchesType && matchesStatus;
   });
 
-  const handleStatusChange = (userId: string, newStatus: User["status"]) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: newStatus } : user
+  const handleStatusChange = (vendorId: string, newStatus: Vendor["status"]) => {
+    setUsers(users.map(vendor => 
+      vendor.id === vendorId ? { ...vendor, status: newStatus } : vendor
     ));
   };
 
-  const getStatusBadge = (status: User["status"]) => {
+  const getStatusBadge = (status: Vendor["status"]) => {
     const statusClasses = {
       active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
       inactive: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
@@ -135,7 +135,7 @@ export default function UserManagement() {
     );
   };
 
-  const getTypeBadge = (type: User["type"]) => {
+  const getTypeBadge = (type: Vendor["type"]) => {
     const typeClasses = {
       customer: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
       service_partner: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
@@ -151,22 +151,22 @@ export default function UserManagement() {
   return (
     <>
       <PageMeta
-        title="User Management | Homezy Admin Panel"
+        title="Vendor Management | Homezy Admin Panel"
         description="Manage customers and service partners on the Homezy platform"
       />
-      <PageBreadcrumb pageTitle="User Management" />
+      <PageBreadcrumb pageTitle="Vendor Management" />
       
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-            User Management
+            Vendor Management
           </h3>
           <div className="flex gap-2">
             <button className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-              Export Users
+              Export Vendors
             </button>
             <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
-              Add User
+              Add Vendor
             </button>
           </div>
         </div>
@@ -176,7 +176,7 @@ export default function UserManagement() {
           <div className="flex-1">
             <input
               type="text"
-              placeholder="Search users by name, email, or phone..."
+              placeholder="Search vendors by name, email, or phone..."
               className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -206,12 +206,12 @@ export default function UserManagement() {
           </div>
         </div>
 
-        {/* Users Table */}
+        {/* Vendors Table */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
             <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" className="px-6 py-3">User</th>
+                <th scope="col" className="px-6 py-3">Vendor</th>
                 <th scope="col" className="px-6 py-3">Type</th>
                 <th scope="col" className="px-6 py-3">Status</th>
                 <th scope="col" className="px-6 py-3">Contact</th>
@@ -221,56 +221,56 @@ export default function UserManagement() {
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+              {filteredUsers.map((vendor) => (
+                <tr key={vendor.id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0">
                         <img
                           className="h-10 w-10 rounded-full object-cover"
-                          src={user.profileImage || "/images/user/user-01.jpg"}
-                          alt={user.name}
+                          src={vendor.profileImage || "/images/user/user-01.jpg"}
+                          alt={vendor.name}
                         />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {user.name}
+                          {vendor.name}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {user.email}
+                          {vendor.email}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    {getTypeBadge(user.type)}
+                    {getTypeBadge(vendor.type)}
                   </td>
                   <td className="px-6 py-4">
-                    {getStatusBadge(user.status)}
+                    {getStatusBadge(vendor.status)}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="text-sm text-gray-900 dark:text-white">{user.phone}</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">{user.address}</div>
+                    <div className="text-sm text-gray-900 dark:text-white">{vendor.phone}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">{vendor.address}</div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900 dark:text-white">
-                      {new Date(user.joinDate).toLocaleDateString()}
+                      {new Date(vendor.joinDate).toLocaleDateString()}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900 dark:text-white">
-                      {user.type === "customer" ? (
-                        `${user.totalBookings} bookings`
+                      {vendor.type === "customer" ? (
+                        `${vendor.totalBookings} bookings`
                       ) : (
                         <div>
-                          <div>{user.totalBookings} jobs</div>
-                          <div className="text-xs text-gray-500">${user.totalEarnings?.toLocaleString()}</div>
+                          <div>{vendor.totalBookings} jobs</div>
+                          <div className="text-xs text-gray-500">${vendor.totalEarnings?.toLocaleString()}</div>
                         </div>
                       )}
                     </div>
-                    {user.rating && user.rating > 0 && (
+                    {vendor.rating && vendor.rating > 0 && (
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        ⭐ {user.rating}
+                        ⭐ {vendor.rating}
                       </div>
                     )}
                   </td>
@@ -278,7 +278,7 @@ export default function UserManagement() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => {
-                          setSelectedUser(user);
+                          setSelectedVendor(vendor);
                           setShowModal(true);
                         }}
                         className="text-primary hover:text-primary/80"
@@ -286,8 +286,8 @@ export default function UserManagement() {
                         View
                       </button>
                       <select
-                        value={user.status}
-                        onChange={(e) => handleStatusChange(user.id, e.target.value as User["status"])}
+                        value={vendor.status}
+                        onChange={(e) => handleStatusChange(vendor.id, e.target.value as Vendor["status"])}
                         className="rounded border border-gray-300 bg-white px-2 py-1 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                       >
                         <option value="active">Active</option>
@@ -305,18 +305,18 @@ export default function UserManagement() {
 
         {filteredUsers.length === 0 && (
           <div className="py-12 text-center">
-            <div className="text-gray-500 dark:text-gray-400">No users found matching your criteria.</div>
+            <div className="text-gray-500 dark:text-gray-400">No vendors found matching your criteria.</div>
           </div>
         )}
       </div>
 
-      {/* User Detail Modal */}
-      {showModal && selectedUser && (
+      {/* Vendor Detail Modal */}
+      {showModal && selectedVendor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="w-full max-w-2xl rounded-lg bg-white p-6 dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                User Details
+                Vendor Details
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -330,17 +330,17 @@ export default function UserManagement() {
               <div className="flex items-center gap-4">
                 <img
                   className="h-16 w-16 rounded-full object-cover"
-                  src={selectedUser.profileImage || "/images/user/user-01.jpg"}
-                  alt={selectedUser.name}
+                  src={selectedVendor.profileImage || "/images/user/user-01.jpg"}
+                  alt={selectedVendor.name}
                 />
                 <div>
                   <h4 className="text-lg font-medium text-gray-900 dark:text-white">
-                    {selectedUser.name}
+                    {selectedVendor.name}
                   </h4>
-                  <p className="text-gray-600 dark:text-gray-400">{selectedUser.email}</p>
+                  <p className="text-gray-600 dark:text-gray-400">{selectedVendor.email}</p>
                   <div className="flex gap-2 mt-2">
-                    {getTypeBadge(selectedUser.type)}
-                    {getStatusBadge(selectedUser.status)}
+                    {getTypeBadge(selectedVendor.type)}
+                    {getStatusBadge(selectedVendor.status)}
                   </div>
                 </div>
               </div>
@@ -350,39 +350,39 @@ export default function UserManagement() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Phone
                   </label>
-                  <p className="text-sm text-gray-900 dark:text-white">{selectedUser.phone}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{selectedVendor.phone}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Join Date
                   </label>
                   <p className="text-sm text-gray-900 dark:text-white">
-                    {new Date(selectedUser.joinDate).toLocaleDateString()}
+                    {new Date(selectedVendor.joinDate).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Address
                   </label>
-                  <p className="text-sm text-gray-900 dark:text-white">{selectedUser.address}</p>
+                  <p className="text-sm text-gray-900 dark:text-white">{selectedVendor.address}</p>
                 </div>
-                {selectedUser.rating && selectedUser.rating > 0 && (
+                {selectedVendor.rating && selectedVendor.rating > 0 && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                       Rating
                     </label>
-                    <p className="text-sm text-gray-900 dark:text-white">⭐ {selectedUser.rating}</p>
+                    <p className="text-sm text-gray-900 dark:text-white">⭐ {selectedVendor.rating}</p>
                   </div>
                 )}
               </div>
 
-              {selectedUser.type === "service_partner" && selectedUser.skills && (
+              {selectedVendor.type === "service_partner" && selectedVendor.skills && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Skills
                   </label>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {selectedUser.skills.map((skill, index) => (
+                    {selectedVendor.skills.map((skill, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300"
@@ -394,13 +394,13 @@ export default function UserManagement() {
                 </div>
               )}
 
-              {selectedUser.type === "service_partner" && selectedUser.documents && (
+              {selectedVendor.type === "service_partner" && selectedVendor.documents && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Documents
                   </label>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {selectedUser.documents.map((doc, index) => (
+                    {selectedVendor.documents.map((doc, index) => (
                       <span
                         key={index}
                         className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900 dark:text-green-300"
@@ -420,7 +420,7 @@ export default function UserManagement() {
                   Close
                 </button>
                 <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-                  Edit User
+                  Edit Vendor
                 </button>
               </div>
             </div>

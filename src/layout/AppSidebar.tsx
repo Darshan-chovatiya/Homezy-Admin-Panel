@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "User Management",
+    name: "Vendor Management",
     path: "/admin/users",
   },
   {
