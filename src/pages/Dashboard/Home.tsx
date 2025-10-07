@@ -16,16 +16,16 @@ export default function Home() {
         <div className="col-span-12 space-y-6 xl:col-span-7">
           <EcommerceMetrics />
 
-          <MonthlySalesChart />
+          {/* <MonthlySalesChart /> */}
         </div>
 
-        <div className="col-span-12 xl:col-span-5">
-          <MonthlyTarget />
-        </div>
+        {/* <div className="col-span-12 xl:col-span-5"> */}
+          {/* <MonthlyTarget /> */}
+        {/* </div> */}
 
-        <div className="col-span-12 xl:col-span-5">
-          <DemographicCard />
-        </div>
+        {/* <div className="col-span-12 xl:col-span-5"> */}
+          {/* <DemographicCard /> */}
+        {/* </div> */}
 
         <div className="col-span-12 xl:col-span-7">
           <RecentOrders />
