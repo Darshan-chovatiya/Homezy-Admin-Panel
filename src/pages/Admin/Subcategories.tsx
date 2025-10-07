@@ -56,6 +56,26 @@ export default function Subcategories() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  // SweetAlert helpers (fallback to alert)
+  const showSuccess = async (title: string, text?: string) => {
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ icon: 'success', title, text, timer: 1500, showConfirmButton: false });
+    } catch {
+      if (text) console.log(text);
+      window.alert(title);
+    }
+  };
+  const showError = async (title: string, text?: string) => {
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ icon: 'error', title, text });
+    } catch {
+      if (text) console.error(text);
+      window.alert(title);
+    }
+  };
+
   // Load data on component mount
   useEffect(() => {
     loadData();
@@ -145,14 +165,29 @@ export default function Subcategories() {
   };
 
   const handleDelete = async (subcategoryId: string) => {
-    if (!confirm('Are you sure you want to delete this subcategory?')) return;
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      const result = await Swal.fire({
+        title: 'Delete subcategory?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Cancel'
+      });
+      if (!result.isConfirmed) return;
+    } catch {
+      if (!confirm('Are you sure you want to delete this subcategory?')) return;
+    }
     
     try {
       await apiService.deleteSubcategory(subcategoryId);
       setSubcategories(subcategories.filter(s => s.id !== subcategoryId));
+      await showSuccess('Subcategory deleted');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete subcategory');
       console.error('Error deleting subcategory:', err);
+      await showError('Failed to delete subcategory');
     }
   };
 
@@ -437,20 +472,23 @@ export default function Subcategories() {
                 onSubmit={async (payload: any) => {
                   try {
                     const files: any[] = Array.isArray(payload.newImages) ? payload.newImages : [];
+                    const combined: any[] = [...(payload.images || []), ...files];
                     await apiService.createSubcategory(payload.serviceId, {
                       name: payload.name,
                       description: payload.description,
                       price: payload.price,
                       duration: parseDurationToMinutes(payload.duration),
                       status: payload.status,
-                      images: files.length ? files : (payload.images || [])
+                      images: combined
                     });
                     
                     await loadData();
                     setShowAddModal(false);
+                    await showSuccess('Subcategory created');
                   } catch (err) {
                     setError(err instanceof Error ? err.message : 'Failed to create subcategory');
                     console.error('Error creating subcategory:', err);
+                    await showError('Failed to create subcategory');
                   }
                 }} 
               />
@@ -482,20 +520,23 @@ export default function Subcategories() {
                   if (!selectedSubcategory) return;
                   try {
                     const files: any[] = Array.isArray(payload.newImages) ? payload.newImages : [];
+                    const combined: any[] = [...(payload.images || []), ...files];
                     await apiService.updateSubcategory(selectedSubcategory.id, {
                       name: payload.name,
                       description: payload.description,
                       price: payload.price,
                       duration: parseDurationToMinutes(payload.duration),
                       status: payload.status,
-                      images: files.length ? files : (payload.images || [])
+                      images: combined
                     });
                     
                     await loadData();
                     setShowEditModal(false);
+                    await showSuccess('Subcategory updated');
                   } catch (err) {
                     setError(err instanceof Error ? err.message : 'Failed to update subcategory');
                     console.error('Error updating subcategory:', err);
+                    await showError('Failed to update subcategory');
                   }
                 }}
               />

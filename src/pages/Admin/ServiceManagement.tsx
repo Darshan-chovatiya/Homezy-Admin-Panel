@@ -58,6 +58,26 @@ export default function ServiceManagement() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
 
+  // SweetAlert helpers (fallback to alert)
+  const showSuccess = async (title: string, text?: string) => {
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ icon: 'success', title, text, timer: 1500, showConfirmButton: false });
+    } catch {
+      if (text) console.log(text);
+      window.alert(title);
+    }
+  };
+  const showError = async (title: string, text?: string) => {
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ icon: 'error', title, text });
+    } catch {
+      if (text) console.error(text);
+      window.alert(title);
+    }
+  };
+
   // Load services on component mount
   useEffect(() => {
     loadServices();
@@ -408,9 +428,11 @@ export default function ServiceManagement() {
                   
                   await loadServices();
                   setShowAddModal(false);
+                  await showSuccess('Service created');
                 } catch (err) {
                   setError(err instanceof Error ? err.message : 'Failed to create service');
                   console.error('Error creating service:', err);
+                  await showError('Failed to create service');
                 }
               }} />
             </div>
@@ -453,9 +475,11 @@ export default function ServiceManagement() {
                     // For now, we'll just update the service and reload
                     await loadServices();
                     setShowEditModal(false);
+                    await showSuccess('Service updated');
                   } catch (err) {
                     setError(err instanceof Error ? err.message : 'Failed to update service');
                     console.error('Error updating service:', err);
+                    await showError('Failed to update service');
                   }
                 }}
               />
