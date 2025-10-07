@@ -1,5 +1,6 @@
 const API_BASE_URL = 'http://localhost:3200/api/admin';
 
+
 // Types
 export interface ApiResponse<T = any> {
   status: number;
