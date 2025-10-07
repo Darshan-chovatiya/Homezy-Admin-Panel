@@ -89,14 +89,6 @@ export interface PaginatedResponse<T> {
   hasPrevPage: boolean;
 }
 
-// Request Options Interface
-interface RequestOptions {
-  showSuccessAlert?: boolean;
-  showErrorAlert?: boolean;
-  successMessage?: string;
-  errorMessage?: string;
-}
-
 // Customer Service Class
 class CustomerService {
   private token: string | null = null;
@@ -105,7 +97,6 @@ class CustomerService {
     this.token = localStorage.getItem('authToken');
   }
 
-  // Success Alert Helper
   private showSuccessAlert(message: string) {
     Swal.fire({
       icon: 'success',
@@ -117,7 +108,6 @@ class CustomerService {
     });
   }
 
-  // Error Alert Helper
   private showErrorAlert(message: string) {
     Swal.fire({
       icon: 'error',
@@ -131,19 +121,13 @@ class CustomerService {
     endpoint: string,
     body: any = {},
     method: string = 'POST',
-    options: RequestOptions = {}
+    showSuccessAlert: boolean = false,
+    showErrorAlert: boolean = true
   ): Promise<ApiResponse<T>> {
-    const {
-      showSuccessAlert = false,
-      showErrorAlert = true,
-      successMessage,
-      errorMessage
-    } = options;
-
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
-      method: method,
+      method,
       headers: {
         'Content-Type': 'application/json',
         ...(this.token && { Authorization: `Bearer ${this.token}` }),
@@ -153,28 +137,23 @@ class CustomerService {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
-      
+      const data: ApiResponse<T> = await response.json();
+
       if (!response.ok) {
-        const errMsg = data.message || errorMessage || 'Request failed';
-        if (showErrorAlert) {
-          this.showErrorAlert(errMsg);
+        if (showErrorAlert && data.message) {
+          this.showErrorAlert(data.message);
         }
-        throw new Error(errMsg);
+        throw new Error(data.message);
       }
-      
-      // Show success alert if enabled
-      if (showSuccessAlert) {
-        const msg = successMessage || data.message || 'Operation successful';
-        this.showSuccessAlert(msg);
+
+      if (showSuccessAlert && data.message) {
+        this.showSuccessAlert(data.message);
       }
 
       return data;
     } catch (error: any) {
-      // Show error alert if not already shown
       if (showErrorAlert && error.message) {
-        const errMsg = errorMessage || error.message || 'Something went wrong';
-        this.showErrorAlert(errMsg);
+        this.showErrorAlert(error.message);
       }
       throw error;
     }
@@ -182,50 +161,27 @@ class CustomerService {
 
   // Create Customer
   async createCustomer(customerData: CreateCustomerData): Promise<ApiResponse<Customer>> {
-    return this.request('/customer/createCustomer', customerData, 'POST', {
-      showSuccessAlert: true,
-      showErrorAlert: true,
-      successMessage: 'Customer created successfully!',
-      errorMessage: 'Failed to create customer'
-    });
+    return this.request('/customer/createCustomer', customerData, 'POST', true, true);
   }
 
-  // Get All Customers (No alerts for read operations by default)
+  // Get All Customers
   async getAllCustomers(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Customer>>> {
-    return this.request('/customer/getAllCustomers', params || {}, 'POST', {
-      showSuccessAlert: false,
-      showErrorAlert: true,
-      errorMessage: 'Failed to fetch customers'
-    });
+    return this.request('/customer/getAllCustomers', params || {}, 'POST', false, true);
   }
 
   // Get Customer by ID
   async getCustomerById(customerId: string): Promise<ApiResponse<Customer>> {
-    return this.request(`/customer/getCustomerById/${customerId}`, {}, 'POST', {
-      showSuccessAlert: false,
-      showErrorAlert: true,
-      errorMessage: 'Failed to fetch customer details'
-    });
+    return this.request(`/customer/getCustomerById/${customerId}`, {}, 'POST', false, true);
   }
 
   // Update Customer
   async updateCustomer(updateData: UpdateCustomerData): Promise<ApiResponse<Customer>> {
-    return this.request('/customer/updateCustomer', updateData, 'POST', {
-      showSuccessAlert: true,
-      showErrorAlert: true,
-      successMessage: 'Customer updated successfully!',
-      errorMessage: 'Failed to update customer'
-    });
+    return this.request('/customer/updateCustomer', updateData, 'POST', true, true);
   }
 
   // Delete Customer
   async deleteCustomer(customerId: string): Promise<ApiResponse> {
-    return this.request('/customer/deleteCustomer', { customerId }, 'POST', {
-      showSuccessAlert: true,
-      showErrorAlert: true,
-      successMessage: 'Customer deleted successfully!',
-      errorMessage: 'Failed to delete customer'
-    });
+    return this.request('/customer/deleteCustomer', { customerId }, 'POST', true, true);
   }
 }
 

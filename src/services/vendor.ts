@@ -23,7 +23,7 @@ export interface Vendor {
   phone: string;
   otp?: string;
   businessName: string;
-  businessDescription: string;
+  businessDescription?: string;
   businessLogo?: string;
   businessBanner?: string;
   professionalInfo?: {
@@ -119,14 +119,6 @@ export interface PaginatedResponse<T> {
   hasPrevPage: boolean;
 }
 
-// Request Options Interface
-interface RequestOptions {
-  showSuccessAlert?: boolean;
-  showErrorAlert?: boolean;
-  successMessage?: string;
-  errorMessage?: string;
-}
-
 // Vendor Service Class
 class VendorService {
   private token: string | null = null;
@@ -161,17 +153,11 @@ class VendorService {
     endpoint: string,
     body: any = {},
     method: string = 'POST',
-    options: RequestOptions = {}
+    showSuccessAlert: boolean = false,
+    showErrorAlert: boolean = true
   ): Promise<ApiResponse<T>> {
-    const {
-      showSuccessAlert = false,
-      showErrorAlert = true,
-      successMessage,
-      errorMessage
-    } = options;
-
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     const config: RequestInit = {
       method: method,
       headers: {
@@ -183,28 +169,25 @@ class VendorService {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
-      
+      const data: ApiResponse<T> = await response.json();
+
+      // Handle error
       if (!response.ok) {
-        const errMsg = data.message || errorMessage || 'Request failed';
-        if (showErrorAlert) {
-          this.showErrorAlert(errMsg);
+        if (showErrorAlert && data.message) {
+          this.showErrorAlert(data.message);
         }
-        throw new Error(errMsg);
+        throw new Error(data.message);
       }
-      
-      // Show success alert if enabled
-      if (showSuccessAlert) {
-        const msg = successMessage || data.message || 'Operation successful';
-        this.showSuccessAlert(msg);
+
+      // Handle success
+      if (showSuccessAlert && data.message) {
+        this.showSuccessAlert(data.message);
       }
 
       return data;
     } catch (error: any) {
-      // Show error alert if not already shown
       if (showErrorAlert && error.message) {
-        const errMsg = errorMessage || error.message || 'Something went wrong';
-        this.showErrorAlert(errMsg);
+        this.showErrorAlert(error.message);
       }
       throw error;
     }
@@ -212,50 +195,27 @@ class VendorService {
 
   // Create Vendor
   async createVendor(vendorData: CreateVendorData): Promise<ApiResponse<Vendor>> {
-    return this.request('/vendor/createVendor', vendorData, 'POST', {
-      showSuccessAlert: true,
-      showErrorAlert: true,
-      successMessage: 'Vendor created successfully!',
-      errorMessage: 'Failed to create vendor'
-    });
+    return this.request('/vendor/createVendor', vendorData, 'POST', true, true);
   }
 
-  // Get All Vendors (No alerts for read operations by default)
+  // Get All Vendors
   async getAllVendors(params?: PaginationParams): Promise<ApiResponse<PaginatedResponse<Vendor>>> {
-    return this.request('/vendor/getAllVendors', params || {}, 'POST', {
-      showSuccessAlert: false,
-      showErrorAlert: true,
-      errorMessage: 'Failed to fetch vendors'
-    });
+    return this.request('/vendor/getAllVendors', params || {}, 'POST', false, true);
   }
 
   // Get Vendor by ID
   async getVendorById(vendorId: string): Promise<ApiResponse<Vendor>> {
-    return this.request(`/vendor/getVendorById/${vendorId}`, {}, 'POST', {
-      showSuccessAlert: false,
-      showErrorAlert: true,
-      errorMessage: 'Failed to fetch vendor details'
-    });
+    return this.request(`/vendor/getVendorById/${vendorId}`, {}, 'POST', false, true);
   }
 
   // Update Vendor
   async updateVendor(updateData: UpdateVendorData): Promise<ApiResponse<Vendor>> {
-    return this.request('/vendor/updateVendor', updateData, 'POST', {
-      showSuccessAlert: true,
-      showErrorAlert: true,
-      successMessage: 'Vendor updated successfully!',
-      errorMessage: 'Failed to update vendor'
-    });
+    return this.request('/vendor/updateVendor', updateData, 'POST', true, true);
   }
 
   // Delete Vendor
   async deleteVendor(vendorId: string): Promise<ApiResponse> {
-    return this.request('/vendor/deleteVendor', { vendorId }, 'POST', {
-      showSuccessAlert: true,
-      showErrorAlert: true,
-      successMessage: 'Vendor deleted successfully!',
-      errorMessage: 'Failed to delete vendor'
-    });
+    return this.request('/vendor/deleteVendor', { vendorId }, 'POST', true, true);
   }
 }
 
