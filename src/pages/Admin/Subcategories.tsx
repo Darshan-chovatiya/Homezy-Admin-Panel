@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import { EyeIcon, PencilIcon, TrashBinIcon } from "../../icons";
 import apiService, { Service, Subcategory } from "../../services/api";
 
 type Status = "active" | "inactive";
@@ -158,7 +159,7 @@ export default function Subcategories() {
   const getStatusBadge = (status: Status) => {
     const statusClasses = {
       active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      inactive: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+      inactive: "bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-300",
     };
 
     return (
@@ -199,13 +200,13 @@ export default function Subcategories() {
           </h3>
           <div className="flex gap-2">
             <button className="inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">
-              Export Subcategories
+              Export
             </button>
             <button 
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
-              Add Subcategory
+             Add Subcategory
             </button>
           </div>
         </div>
@@ -266,16 +267,10 @@ export default function Subcategories() {
                     Description
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">
-                    Duration
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">
                     Price
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">
                     Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">
-                    Images
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">
                     Actions
@@ -287,6 +282,7 @@ export default function Subcategories() {
                   <tr key={subcategory.id} className="bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
                     <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
                       {subcategory.name}
+                      <div className="mt-0.5 text-xs font-normal text-gray-500 dark:text-gray-400">Duration: {subcategory.duration}</div>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
                       {subcategory.serviceName}
@@ -294,52 +290,28 @@ export default function Subcategories() {
                     <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                       {subcategory.description}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                      {subcategory.duration}
-                    </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-white">
                       ₹{subcategory.price}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={subcategory.status === 'active'}
-                          onChange={(e) => handleStatusChange(subcategory.id, e.target.checked ? 'active' : 'inactive')}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
-                          {subcategory.status === 'active' ? 'Active' : 'Inactive'}
-                        </span>
-                      </label>
-                    </td>
-                    <td className="px-6 py-4">
-                      {subcategory.images && subcategory.images.length > 0 ? (
-                        <div className="flex gap-1">
-                          {subcategory.images.slice(0, 3).map((img, idx) => (
-                            <img key={idx} src={img} alt={`${subcategory.name} ${idx + 1}`} className="h-8 w-8 rounded object-cover" />
-                          ))}
-                          {subcategory.images.length > 3 && (
-                            <div className="h-8 w-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600 dark:text-gray-400">
-                              +{subcategory.images.length - 3}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-gray-400 text-xs">No images</span>
-                      )}
+                      <button
+                        onClick={() => handleStatusChange(subcategory.id, subcategory.status === 'active' ? 'inactive' : 'active')}
+                        className="cursor-pointer"
+                      >
+                        {getStatusBadge(subcategory.status)}
+                      </button>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-3 justify-end">
                         <button
                           onClick={() => {
                             setSelectedSubcategory(subcategory);
                             setShowModal(true);
                           }}
                           className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                          title="View"
                         >
-                          View
+                          <EyeIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => {
@@ -347,14 +319,16 @@ export default function Subcategories() {
                             setShowEditModal(true);
                           }}
                           className="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300"
+                          title="Edit"
                         >
-                          Edit
+                          <PencilIcon className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(subcategory.id)}
                           className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                          title="Delete"
                         >
-                          Delete
+                          <TrashBinIcon className="h-4 w-4" />
                         </button>
                       </div>
                     </td>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { EyeIcon } from "../../icons";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import apiService, { Service } from "../../services/api";
@@ -55,6 +56,7 @@ export default function ServiceManagement() {
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
 
   // Load services on component mount
   useEffect(() => {
@@ -111,7 +113,7 @@ export default function ServiceManagement() {
   const getStatusBadge = (status: Status) => {
     const statusClasses = {
       active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      inactive: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+      inactive: "bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-300",
     };
 
     return (
@@ -226,31 +228,28 @@ export default function ServiceManagement() {
                       </div>
                     )}
                     <div className="text-right" onClick={(e) => e.stopPropagation()}>
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={service.status === 'active'}
-                          onChange={(e) => handleStatusChange(service.id, e.target.checked ? 'active' : 'inactive')}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
-                          {service.status === 'active' ? 'Active' : 'Inactive'}
-                        </span>
-                      </label>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStatusChange(service.id, service.status === 'active' ? 'inactive' : 'active');
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {getStatusBadge(service.status)}
+                      </button>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedService(service);
-                        setShowModal(true);
-                      }}
-                      className="flex-1 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90"
-                    >
-                      View Details
-                    </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedService(service);
+                    setShowModal(true);
+                  }}
+                  className="flex items-center justify-center gap-2 flex-1 rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90"
+                >
+                  <EyeIcon className="h-4 w-4" /> View Details
+                </button>
                   </div>
                 </div>
               ))}
@@ -322,7 +321,20 @@ export default function ServiceManagement() {
                         {selectedService.subCategories.map((s) => (
                           <tr key={s.id} className="bg-white dark:bg-gray-800">
                             <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">{s.name}</td>
-                            <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{s.description}</td>
+                            <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
+                              {expandedDescriptions[s.id]
+                                ? s.description
+                                : (s.description?.length > 30 ? s.description.slice(0, 30) + "..." : s.description)}
+                              {s.description && s.description.length > 30 && (
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedDescriptions(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
+                                  className="ml-2 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                >
+                                  {expandedDescriptions[s.id] ? "Show less" : "Show more"}
+                                </button>
+                              )}
+                            </td>
                             <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{s.duration}</td>
                             <td className="whitespace-nowrap px-4 py-2">{getStatusBadge(s.status)}</td>
                             <td className="px-4 py-2">
