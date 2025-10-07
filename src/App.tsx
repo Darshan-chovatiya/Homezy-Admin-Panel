@@ -7,6 +7,7 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import VendorManagement from "./pages/Admin/VendorManagement";
+import CustomerManagement from "./pages/Admin/CustomerManagement";
 import ServiceManagement from "./pages/Admin/ServiceManagement";
 import BookingOversight from "./pages/Admin/BookingOversight";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
@@ -21,7 +22,8 @@ export default function App() {
         <Routes>
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
-            <Route path="/admin/users" element={<VendorManagement />} />
+            <Route path="/admin/vendors" element={<VendorManagement />} />
+            <Route path="/admin/customers" element={<CustomerManagement />} />
             <Route path="/admin/services" element={<ServiceManagement />} />
             <Route path="/admin/bookings" element={<BookingOversight />} />
             <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
