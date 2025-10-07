@@ -32,7 +32,7 @@ const convertServiceToUI = (service: Service): ServiceUI => {
     name: service.name,
     description: service.description,
     status: service.isActive ? "active" : "inactive",
-    image: service.image,
+    image: apiService.resolveImageUrl(service.image),
     subCategories: (service.subCategories || []).map(sub => ({
       id: sub._id,
       name: sub.name,
@@ -40,7 +40,7 @@ const convertServiceToUI = (service: Service): ServiceUI => {
       duration: `${Math.floor(sub.duration / 60)}h ${sub.duration % 60}m`,
       status: sub.isActive ? "active" : "inactive",
       price: sub.basePrice,
-      images: sub.images || []
+      images: (sub.images || []).map(img => apiService.resolveImageUrl(img) || img)
     }))
   };
 };
@@ -57,6 +57,26 @@ export default function ServiceManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
+
+  // SweetAlert helpers (fallback to alert)
+  const showSuccess = async (title: string, text?: string) => {
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ icon: 'success', title, text, timer: 1500, showConfirmButton: false });
+    } catch {
+      if (text) console.log(text);
+      window.alert(title);
+    }
+  };
+  const showError = async (title: string, text?: string) => {
+    try {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ icon: 'error', title, text });
+    } catch {
+      if (text) console.error(text);
+      window.alert(title);
+    }
+  };
 
   // Load services on component mount
   useEffect(() => {
@@ -90,10 +110,8 @@ export default function ServiceManagement() {
 
     const matchesText = matchesServiceText || matchesSubText;
 
-    const matchesStatus =
-      filterStatus === "all" ||
-      service.status === filterStatus ||
-      service.subCategories.some((s) => s.status === filterStatus);
+    // Apply status filter only to the service itself
+    const matchesStatus = filterStatus === "all" ? true : service.status === filterStatus;
 
     return matchesText && matchesStatus;
   });
@@ -131,7 +149,7 @@ export default function ServiceManagement() {
         title="Service Management | Homezy Admin Panel"
         description="Manage service categories and pricing on the Homezy platform"
       />
-      <PageBreadcrumb pageTitle="Service Management" />
+      {/* <PageBreadcrumb pageTitle="Service Management" /> */}
       
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         {error && (
@@ -398,18 +416,21 @@ export default function ServiceManagement() {
             <div className="flex-1 overflow-y-auto">
               <AddEditServiceForm formId="add-service-form" onSubmit={async (payload) => {
                 try {
-                  await apiService.createService({
+                  const svc: any = {
                     name: payload.name,
                     description: payload.description,
                     status: payload.status,
-                    image: payload.image
-                  });
+                  };
+                  if (payload.image) (svc as any).image = payload.image as any;
+                  await apiService.createService(svc);
                   
                   await loadServices();
                   setShowAddModal(false);
+                  await showSuccess('Service created');
                 } catch (err) {
                   setError(err instanceof Error ? err.message : 'Failed to create service');
                   console.error('Error creating service:', err);
+                  await showError('Failed to create service');
                 }
               }} />
             </div>
@@ -440,20 +461,23 @@ export default function ServiceManagement() {
                 onSubmit={async (payload) => {
                   if (!selectedService) return;
                   try {
-                    await apiService.updateService(selectedService.id, {
+                    const svc: any = {
                       name: payload.name,
                       description: payload.description,
                       status: payload.status,
-                      image: payload.image
-                    });
+                    };
+                    if (payload.image) (svc as any).image = payload.image as any;
+                    await apiService.updateService(selectedService.id, svc);
                     
                     // Update subcategories separately if needed
                     // For now, we'll just update the service and reload
                     await loadServices();
                     setShowEditModal(false);
+                    await showSuccess('Service updated');
                   } catch (err) {
                     setError(err instanceof Error ? err.message : 'Failed to update service');
                     console.error('Error updating service:', err);
+                    await showError('Failed to update service');
                   }
                 }}
               />
@@ -475,7 +499,7 @@ type ServiceFormPayload = {
   name: string;
   description: string;
   status: Status;
-  image?: string;
+  image?: File | string;
 };
 
 function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI; onSubmit: (payload: ServiceFormPayload) => void; formId?: string; }) {
@@ -487,8 +511,9 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     if (!name.trim() || !description.trim()) return;
-    const serviceImageUrl = serviceImage ? URL.createObjectURL(serviceImage) : initial?.image;
-    onSubmit({ name: name.trim(), description: description.trim(), status, image: serviceImageUrl });
+    // Pass File directly if selected so API can use multipart; otherwise omit to keep existing
+    const imagePayload: File | string | undefined = serviceImage ? serviceImage : (initial?.image || undefined);
+    onSubmit({ name: name.trim(), description: description.trim(), status, image: imagePayload });
   };
 
   return (
