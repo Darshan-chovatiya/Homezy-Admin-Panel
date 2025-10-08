@@ -3,7 +3,6 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import vendorService, { Vendor, CreateVendorFormData, UpdateVendorFormData } from "../../services/vendor";
 import Swal from "sweetalert2";
-
 export default function VendorManagement() {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,13 +10,11 @@ export default function VendorManagement() {
   const [filterStatus, setFilterStatus] = useState<"all" | "active" | "inactive">("all");
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [mode, setMode] = useState<'list' | 'add' | 'edit'>('list');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalDocs, setTotalDocs] = useState(0);
   const [formLoading, setFormLoading] = useState(false);
-
   // Form state for creating vendor
   const [formData, setFormData] = useState<CreateVendorFormData>({
     name: "",
@@ -37,7 +34,6 @@ export default function VendorManagement() {
     isActive: true,
     isApproved: false,
   });
-
   // Edit Vendor Form State
   const [editFormData, setEditFormData] = useState<UpdateVendorFormData>({
     vendorId: "",
@@ -62,7 +58,6 @@ export default function VendorManagement() {
     isActive: true,
     isApproved: false,
   });
-
   // Image previews for add
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [businessLogoPreview, setBusinessLogoPreview] = useState<string | null>(null);
@@ -71,7 +66,6 @@ export default function VendorManagement() {
   const [aadhaarBackPreview, setAadhaarBackPreview] = useState<string | null>(null);
   const [panImagePreview, setPanImagePreview] = useState<string | null>(null);
   const [policeVerificationPreview, setPoliceVerificationPreview] = useState<string | null>(null);
-
   // Image previews for edit
   const [editImagePreview, setEditImagePreview] = useState<string | null>(null);
   const [editBusinessLogoPreview, setEditBusinessLogoPreview] = useState<string | null>(null);
@@ -80,10 +74,8 @@ export default function VendorManagement() {
   const [editAadhaarBackPreview, setEditAadhaarBackPreview] = useState<string | null>(null);
   const [editPanImagePreview, setEditPanImagePreview] = useState<string | null>(null);
   const [editPoliceVerificationPreview, setEditPoliceVerificationPreview] = useState<string | null>(null);
-
   // Validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
   // Fetch vendors
   const fetchVendors = async () => {
     try {
@@ -105,11 +97,9 @@ export default function VendorManagement() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchVendors();
   }, [currentPage, searchTerm, filterStatus]);
-
   // Handle status change
   const handleStatusChange = async (vendorId: string, isActive: boolean) => {
     try {
@@ -119,7 +109,6 @@ export default function VendorManagement() {
       console.error("Error updating vendor status:", error);
     }
   };
-
   // Handle delete with confirmation
   const handleDelete = async (vendorId: string) => {
     const result = await Swal.fire({
@@ -132,7 +121,6 @@ export default function VendorManagement() {
       confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
     });
-
     if (result.isConfirmed) {
       try {
         await vendorService.deleteVendor(vendorId);
@@ -142,7 +130,6 @@ export default function VendorManagement() {
       }
     }
   };
-
   // Validate form
   const validateForm = (data: any) => {
     const newErrors: { [key: string]: string } = {};
@@ -165,7 +152,6 @@ export default function VendorManagement() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   // Handle file change for add
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = e.target.files?.[0];
@@ -206,7 +192,6 @@ export default function VendorManagement() {
       reader.readAsDataURL(file);
     }
   };
-
   // Handle file change for edit
   const handleEditFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = e.target.files?.[0];
@@ -247,16 +232,14 @@ export default function VendorManagement() {
       reader.readAsDataURL(file);
     }
   };
-
   // Handle add vendor
   const handleAddVendor = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm(formData)) return;
-
     setFormLoading(true);
     try {
       await vendorService.createVendor(formData);
-      setShowAddModal(false);
+      setMode('list');
       resetAddForm();
       fetchVendors();
     } catch (error) {
@@ -265,7 +248,6 @@ export default function VendorManagement() {
       setFormLoading(false);
     }
   };
-
   const resetAddForm = () => {
     setFormData({
       name: "",
@@ -293,9 +275,8 @@ export default function VendorManagement() {
     setPanImagePreview(null);
     setPoliceVerificationPreview(null);
   };
-
-  // Open Edit Modal
-  const openEditModal = (vendor: Vendor) => {
+  // Load Edit Data
+  const loadEditVendor = (vendor: Vendor) => {
     setEditFormData({
       vendorId: vendor._id,
       name: vendor.name,
@@ -323,18 +304,16 @@ export default function VendorManagement() {
     setEditAadhaarBackPreview(vendor.verification?.aadhaarBack || null);
     setEditPanImagePreview(vendor.verification?.panImage || null);
     setEditPoliceVerificationPreview(vendor.verification?.policeVerification || null);
-    setShowEditModal(true);
+    setMode('edit');
   };
-
   // Handle Edit Vendor
   const handleEditVendor = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm(editFormData)) return;
-
     setFormLoading(true);
     try {
       await vendorService.updateVendor(editFormData);
-      setShowEditModal(false);
+      setMode('list');
       fetchVendors();
     } catch (error) {
       console.error("Error updating vendor:", error);
@@ -342,248 +321,236 @@ export default function VendorManagement() {
       setFormLoading(false);
     }
   };
-
-  const getStatusBadge = (isActive: boolean) => {
+  const getStatusBadge = (vendor: Vendor) => {
     return (
       <span
-        className={`px-3 py-1 text-xs font-semibold rounded-full ${
-          isActive
+        onClick={() => handleStatusChange(vendor._id, !vendor.isActive)}
+        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+          vendor.isActive
             ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
             : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
         }`}
       >
-        {isActive ? "Active" : "Inactive"}
+        {vendor.isActive ? "Active" : "Inactive"}
       </span>
     );
   };
-
   return (
     <>
       <PageMeta title="Service Partner | Admin Panel" description="Manage vendors on the platform" />
       <PageBreadcrumb pageTitle="Service Partner" />
-
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:p-8">
-        {/* Header */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Service Partner</h3>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              Total Vendors: <span className="font-semibold text-gray-900 dark:text-white">{totalDocs}</span>
-            </p>
-          </div>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Service Partner
-          </button>
-        </div>
-
-        {/* Filters */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-          <div className="flex-1 relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
-              type="text"
-              placeholder="Search Service Partner by name, email, or phone..."
-              className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400"
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
-          <select
-            className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value as any);
-              setCurrentPage(1);
-            }}
-          >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
-
-        {/* Loading State */}
-        {loading ? (
-          <div className="py-16 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Service Partner...</p>
-          </div>
-        ) : (
+        {mode === 'list' && (
           <>
-            {/* Vendors Table */}
-            <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-xs font-semibold uppercase text-gray-700 dark:from-gray-700 dark:to-gray-750 dark:text-gray-300">
-                  <tr>
-                    <th scope="col" className="px-6 py-4">Service Partner</th>
-                    <th scope="col" className="px-6 py-4">Business</th>
-                    <th scope="col" className="px-6 py-4">Contact</th>
-                    <th scope="col" className="px-6 py-4">Status</th>
-                    <th scope="col" className="px-6 py-4">Performance</th>
-                    <th scope="col" className="px-6 py-4 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                  {vendors.map((vendor) => (
-                    <tr key={vendor._id} className="bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
-                            <span className="text-lg font-bold text-white">
-                              {vendor.name.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                          <div>
-                            <div className="font-semibold text-gray-900 dark:text-white">
-                              {vendor.name}
-                            </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
-                              {vendor.email}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {vendor.businessName}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {vendor.businessDescription?.substring(0, 40) || 'No description'}
-                          {vendor.businessDescription && vendor.businessDescription.length > 40 && '...'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 dark:text-white font-medium">
-                          {vendor.phone}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(vendor.isActive)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-sm font-semibold text-amber-600 dark:text-amber-400">
-                          <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
-                          </svg>
-                          {vendor.overallRating ? Number(vendor.overallRating).toFixed(1) : '0.0'}
-                          <span className="text-xs text-gray-500 dark:text-gray-400">({vendor.totalRatings || 0})</span>
-                        </div>
-                        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                          {vendor.completedJobs || 0} jobs completed
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-3">
-                          <button
-                            onClick={() => {
-                              setSelectedVendor(vendor);
-                              setShowModal(true);
-                            }}
-                            className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-lg transition-colors"
-                            title="View Details"
-                          >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => openEditModal(vendor)}
-                            className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Edit Service Partner"
-                          >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(vendor._id, !vendor.isActive)}
-                            className="p-2 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
-                            title={vendor.isActive ? 'Deactivate' : 'Activate'}
-                          >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDelete(vendor._id)}
-                            className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Delete"
-                          >
-                            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Empty State */}
-            {vendors.length === 0 && (
-              <div className="py-16 text-center">
-                <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-6.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
-                <p className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Service Partners found</p>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  No service partners match your search criteria. Try adjusting your filters.
+            {/* Header */}
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Service Partner</h3>
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  Total Vendors: <span className="font-semibold text-gray-900 dark:text-white">{totalDocs}</span>
                 </p>
               </div>
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  Showing page <span className="font-semibold text-gray-900 dark:text-white">{currentPage}</span> of <span className="font-semibold text-gray-900 dark:text-white">{totalPages}</span>
-                </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  >
-                    Next
-                  </button>
-                </div>
+              <button
+                onClick={() => {
+                  resetAddForm();
+                  setMode('add');
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add Service Partner
+              </button>
+            </div>
+            {/* Filters */}
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+              <div className="flex-1 relative">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Search Service Partner by name, email, or phone..."
+                  className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                />
               </div>
+              <select
+                className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value as any);
+                  setCurrentPage(1);
+                }}
+              >
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+            {/* Loading State */}
+            {loading ? (
+              <div className="py-16 text-center">
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Service Partner...</p>
+              </div>
+            ) : (
+              <>
+                {/* Vendors Table */}
+                <div className="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-xs font-semibold uppercase text-gray-700 dark:from-gray-700 dark:to-gray-750 dark:text-gray-300">
+                      <tr>
+                        <th scope="col" className="px-6 py-4">Service Partner</th>
+                        <th scope="col" className="px-6 py-4">Business</th>
+                        <th scope="col" className="px-6 py-4">Contact</th>
+                        <th scope="col" className="px-6 py-4">Status</th>
+                        <th scope="col" className="px-6 py-4">Performance</th>
+                        <th scope="col" className="px-6 py-4 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {vendors.map((vendor) => (
+                        <tr key={vendor._id} className="bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                                <span className="text-lg font-bold text-white">
+                                  {vendor.name.charAt(0).toUpperCase()}
+                                </span>
+                              </div>
+                              <div>
+                                <div className="font-semibold text-gray-900 dark:text-white">
+                                  {vendor.name}
+                                </div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  {vendor.email}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="font-medium text-gray-900 dark:text-white">
+                              {vendor.businessName}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {vendor.businessDescription?.substring(0, 40) || 'No description'}
+                              {vendor.businessDescription && vendor.businessDescription.length > 40 && '...'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 dark:text-white font-medium">
+                              {vendor.phone}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            {getStatusBadge(vendor)}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1 text-sm font-semibold text-amber-600 dark:text-amber-400">
+                              <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572 .955-4.756 4.635 1.123 6.545z"/>
+                              </svg>
+                              {vendor.overallRating ? Number(vendor.overallRating).toFixed(1) : '0.0'}
+                              <span className="text-xs text-gray-500 dark:text-gray-400">({vendor.totalRatings || 0})</span>
+                            </div>
+                            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                              {vendor.completedJobs || 0} jobs completed
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center justify-center gap-3">
+                              <button
+                                onClick={() => {
+                                  setSelectedVendor(vendor);
+                                  setShowModal(true);
+                                }}
+                                className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-lg transition-colors"
+                                title="View Details"
+                              >
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => loadEditVendor(vendor)}
+                                className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                title="Edit Service Partner"
+                              >
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={() => handleDelete(vendor._id)}
+                                className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Delete"
+                              >
+                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Empty State */}
+                {vendors.length === 0 && (
+                  <div className="py-16 text-center">
+                    <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-6.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
+                    <p className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Service Partners found</p>
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                      No service partners match your search criteria. Try adjusting your filters.
+                    </p>
+                  </div>
+                )}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-6 dark:border-gray-700">
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Showing page <span className="font-semibold text-gray-900 dark:text-white">{currentPage}</span> of <span className="font-semibold text-gray-900 dark:text-white">{totalPages}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                      >
+                        Previous
+                      </button>
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
-      </div>
-
-      {/* Add Vendor Modal */}
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-10 px-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
+        {mode === 'add' && (
+          <div className="w-full max-w-2xl">
             <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Add New Service Partner
               </h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => setMode('list')}
                 className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
               >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -591,7 +558,6 @@ export default function VendorManagement() {
                 </svg>
               </button>
             </div>
-
             <form onSubmit={handleAddVendor} className="space-y-6">
               {/* Personal Info */}
               <div className="space-y-4">
@@ -655,7 +621,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Business Details */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Details</h4>
@@ -716,7 +681,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Professional Info */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Professional Info</h4>
@@ -760,9 +724,7 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Skip services and certifications for simplicity */}
-
               {/* Business Address */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
@@ -844,7 +806,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Verification Details */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
@@ -933,7 +894,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Bank Details */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
@@ -989,7 +949,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Availability */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
@@ -1030,11 +989,10 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               <div className="flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={() => setShowAddModal(false)}
+                  onClick={() => setMode('list')}
                   className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 >
                   Cancel
@@ -1049,19 +1007,15 @@ export default function VendorManagement() {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
-      {/* Edit Vendor Modal */}
-      {showEditModal && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 backdrop-blur-sm overflow-y-auto py-10 px-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
+        )}
+        {mode === 'edit' && (
+          <div className="w-full max-w-2xl">
             <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Edit Service Partner
               </h3>
               <button
-                onClick={() => setShowEditModal(false)}
+                onClick={() => setMode('list')}
                 className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300"
               >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1069,7 +1023,6 @@ export default function VendorManagement() {
                 </svg>
               </button>
             </div>
-
             <form onSubmit={handleEditVendor} className="space-y-6">
               {/* Personal Info */}
               <div className="space-y-4">
@@ -1133,7 +1086,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Business Details */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Details</h4>
@@ -1194,7 +1146,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Professional Info */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Professional Info</h4>
@@ -1238,7 +1189,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Business Address */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
@@ -1320,7 +1270,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Verification Details */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
@@ -1420,7 +1369,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Bank Details */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
@@ -1476,7 +1424,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Availability */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
@@ -1528,7 +1475,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               {/* Performance Metrics */}
               <div className="space-y-4">
                 <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Performance Metrics</h4>
@@ -1590,7 +1536,6 @@ export default function VendorManagement() {
                   </div>
                 </div>
               </div>
-
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <input
@@ -1615,11 +1560,10 @@ export default function VendorManagement() {
                   </label>
                 </div>
               </div>
-
               <div className="flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={() => setShowEditModal(false)}
+                  onClick={() => setMode('list')}
                   className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 >
                   Cancel
@@ -1634,18 +1578,16 @@ export default function VendorManagement() {
               </div>
             </form>
           </div>
-        </div>
-      )}
-
+        )}
+      </div>
       {/* Vendor Detail Modal */}
       {showModal && selectedVendor && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex min-h-screen items-center justify-center p-4">
-            <div 
+            <div
               className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
               onClick={() => setShowModal(false)}
             ></div>
-            
             <div className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
               <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -1660,7 +1602,6 @@ export default function VendorManagement() {
                   </svg>
                 </button>
               </div>
-              
               <div className="space-y-6">
                 <div className="flex items-center gap-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 dark:from-blue-900/20 dark:to-blue-800/20">
                   <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
@@ -1674,11 +1615,10 @@ export default function VendorManagement() {
                     </h4>
                     <p className="mt-1 text-gray-600 dark:text-gray-400">{selectedVendor.email}</p>
                     <div className="mt-3">
-                      {getStatusBadge(selectedVendor.isActive)}
+                      {getStatusBadge(selectedVendor)}
                     </div>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
                     <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -1707,7 +1647,7 @@ export default function VendorManagement() {
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1 text-lg font-bold text-amber-600 dark:text-amber-400">
                         <svg className="w-5 h-5 fill-current" viewBox="0 0 20 20">
-                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                          <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572 .955-4.756 4.635 1.123 6.545z"/>
                         </svg>
                         {selectedVendor.overallRating ? Number(selectedVendor.overallRating).toFixed(1) : '0.0'} / 5
                       </div>
@@ -1723,7 +1663,6 @@ export default function VendorManagement() {
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedVendor.completedJobs || 0}</p>
                   </div>
                 </div>
-
                 <div className="flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
                   <button
                     onClick={() => setShowModal(false)}
