@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
 import api, { type Admin } from "../../services/api";
 import Swal from "sweetalert2";
+import { Edit, Trash2 } from "lucide-react";
 
 type Status = "active" | "inactive";
 
@@ -153,8 +152,20 @@ export default function AdminManagement() {
                     <td className="px-6 py-4">{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : '-'}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => setEditAdmin(a)} className="text-primary hover:text-primary/80">Edit</button>
-                        <button onClick={() => onDelete(a.id)} className="text-red-600 hover:text-red-700">Delete</button>
+                        <button 
+                          onClick={() => setEditAdmin(a)} 
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-primary hover:bg-blue-200 hover:text-primary/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
+                          title="Edit Admin"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button 
+                          onClick={() => onDelete(a.id)} 
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-700 transition-colors duration-200"
+                          title="Delete Admin"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
