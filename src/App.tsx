@@ -17,6 +17,7 @@ import AdminManagement from "./pages/Admin/AdminManagement";
 import Slot from "./pages/Admin/Slot";
 import { AuthProvider } from "./context/AuthContext";
 import RequireAuth from "./components/auth/RequireAuth";
+import CoupanManagement from "./pages/Admin/CoupanManagement";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="/admin/vendors" element={<VendorManagement />} />
                 <Route path="/admin/customers" element={<CustomerManagement />} />
                 <Route path="/admin/admins" element={<AdminManagement />} />
+                <Route path="/admin/coupans" element={<CoupanManagement />} />
                 <Route path="/admin/services" element={<ServiceManagement />} />
                 <Route path="/admin/services/slots" element={<Slot />} />
                 <Route path="/admin/subcategories" element={<Subcategories />} />

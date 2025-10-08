@@ -45,6 +45,11 @@ const navItems: NavItem[] = [
   },
   {
     icon: <TableIcon />,
+    name: "Coupan Management",
+    path: "/admin/coupans",
+  },
+  {
+    icon: <TableIcon />,
     name: "Service Management",
     subItems: [
       { name: "Services", path: "/admin/services" },
