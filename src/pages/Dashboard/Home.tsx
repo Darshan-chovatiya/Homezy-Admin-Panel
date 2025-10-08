@@ -97,9 +97,9 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR'
     }).format(amount);
   };
 
@@ -294,9 +294,9 @@ export default function Home() {
         </div>
 
         {/* Customer Retention & Service Partner Stats */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        {/* <div className="grid gap-6 lg:grid-cols-3"> */}
           {/* Customer Segments */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          {/* <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               Customer Segments
             </h3>
@@ -361,10 +361,10 @@ export default function Home() {
                 </p>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Service Partner Performance */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          {/* <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               Service Partner Performance
             </h3>
@@ -400,10 +400,10 @@ export default function Home() {
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Customer Retention Metrics */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          {/* <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               Customer Retention
             </h3>
@@ -434,7 +434,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Top Services & Service Partners */}
         <div className="grid gap-6 lg:grid-cols-2">
@@ -511,9 +511,9 @@ export default function Home() {
         </div>
 
         {/* Charts and Performance Trends */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* <div className="grid gap-6 lg:grid-cols-2"> */}
           {/* Booking Trends Chart */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          {/* <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               Booking Trends
             </h3>
@@ -535,10 +535,10 @@ export default function Home() {
                 <span className="text-sm text-gray-600 dark:text-gray-400">Bookings</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* Service Partner Performance Trends */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          {/* <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               Service Partner Performance Trends
             </h3>
@@ -566,8 +566,8 @@ export default function Home() {
                 <span className="text-sm text-gray-600 dark:text-gray-400">Completion Rate %</span>
               </div>
             </div>
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
 
         {/* User Satisfaction and Recent Activity */}
         <div className="grid gap-6 lg:grid-cols-2">
@@ -710,14 +710,14 @@ export default function Home() {
         </div>
 
         {/* Export and Actions */}
-        <div className="flex justify-end gap-2">
+        {/* <div className="flex justify-end gap-2">
           <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
             Export Report
           </button>
           <button className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
             Generate Full Report
           </button>
-        </div>
+        </div> */}
       </div>
     </>
   );
