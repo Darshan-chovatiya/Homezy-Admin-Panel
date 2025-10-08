@@ -11,7 +11,6 @@ import CustomerManagement from "./pages/Admin/CustomerManagement";
 import ServiceManagement from "./pages/Admin/ServiceManagement";
 import Subcategories from "./pages/Admin/Subcategories";
 import BookingOversight from "./pages/Admin/BookingOversight";
-import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import SupportModeration from "./pages/Admin/SupportModeration";
 import PromotionsMarketing from "./pages/Admin/PromotionsMarketing";
 import AdminManagement from "./pages/Admin/AdminManagement";
@@ -36,7 +35,6 @@ export default function App() {
                 <Route path="/admin/services/slots" element={<Slot />} />
                 <Route path="/admin/subcategories" element={<Subcategories />} />
                 <Route path="/admin/bookings" element={<BookingOversight />} />
-                <Route path="/admin/analytics" element={<AnalyticsDashboard />} />
                 <Route path="/admin/support" element={<SupportModeration />} />
                 <Route path="/admin/promotions" element={<PromotionsMarketing />} />
                 <Route path="/profile" element={<UserProfiles />} />

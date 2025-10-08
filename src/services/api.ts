@@ -423,6 +423,25 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
+  // Analytics APIs
+  async getDashboardAnalytics(period: string = '6months'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/dashboard', {
+      body: JSON.stringify({ period })
+    });
+  }
+
+  async getCustomerRetention(period: string = '6months'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/customer-retention', {
+      body: JSON.stringify({ period })
+    });
+  }
+
+  async getServicePartnerPerformance(period: string = '6months'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/service-partner-performance', {
+      body: JSON.stringify({ period })
+    });
+  }
+
 }
 
 export const apiService = new ApiService();
