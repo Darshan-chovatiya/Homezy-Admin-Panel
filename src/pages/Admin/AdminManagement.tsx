@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import api, { type Admin } from "../../services/api";
 import Swal from "sweetalert2";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Plus, Trash2 } from "lucide-react";
 
 type Status = "active" | "inactive";
 
@@ -101,7 +101,7 @@ export default function AdminManagement() {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Admins</h3>
           <div className="flex gap-2">
-            <button onClick={() => setShowAdd(true)} className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Add Admin</button>
+            <button onClick={() => setShowAdd(true)} className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"><Plus className="h-4 w-4 mr-2" />Add Admin</button>
           </div>
         </div>
 
@@ -261,7 +261,7 @@ function AdminModal({ title, initial, onClose, onSubmit }: { title: string; init
         </form>
         <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
           <button onClick={onClose} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-          <button form="admin-modal-form" type="submit" className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">Save</button>
+          <button form="admin-modal-form" type="submit" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Save</button>
         </div>
       </div>
     </div>
