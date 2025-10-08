@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
+import { EyeIcon, UserIcon } from "../../icons";
+import { Eye } from "lucide-react";
 
 interface Order {
   _id: string;
@@ -195,9 +197,9 @@ export default function BookingOversight() {
 
   const formatCurrency = (amount: number | string) => {
     const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR'
     }).format(numAmount);
   };
 
@@ -391,7 +393,7 @@ export default function BookingOversight() {
             <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
               <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  <th scope="col" className="px-6 py-3">Order ID</th>
+                  {/* <th scope="col" className="px-6 py-3">Order ID</th> */}
                   <th scope="col" className="px-6 py-3">Customer</th>
                   <th scope="col" className="px-6 py-3">Service</th>
                   <th scope="col" className="px-6 py-3">Vendor</th>
@@ -405,14 +407,14 @@ export default function BookingOversight() {
               <tbody>
                 {filteredOrders.map((order) => (
                   <tr key={order._id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
-                    <td className="px-6 py-4">
+                    {/* <td className="px-6 py-4">
                       <div className="font-medium text-gray-900 dark:text-white">
                         {order._id.slice(-8).toUpperCase()}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {formatDate(order.createdAt)}
                       </div>
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4">
                       {order.customerId ? (
                         <>
@@ -489,9 +491,10 @@ export default function BookingOversight() {
                             setSelectedOrder(order);
                             setShowModal(true);
                           }}
-                          className="text-primary hover:text-primary/80 text-sm"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
+                          title="View Details"
                         >
-                          View
+                          <Eye className="h-4 w-4" />
                         </button>
                         {order.status === "pending" && !order.vendorId && (
                           <button
@@ -500,9 +503,10 @@ export default function BookingOversight() {
                               await fetchAvailableVendors(order);
                               setAssignModal(true);
                             }}
-                            className="text-green-600 hover:text-green-800 text-sm"
+                            className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-green-100 text-green-600 hover:bg-green-200 hover:text-green-700 dark:bg-green-900 dark:text-green-400 dark:hover:bg-green-800 dark:hover:text-green-300 border border-green-300 dark:border-green-700 transition-colors duration-200"
+                            title="Assign Order"
                           >
-                            Assign
+                            <UserIcon className="h-4 w-4" />
                           </button>
                         )}
                       </div>
@@ -628,7 +632,7 @@ export default function BookingOversight() {
 
       {/* Assign Order Modal */}
       {assignModal && selectedOrderForAssign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50">
           <div className="w-full max-w-md rounded-lg bg-white p-6 dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -690,7 +694,7 @@ export default function BookingOversight() {
                 <button
                   onClick={handleAssignOrder}
                   disabled={!selectedVendorId}
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed"
                 >
                   Assign Order
                 </button>
