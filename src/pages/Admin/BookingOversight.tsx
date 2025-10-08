@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
 import { apiService } from "../../services/api";
 
 interface Order {
@@ -10,11 +8,11 @@ interface Order {
     name: string;
     mobileNo: string;
     emailId?: string;
-  };
+  } | null;
   subcategoryId: {
     _id: string;
     name: string;
-    basePrice: number;
+    basePrice: string;
   };
   vendorId?: {
     _id: string;
@@ -22,14 +20,14 @@ interface Order {
     businessName: string;
     email?: string;
     phone?: string;
-  };
+  } | null;
   slot: {
     slotId: string;
     startTime: string;
     endTime: string;
   };
   status: "pending" | "assigned" | "accepted" | "rejected" | "completed";
-  totalPrice: number;
+  totalPrice: string;
   createdAt: string;
   updatedAt: string;
   payment?: {
@@ -105,7 +103,7 @@ export default function BookingOversight() {
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerId.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.customerId?.name.toLowerCase().includes(searchTerm.toLowerCase()) || false) ||
       order.subcategoryId.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (order.vendorId?.name.toLowerCase().includes(searchTerm.toLowerCase()) || false);
     
@@ -188,18 +186,19 @@ export default function BookingOversight() {
     const assigned = orders.filter(o => o.status === "assigned").length;
     const totalRevenue = orders
       .filter(o => o.payment?.status === "completed")
-      .reduce((sum, o) => sum + o.totalPrice, 0);
+      .reduce((sum, o) => sum + parseFloat(o.totalPrice), 0);
 
     return { total, completed, pending, assigned, totalRevenue };
   };
 
   const stats = getTotalStats();
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | string) => {
+    const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
-    }).format(amount);
+    }).format(numAmount);
   };
 
   const formatDate = (dateString: string) => {
@@ -415,15 +414,23 @@ export default function BookingOversight() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-sm font-medium text-gray-900 dark:text-white">
-                        {order.customerId.name}
-                      </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {order.customerId.mobileNo}
-                      </div>
-                      {order.customerId.emailId && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {order.customerId.emailId}
+                      {order.customerId ? (
+                        <>
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {order.customerId.name}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {order.customerId.mobileNo}
+                          </div>
+                          {order.customerId.emailId && (
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {order.customerId.emailId}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                          No customer assigned
                         </div>
                       )}
                     </td>
@@ -516,7 +523,7 @@ export default function BookingOversight() {
 
       {/* Order Detail Modal */}
       {showModal && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-50">
           <div className="w-full max-w-4xl rounded-lg bg-white p-6 dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -535,10 +542,16 @@ export default function BookingOversight() {
                 <div>
                   <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Customer Information</h4>
                   <div className="space-y-2 text-sm">
-                    <div><strong>Name:</strong> {selectedOrder.customerId.name}</div>
-                    <div><strong>Phone:</strong> {selectedOrder.customerId.mobileNo}</div>
-                    {selectedOrder.customerId.emailId && (
-                      <div><strong>Email:</strong> {selectedOrder.customerId.emailId}</div>
+                    {selectedOrder.customerId ? (
+                      <>
+                        <div><strong>Name:</strong> {selectedOrder.customerId.name}</div>
+                        <div><strong>Phone:</strong> {selectedOrder.customerId.mobileNo}</div>
+                        {selectedOrder.customerId.emailId && (
+                          <div><strong>Email:</strong> {selectedOrder.customerId.emailId}</div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-gray-500 italic">No customer assigned</div>
                     )}
                   </div>
                 </div>
@@ -639,7 +652,7 @@ export default function BookingOversight() {
                   Order: {selectedOrderForAssign.subcategoryId.name}
                 </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Customer: {selectedOrderForAssign.customerId.name}
+                  Customer: {selectedOrderForAssign.customerId?.name || 'No customer assigned'}
                 </p>
               </div>
               

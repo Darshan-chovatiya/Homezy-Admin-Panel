@@ -89,59 +89,12 @@ interface ServicePartnerPerformanceData {
   }>;
 }
 
-const dummyAnalytics: AnalyticsData = {
-  totalUsers: 1250,
-  totalServicePartners: 340,
-  totalBookings: 2847,
-  totalRevenue: 425680,
-  monthlyGrowth: {
-    users: 12.5,
-    bookings: 18.3,
-    revenue: 22.7
-  },
-  topServices: [
-    { name: "House Cleaning", bookings: 456, revenue: 54720, growth: 15.2 },
-    { name: "Plumbing Repair", bookings: 389, revenue: 70020, growth: 8.7 },
-    { name: "Electrical Work", bookings: 234, revenue: 58500, growth: 12.4 },
-    { name: "HVAC Service", bookings: 198, revenue: 47520, growth: 6.3 },
-    { name: "Landscaping", bookings: 167, revenue: 50100, growth: 9.8 }
-  ],
-  topServicePartners: [
-    { name: "Sarah Johnson", bookings: 89, rating: 4.9, earnings: 12450 },
-    { name: "Mike Wilson", bookings: 76, rating: 4.8, earnings: 10890 },
-    { name: "David Brown", bookings: 65, rating: 4.7, earnings: 9870 },
-    { name: "Lisa Anderson", bookings: 58, rating: 4.9, earnings: 8760 },
-    { name: "John Smith", bookings: 52, rating: 4.6, earnings: 7890 }
-  ],
-  recentActivity: [
-    { type: "booking", description: "New booking: House Cleaning for John Doe", timestamp: "2024-03-26T10:30:00Z", status: "completed" },
-    { type: "user", description: "New service partner registration: Emily Davis", timestamp: "2024-03-26T09:15:00Z", status: "pending" },
-    { type: "payment", description: "Payment processed: $180 for Plumbing Repair", timestamp: "2024-03-26T08:45:00Z", status: "completed" },
-    { type: "review", description: "New 5-star review for Sarah Johnson", timestamp: "2024-03-26T07:20:00Z", status: "completed" },
-    { type: "dispute", description: "Dispute raised for booking BK005", timestamp: "2024-03-26T06:10:00Z", status: "pending" }
-  ],
-  bookingTrends: [
-    { month: "Jan", bookings: 234, revenue: 35100 },
-    { month: "Feb", bookings: 267, revenue: 40050 },
-    { month: "Mar", bookings: 298, revenue: 44700 },
-    { month: "Apr", bookings: 312, revenue: 46800 },
-    { month: "May", bookings: 345, revenue: 51750 },
-    { month: "Jun", bookings: 378, revenue: 56700 }
-  ],
-  userSatisfaction: {
-    averageRating: 4.7,
-    totalReviews: 1847,
-    satisfactionRate: 94.2
-  }
-};
-
 export default function Home() {
-  const [analytics, setAnalytics] = useState<AnalyticsData>(dummyAnalytics);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [customerRetention, setCustomerRetention] = useState<CustomerRetentionData | null>(null);
   const [servicePartnerPerformance, setServicePartnerPerformance] = useState<ServicePartnerPerformanceData | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState("6months");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -178,8 +131,6 @@ export default function Home() {
   const fetchAllAnalytics = async (period: string) => {
     try {
       setLoading(true);
-      setError(null);
-      
       const analyticsResponse = await apiService.getDashboardAnalytics(period);
 
       if (analyticsResponse.data) {
@@ -222,8 +173,6 @@ export default function Home() {
       }
     } catch (err) {
       console.error('Error fetching analytics:', err);
-      setError('Failed to load analytics data');
-      // Keep dummy data as fallback
     } finally {
       setLoading(false);
     }
@@ -237,21 +186,6 @@ export default function Home() {
   return (
     <>
       <div className="space-y-6">
-        {/* Loading and Error States */}
-        {/* {loading && (
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <span className="ml-2 text-gray-600 dark:text-gray-400">Loading analytics...</span>
-          </div>
-        )}
-        
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-            {error}
-          </div>
-        )} */}
-
-
         {/* Period Selector */}
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Analytics</h1>
@@ -292,10 +226,10 @@ export default function Home() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {formatNumber(analytics.totalUsers)}
+                  {formatNumber(analytics?.totalUsers || 0)}
                 </p>
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  +{analytics.monthlyGrowth.users}% this month
+                  +{analytics?.monthlyGrowth?.users || 0}% this month
                 </p>
               </div>
             </div>
@@ -311,7 +245,7 @@ export default function Home() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Service Partners</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {formatNumber(analytics.totalServicePartners)}
+                  {formatNumber(analytics?.totalServicePartners || 0)}
                 </p>
                 <p className="text-sm text-green-600 dark:text-green-400">
                   Active partners
@@ -330,10 +264,10 @@ export default function Home() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Bookings</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {formatNumber(analytics.totalBookings)}
+                  {formatNumber(analytics?.totalBookings || 0)}
                 </p>
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  +{analytics.monthlyGrowth.bookings}% this month
+                  +{analytics?.monthlyGrowth?.bookings || 0}% this month
                 </p>
               </div>
             </div>
@@ -349,10 +283,10 @@ export default function Home() {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Revenue</p>
                 <p className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {formatCurrency(analytics.totalRevenue)}
+                  {formatCurrency(analytics?.totalRevenue || 0)}
                 </p>
                 <p className="text-sm text-green-600 dark:text-green-400">
-                  +{analytics.monthlyGrowth.revenue}% this month
+                  +{analytics?.monthlyGrowth?.revenue || 0}% this month
                 </p>
               </div>
             </div>
@@ -507,10 +441,10 @@ export default function Home() {
           {/* Top Services */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-              Top Services
-            </h3>
+                Top Services
+              </h3>
             <div className="space-y-4">
-              {analytics.topServices.map((service, index) => (
+              {analytics?.topServices?.map((service, index) => (
                 <div key={service.name} className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -544,7 +478,7 @@ export default function Home() {
               Top Service Partners
             </h3>
             <div className="space-y-4">
-              {analytics.topServicePartners.map((partner, index) => (
+              {analytics?.topServicePartners?.map((partner, index) => (
                 <div key={partner.name} className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -585,11 +519,11 @@ export default function Home() {
             </h3>
             <div className="h-64">
               <SimpleChart
-                data={analytics.bookingTrends.map(trend => ({
+                data={analytics?.bookingTrends?.map(trend => ({
                   label: trend.month,
                   value: trend.bookings,
                   color: '#3B82F6'
-                }))}
+                })) || []}
                 type="bar"
                 height={200}
                 showValues={true}
@@ -648,7 +582,7 @@ export default function Home() {
                 <div className="flex items-center gap-1">
                   <span className="text-yellow-400">⭐</span>
                   <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {analytics.userSatisfaction.averageRating}
+                    {analytics?.userSatisfaction?.averageRating || 0}
                   </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400">/5</span>
                 </div>
@@ -656,13 +590,13 @@ export default function Home() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Total Reviews</span>
                 <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {formatNumber(analytics.userSatisfaction.totalReviews)}
+                  {formatNumber(analytics?.userSatisfaction?.totalReviews || 0)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600 dark:text-gray-400">Satisfaction Rate</span>
                 <span className="text-lg font-semibold text-green-600 dark:text-green-400">
-                  {analytics.userSatisfaction.satisfactionRate}%
+                  {analytics?.userSatisfaction?.satisfactionRate || 0}%
                 </span>
               </div>
             </div>
@@ -674,7 +608,7 @@ export default function Home() {
               Recent Activity
             </h3>
             <div className="space-y-3">
-              {analytics.recentActivity.map((activity, index) => (
+              {analytics?.recentActivity?.map((activity, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
                     <span className="text-sm">{getActivityIcon(activity.type)}</span>
@@ -701,7 +635,7 @@ export default function Home() {
         {/* Top Customers and Top Performers */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Top Customers */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
               Top Customers by Value
             </h3>
@@ -769,7 +703,7 @@ export default function Home() {
                       {partner.completionRate}% complete
                     </p>
                   </div>
-                </div>
+            </div>
               ))}
             </div>
           </div>
