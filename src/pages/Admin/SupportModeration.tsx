@@ -1,263 +1,238 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
+import apiService, { CreateDisputeRequest, DisputeStats } from "../../services/api";
 
-interface SupportTicket {
-  id: string;
-  type: "dispute" | "complaint" | "refund" | "technical" | "general";
-  priority: "low" | "medium" | "high" | "urgent";
-  status: "open" | "in_progress" | "resolved" | "closed";
-  subject: string;
-  description: string;
-  customerName: string;
-  customerEmail: string;
-  servicePartnerName?: string;
-  servicePartnerEmail?: string;
-  bookingId?: string;
-  createdAt: string;
-  updatedAt: string;
-  assignedTo?: string;
-  resolution?: string;
-  attachments?: string[];
-}
-
+// Updated Dispute interface to match backend response
 interface Dispute {
-  id: string;
-  bookingId: string;
-  customerName: string;
-  servicePartnerName: string;
-  serviceName: string;
-  disputeType: "service_quality" | "payment" | "behavior" | "cancellation" | "other";
+  _id: string;
+  customerId: {
+    _id: string;
+    name: string;
+  };
+  servicePartnerId: {
+    _id: string;
+    name: string;
+  };
+  serviceId: {
+    _id: string;
+    name: string;
+  };
   description: string;
-  customerEvidence?: string[];
-  servicePartnerEvidence?: string[];
-  status: "pending" | "investigating" | "resolved" | "escalated";
+  customerEvidence: string[];
+  servicePartnerEvidence: string[];
+  status: 'open' | 'closed' | 'inProgress' | 'reopen';
   resolution?: string;
   refundAmount?: number;
   createdAt: string;
   updatedAt: string;
+  __v?: string;
+  // Populated fields
+  customerName: string;
+  servicePartnerName: string;
+  serviceName: string;
 }
 
-const dummyTickets: SupportTicket[] = [
-  {
-    id: "ST001",
-    type: "dispute",
-    priority: "high",
-    status: "open",
-    subject: "Service quality dispute - House Cleaning",
-    description: "Customer claims the cleaning service was not thorough and left areas dirty. Service partner disputes this claim.",
-    customerName: "John Doe",
-    customerEmail: "john.doe@email.com",
-    servicePartnerName: "Sarah Johnson",
-    servicePartnerEmail: "sarah.johnson@email.com",
-    bookingId: "BK001",
-    createdAt: "2024-03-26T10:30:00Z",
-    updatedAt: "2024-03-26T10:30:00Z",
-    attachments: ["photo1.jpg", "photo2.jpg"]
-  },
-  {
-    id: "ST002",
-    type: "refund",
-    priority: "medium",
-    status: "in_progress",
-    subject: "Refund request for cancelled booking",
-    description: "Customer requesting refund for booking cancelled due to service partner no-show.",
-    customerName: "Emily Davis",
-    customerEmail: "emily.davis@email.com",
-    servicePartnerName: "Mike Wilson",
-    servicePartnerEmail: "mike.wilson@email.com",
-    bookingId: "BK002",
-    createdAt: "2024-03-25T14:20:00Z",
-    updatedAt: "2024-03-26T09:15:00Z",
-    assignedTo: "Admin User"
-  },
-  {
-    id: "ST003",
-    type: "complaint",
-    priority: "low",
-    status: "resolved",
-    subject: "Service partner behavior complaint",
-    description: "Customer complained about unprofessional behavior from service partner during service.",
-    customerName: "Robert Smith",
-    customerEmail: "robert.smith@email.com",
-    servicePartnerName: "David Brown",
-    servicePartnerEmail: "david.brown@email.com",
-    bookingId: "BK003",
-    createdAt: "2024-03-24T16:45:00Z",
-    updatedAt: "2024-03-25T11:30:00Z",
-    assignedTo: "Admin User",
-    resolution: "Service partner has been warned and customer has been compensated with a discount for future services."
-  },
-  {
-    id: "ST004",
-    type: "technical",
-    priority: "medium",
-    status: "open",
-    subject: "App login issues",
-    description: "Customer unable to login to the mobile app, getting error message.",
-    customerName: "Lisa Anderson",
-    customerEmail: "lisa.anderson@email.com",
-    createdAt: "2024-03-26T08:15:00Z",
-    updatedAt: "2024-03-26T08:15:00Z"
-  },
-  {
-    id: "ST005",
-    type: "general",
-    priority: "low",
-    status: "closed",
-    subject: "General inquiry about service availability",
-    description: "Customer asking about availability of landscaping services in their area.",
-    customerName: "Michael Johnson",
-    customerEmail: "michael.johnson@email.com",
-    createdAt: "2024-03-23T12:00:00Z",
-    updatedAt: "2024-03-23T15:30:00Z",
-    assignedTo: "Support Agent",
-    resolution: "Provided information about available landscaping services and scheduled a consultation."
-  }
-];
 
-const dummyDisputes: Dispute[] = [
-  {
-    id: "DP001",
-    bookingId: "BK001",
-    customerName: "John Doe",
-    servicePartnerName: "Sarah Johnson",
-    serviceName: "House Cleaning",
-    disputeType: "service_quality",
-    description: "Customer claims the cleaning was incomplete and left visible dirt in corners and under furniture. Service partner maintains the service was completed as per standards.",
-    customerEvidence: ["before_photo1.jpg", "after_photo1.jpg", "dirty_corner.jpg"],
-    servicePartnerEvidence: ["completion_photo1.jpg", "completion_photo2.jpg"],
-    status: "investigating",
-    createdAt: "2024-03-26T10:30:00Z",
-    updatedAt: "2024-03-26T14:20:00Z"
-  },
-  {
-    id: "DP002",
-    bookingId: "BK005",
-    customerName: "Michael Johnson",
-    servicePartnerName: "Mike Wilson",
-    serviceName: "Landscaping",
-    disputeType: "service_quality",
-    description: "Customer dissatisfied with landscaping work, claims plants were not properly installed and some died within a week.",
-    customerEvidence: ["dead_plants.jpg", "poor_installation.jpg"],
-    servicePartnerEvidence: ["installation_photos.jpg", "care_instructions.jpg"],
-    status: "pending",
-    createdAt: "2024-03-26T16:45:00Z",
-    updatedAt: "2024-03-26T16:45:00Z"
-  }
-];
+// Using the Dispute interface from the API service
+
+
 
 export default function SupportModeration() {
-  const [tickets, setTickets] = useState<SupportTicket[]>(dummyTickets);
-  const [disputes, setDisputes] = useState<Dispute[]>(dummyDisputes);
-  const [activeTab, setActiveTab] = useState<"tickets" | "disputes">("tickets");
+  const [disputes, setDisputes] = useState<Dispute[]>([]);
+  const [stats, setStats] = useState<DisputeStats>({
+    openDisputes: 0,
+    inProgressDisputes: 0,
+    closedDisputes: 0,
+    reopenDisputes: 0
+  });
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState<"all" | "open" | "in_progress" | "resolved" | "closed">("all");
-  const [filterPriority, setFilterPriority] = useState<"all" | "low" | "medium" | "high" | "urgent">("all");
-  const [selectedTicket, setSelectedTicket] = useState<SupportTicket | null>(null);
+  const [filterStatus, setFilterStatus] = useState<"all" | "open" | "closed" | "inProgress" | "reopen">("all");
   const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
   const [showModal, setShowModal] = useState(false);
-
-  const filteredTickets = tickets.filter(ticket => {
-    const matchesSearch = ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         ticket.customerName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || ticket.status === filterStatus;
-    const matchesPriority = filterPriority === "all" || ticket.priority === filterPriority;
-    
-    return matchesSearch && matchesStatus && matchesPriority;
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [newDispute, setNewDispute] = useState<CreateDisputeRequest>({
+    customerId: "",
+    servicePartnerId: "",
+    serviceId: "",
+    description: ""
   });
 
+  // Helper function to format IDs safely
+  const formatId = (id: any): string => {
+    if (typeof id === 'string') return id;
+    if (typeof id === 'object' && id !== null) {
+      return id._id || id.$oid || id.toString();
+    }
+    return String(id);
+  };
+
+  // Load disputes and stats on component mount
+  useEffect(() => {
+    loadDisputes();
+    loadStats();
+  }, []);
+
+  // Load disputes when filters change
+  useEffect(() => {
+    loadDisputes();
+  }, [filterStatus, searchTerm]);
+
+  const loadDisputes = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const params: any = {};
+      if (filterStatus !== "all") params.status = filterStatus;
+      if (searchTerm) params.search = searchTerm;
+      
+      const response = await apiService.getAllDisputes(params);
+      setDisputes(response.data as unknown as Dispute[]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load disputes');
+      console.error('Error loading disputes:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadStats = async () => {
+    try {
+      const response = await apiService.getDisputeStats();
+      setStats(response.data);
+    } catch (err) {
+      console.error('Error loading stats:', err);
+    }
+  };
+
   const filteredDisputes = disputes.filter(dispute => {
-    const matchesSearch = dispute.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const disputeId = formatId(dispute._id);
+    const customerId = formatId(dispute.customerId._id);
+    const servicePartnerId = formatId(dispute.servicePartnerId._id);
+    const serviceId = formatId(dispute.serviceId._id);
+    
+    const matchesSearch = disputeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          dispute.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         dispute.serviceName.toLowerCase().includes(searchTerm.toLowerCase());
+                         dispute.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dispute.servicePartnerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         customerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         servicePartnerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         serviceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         dispute.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "all" || dispute.status === filterStatus;
     
     return matchesSearch && matchesStatus;
   });
 
-  const handleTicketStatusChange = (ticketId: string, newStatus: SupportTicket["status"]) => {
-    setTickets(tickets.map(ticket => 
-      ticket.id === ticketId ? { ...ticket, status: newStatus, updatedAt: new Date().toISOString() } : ticket
-    ));
+  const handleDisputeStatusChange = async (disputeId: string, newStatus: Dispute["status"]) => {
+    try {
+      setLoading(true);
+      const response = await apiService.updateDisputeStatus(disputeId, { status: newStatus });
+      setDisputes(disputes.map(dispute => 
+        formatId(dispute._id) === disputeId ? response.data as unknown as Dispute : dispute
+      ));
+      // Reload stats to reflect changes
+      loadStats();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update dispute status');
+      console.error("Error updating dispute status:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleDisputeStatusChange = (disputeId: string, newStatus: Dispute["status"]) => {
-    setDisputes(disputes.map(dispute => 
-      dispute.id === disputeId ? { ...dispute, status: newStatus, updatedAt: new Date().toISOString() } : dispute
-    ));
+  const handleAddDispute = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await apiService.createDispute(newDispute);
+      setDisputes([response.data as unknown as Dispute, ...disputes]);
+      setNewDispute({
+        customerId: "",
+        servicePartnerId: "",
+        serviceId: "",
+        description: ""
+      });
+      setShowAddModal(false);
+      // Reload stats to reflect changes
+      loadStats();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create dispute');
+      console.error("Error adding dispute:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteDispute = async (disputeId: string) => {
+    if (!window.confirm('Are you sure you want to delete this dispute?')) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      await apiService.deleteDispute(disputeId);
+      setDisputes(disputes.filter(dispute => formatId(dispute._id) !== disputeId));
+      // Reload stats to reflect changes
+      loadStats();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete dispute');
+      console.error("Error deleting dispute:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
     const statusClasses = {
       open: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-      in_progress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-      resolved: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
+      inProgress: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
       closed: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
-      pending: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-      investigating: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      escalated: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300"
+      reopen: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300"
     };
 
     return (
       <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusClasses[status as keyof typeof statusClasses]}`}>
-        {status.replace("_", " ").charAt(0).toUpperCase() + status.replace("_", " ").slice(1)}
+        {status === "inProgress" ? "In Progress" : status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     );
   };
-
-  const getPriorityBadge = (priority: string) => {
-    const priorityClasses = {
-      low: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
-      medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-      high: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-      urgent: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
-    };
-
-    return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${priorityClasses[priority as keyof typeof priorityClasses]}`}>
-        {priority.charAt(0).toUpperCase() + priority.slice(1)}
-      </span>
-    );
-  };
-
-  const getTypeBadge = (type: string) => {
-    const typeClasses = {
-      dispute: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-      complaint: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-      refund: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-      technical: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300",
-      general: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
-    };
-
-    return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeClasses[type as keyof typeof typeClasses]}`}>
-        {type.charAt(0).toUpperCase() + type.slice(1)}
-      </span>
-    );
-  };
-
-  const getStats = () => {
-    const openTickets = tickets.filter(t => t.status === "open").length;
-    const inProgressTickets = tickets.filter(t => t.status === "in_progress").length;
-    const resolvedTickets = tickets.filter(t => t.status === "resolved").length;
-    const pendingDisputes = disputes.filter(d => d.status === "pending").length;
-
-    return { openTickets, inProgressTickets, resolvedTickets, pendingDisputes };
-  };
-
-  const stats = getStats();
 
   return (
     <>
       <PageMeta
-        title="Support & Moderation | Homezy Admin Panel"
-        description="Manage support tickets and resolve disputes on the Homezy platform"
+        title="Dispute Management | Homezy Admin Panel"
+        description="Manage and resolve disputes on the Homezy platform"
       />
-      <PageBreadcrumb pageTitle="Support & Moderation" />
+      <PageBreadcrumb pageTitle="Dispute Management" />
       
       <div className="space-y-6">
+        {/* Error Message */}
+        {error && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                  Error
+                </h3>
+                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </div>
+                <div className="mt-4">
+                  <button
+                    onClick={() => setError(null)}
+                    className="text-sm font-medium text-red-800 hover:text-red-900 dark:text-red-200 dark:hover:text-red-100"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
@@ -268,8 +243,8 @@ export default function SupportModeration() {
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Open Tickets</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.openTickets}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Open Disputes</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.openDisputes}</p>
               </div>
             </div>
           </div>
@@ -283,7 +258,7 @@ export default function SupportModeration() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">In Progress</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.inProgressTickets}</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.inProgressDisputes}</p>
               </div>
             </div>
           </div>
@@ -291,13 +266,13 @@ export default function SupportModeration() {
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
-                  <span className="text-green-600 dark:text-green-300">✅</span>
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
+                  <span className="text-gray-600 dark:text-gray-300">✅</span>
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Resolved</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.resolvedTickets}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Closed</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.closedDisputes}</p>
               </div>
             </div>
           </div>
@@ -306,12 +281,12 @@ export default function SupportModeration() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900">
-                  <span className="text-orange-600 dark:text-orange-300">⚠️</span>
+                  <span className="text-orange-600 dark:text-orange-300">🔄</span>
                 </div>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Pending Disputes</p>
-                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.pendingDisputes}</p>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Reopened</p>
+                <p className="text-2xl font-semibold text-gray-900 dark:text-white">{stats.reopenDisputes}</p>
               </div>
             </div>
           </div>
@@ -321,39 +296,14 @@ export default function SupportModeration() {
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Support & Moderation
+              Dispute Management
             </h3>
             <div className="flex gap-2">
-              <button className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
+              
+              {/* <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
                 Export Reports
-              </button>
+              </button> */}
             </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="mb-6 border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab("tickets")}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "tickets"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
-                }`}
-              >
-                Support Tickets ({tickets.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("disputes")}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === "disputes"
-                    ? "border-primary text-primary"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300"
-                }`}
-              >
-                Disputes ({disputes.length})
-              </button>
-            </nav>
           </div>
 
           {/* Filters */}
@@ -361,7 +311,7 @@ export default function SupportModeration() {
             <div className="flex-1">
               <input
                 type="text"
-                placeholder="Search by ID, subject, or customer name..."
+                placeholder="Search by dispute ID, customer name, service name, service partner name, description, or any ID..."
                 className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -375,129 +325,29 @@ export default function SupportModeration() {
               >
                 <option value="all">All Status</option>
                 <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="resolved">Resolved</option>
+                <option value="inProgress">In Progress</option>
                 <option value="closed">Closed</option>
-                <option value="pending">Pending</option>
-                <option value="investigating">Investigating</option>
+                <option value="reopen">Reopen</option>
               </select>
-              {activeTab === "tickets" && (
-                <select
-                  className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  value={filterPriority}
-                  onChange={(e) => setFilterPriority(e.target.value as any)}
-                >
-                  <option value="all">All Priority</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              )}
             </div>
           </div>
 
-          {/* Content based on active tab */}
-          {activeTab === "tickets" ? (
+          {/* Disputes Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                  <tr>
-                    <th scope="col" className="px-6 py-3">Ticket ID</th>
-                    <th scope="col" className="px-6 py-3">Type</th>
-                    <th scope="col" className="px-6 py-3">Subject</th>
-                    <th scope="col" className="px-6 py-3">Customer</th>
-                    <th scope="col" className="px-6 py-3">Priority</th>
-                    <th scope="col" className="px-6 py-3">Status</th>
-                    <th scope="col" className="px-6 py-3">Created</th>
-                    <th scope="col" className="px-6 py-3">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredTickets.map((ticket) => (
-                    <tr key={ticket.id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {ticket.id}
-                        </div>
-                        {ticket.bookingId && (
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
-                            Booking: {ticket.bookingId}
+            {loading && (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-gray-500 dark:text-gray-400">Loading disputes...</div>
                           </div>
                         )}
-                      </td>
-                      <td className="px-6 py-4">
-                        {getTypeBadge(ticket.type)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="max-w-xs truncate text-gray-900 dark:text-white">
-                          {ticket.subject}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {ticket.description.substring(0, 50)}...
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {ticket.customerName}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {ticket.customerEmail}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {getPriorityBadge(ticket.priority)}
-                      </td>
-                      <td className="px-6 py-4">
-                        {getStatusBadge(ticket.status)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {new Date(ticket.createdAt).toLocaleDateString()}
-                        </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(ticket.createdAt).toLocaleTimeString()}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => {
-                              setSelectedTicket(ticket);
-                              setShowModal(true);
-                            }}
-                            className="text-primary hover:text-primary/80"
-                          >
-                            View
-                          </button>
-                          <select
-                            value={ticket.status}
-                            onChange={(e) => handleTicketStatusChange(ticket.id, e.target.value as SupportTicket["status"])}
-                            className="rounded border border-gray-300 bg-white px-2 py-1 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                          >
-                            <option value="open">Open</option>
-                            <option value="in_progress">In Progress</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="closed">Closed</option>
-                          </select>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
+            {!loading && (
+              <>
               <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                   <tr>
-                    <th scope="col" className="px-6 py-3">Dispute ID</th>
-                    <th scope="col" className="px-6 py-3">Booking</th>
                     <th scope="col" className="px-6 py-3">Service</th>
                     <th scope="col" className="px-6 py-3">Customer</th>
                     <th scope="col" className="px-6 py-3">Service Partner</th>
-                    <th scope="col" className="px-6 py-3">Type</th>
+                    <th scope="col" className="px-6 py-3">Description</th>
                     <th scope="col" className="px-6 py-3">Status</th>
                     <th scope="col" className="px-6 py-3">Created</th>
                     <th scope="col" className="px-6 py-3">Actions</th>
@@ -505,39 +355,40 @@ export default function SupportModeration() {
                 </thead>
                 <tbody>
                   {filteredDisputes.map((dispute) => (
-                    <tr key={dispute.id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-900 dark:text-white">
-                          {dispute.id}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {dispute.bookingId}
-                        </div>
-                      </td>
+                      <tr key={formatId(dispute._id)} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-900 dark:text-white">
                           {dispute.serviceName}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="text-sm  text-gray-900 dark:text-white">
                           {dispute.customerName}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="text-sm  text-gray-900 dark:text-white">
                           {dispute.servicePartnerName}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 text-xs font-medium rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300">
-                          {dispute.disputeType.replace("_", " ").charAt(0).toUpperCase() + dispute.disputeType.replace("_", " ").slice(1)}
-                        </span>
+                        <div className="text-sm text-gray-900 dark:text-white max-w-xs">
+                          <p className="truncate" title={dispute.description}>
+                            {dispute.description.length > 30 ? `${dispute.description.substring(0, 30)}...` : dispute.description}
+                          </p>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
-                        {getStatusBadge(dispute.status)}
+                        <select
+                          value={dispute.status}
+                          onChange={(e) => handleDisputeStatusChange(formatId(dispute._id), e.target.value as Dispute["status"])}
+                          className="rounded border border-gray-300 bg-white px-2 py-1 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                        >
+                          <option value="open">Open</option>
+                          <option value="inProgress">In Progress</option>
+                          <option value="closed">Closed</option>
+                          <option value="reopen">Reopen</option>
+                        </select>
                       </td>
                       <td className="px-6 py-4">
                         <div className="text-sm text-gray-900 dark:text-white">
@@ -551,197 +402,288 @@ export default function SupportModeration() {
                               setSelectedDispute(dispute);
                               setShowModal(true);
                             }}
-                            className="text-primary hover:text-primary/80"
+                            className="border rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
+                            title="View Details"
                           >
-                            View
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
                           </button>
-                          <select
-                            value={dispute.status}
-                            onChange={(e) => handleDisputeStatusChange(dispute.id, e.target.value as Dispute["status"])}
-                            className="rounded border border-gray-300 bg-white px-2 py-1 text-xs focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                          <button
+                            onClick={() => handleDeleteDispute(formatId(dispute._id))}
+                            className="border rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300"
+                            title="Delete Dispute"
                           >
-                            <option value="pending">Pending</option>
-                            <option value="investigating">Investigating</option>
-                            <option value="resolved">Resolved</option>
-                            <option value="escalated">Escalated</option>
-                          </select>
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
                         </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+
+                {filteredDisputes.length === 0 && (
+            <div className="py-12 text-center">
+                    <div className="text-gray-500 dark:text-gray-400">No disputes found matching your criteria.</div>
+            </div>
+          )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Detail Modal */}
+{showModal && selectedDispute && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 bg-opacity-60 p-4">
+    <div className="w-full max-w-4xl rounded-xl bg-white shadow-2xl dark:bg-gray-900">
+      {/* Header */}
+      <div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+            Dispute Details
+          </h3>
+          <button
+            onClick={() => setShowModal(false)}
+            className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
+          >
+            <span className="text-xl">✕</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-h-[70vh] overflow-y-auto px-6 py-6">
+        <div className="space-y-6">
+          {/* Dispute & Parties Information */}
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            {/* Dispute Information Card */}
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+              <h4 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+                Dispute Information
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Service:</span>
+                  <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {selectedDispute.serviceName}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Status:</span>
+                  <span>{getStatusBadge(selectedDispute.status)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Created:</span>
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    {new Date(selectedDispute.createdAt).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Updated:</span>
+                  <span className="text-sm text-gray-900 dark:text-white">
+                    {new Date(selectedDispute.updatedAt).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Parties Involved Card */}
+            <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800">
+              <h4 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+                Parties Involved
+              </h4>
+              <div className="space-y-4">
+                <div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Customer</div>
+                  <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                    {selectedDispute.customerName}
+                  </div>
+                  
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Service Partner</div>
+                  <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                    {selectedDispute.servicePartnerName}
+                  </div>
+                
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Dispute Description */}
+          <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <h4 className="mb-3 text-base font-semibold text-gray-900 dark:text-white">
+              Dispute Description
+            </h4>
+            <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+              {selectedDispute.description}
+            </p>
+          </div>
+
+          {/* Customer Evidence */}
+          {selectedDispute.customerEvidence && selectedDispute.customerEvidence.length > 0 && (
+            <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+              <h4 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+                Customer Evidence
+              </h4>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {selectedDispute.customerEvidence.map((evidence, index) => (
+                  <div
+                    key={index}
+                    className="group relative overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-600"
+                  >
+                    <img
+                      src={apiService.resolveImageUrl(evidence)}
+                      alt={`Customer Evidence ${index + 1}`}
+                      className="h-28 w-full cursor-pointer object-cover transition-transform duration-200 group-hover:scale-105"
+                      onClick={() => window.open(apiService.resolveImageUrl(evidence), '_blank')}
+                    />
+                    <div className="absolute inset-0 bg-black opacity-0 transition-opacity group-hover:opacity-10"></div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {(activeTab === "tickets" ? filteredTickets : filteredDisputes).length === 0 && (
-            <div className="py-12 text-center">
-              <div className="text-gray-500 dark:text-gray-400">No {activeTab} found matching your criteria.</div>
+          {/* Service Partner Evidence */}
+          {selectedDispute.servicePartnerEvidence && selectedDispute.servicePartnerEvidence.length > 0 && (
+            <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+              <h4 className="mb-4 text-base font-semibold text-gray-900 dark:text-white">
+                Service Partner Evidence
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedDispute.servicePartnerEvidence.map((evidence, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-200"
+                  >
+                    {evidence}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Resolution */}
+          {selectedDispute.resolution && (
+            <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+              <h4 className="mb-3 text-base font-semibold text-gray-900 dark:text-white">
+                Resolution
+              </h4>
+              <p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">
+                {selectedDispute.resolution}
+              </p>
+              {selectedDispute.refundAmount && (
+                <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+                  <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Refund Amount: </span>
+                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                    ${selectedDispute.refundAmount}
+                  </span>
+                </div>
+              )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {showModal && (selectedTicket || selectedDispute) && (
+      {/* Footer */}
+      <div className="border-t border-gray-200 px-6 py-4 dark:border-gray-700">
+        <div className="flex justify-end">
+          <button
+            onClick={() => setShowModal(false)}
+            className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+      {/* Add Dispute Modal */}
+      {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-4xl rounded-lg bg-white p-6 dark:bg-gray-800">
+          <div className="w-full max-w-2xl rounded-lg bg-white p-6 dark:bg-gray-800">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {selectedTicket ? `Ticket Details - ${selectedTicket.id}` : `Dispute Details - ${selectedDispute?.id}`}
+                Add New Dispute
               </h3>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => setShowAddModal(false)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 ✕
               </button>
             </div>
             
-            <div className="space-y-6">
-              {selectedTicket && (
-                <>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Ticket Information</h4>
-                      <div className="space-y-2 text-sm">
-                        <div><strong>Type:</strong> {getTypeBadge(selectedTicket.type)}</div>
-                        <div><strong>Priority:</strong> {getPriorityBadge(selectedTicket.priority)}</div>
-                        <div><strong>Status:</strong> {getStatusBadge(selectedTicket.status)}</div>
-                        <div><strong>Created:</strong> {new Date(selectedTicket.createdAt).toLocaleString()}</div>
-                        <div><strong>Updated:</strong> {new Date(selectedTicket.updatedAt).toLocaleString()}</div>
-                        {selectedTicket.assignedTo && (
-                          <div><strong>Assigned To:</strong> {selectedTicket.assignedTo}</div>
-                        )}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Customer Information</h4>
-                      <div className="space-y-2 text-sm">
-                        <div><strong>Name:</strong> {selectedTicket.customerName}</div>
-                        <div><strong>Email:</strong> {selectedTicket.customerEmail}</div>
-                        {selectedTicket.servicePartnerName && (
-                          <>
-                            <div><strong>Service Partner:</strong> {selectedTicket.servicePartnerName}</div>
-                            <div><strong>SP Email:</strong> {selectedTicket.servicePartnerEmail}</div>
-                          </>
-                        )}
-                        {selectedTicket.bookingId && (
-                          <div><strong>Booking ID:</strong> {selectedTicket.bookingId}</div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Subject</h4>
-                    <p className="text-sm text-gray-900 dark:text-white">{selectedTicket.subject}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Description</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{selectedTicket.description}</p>
-                  </div>
-
-                  {selectedTicket.attachments && selectedTicket.attachments.length > 0 && (
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Attachments</h4>
-                      <div className="flex gap-2">
-                        {selectedTicket.attachments.map((attachment, index) => (
-                          <span key={index} className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                            {attachment}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedTicket.resolution && (
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Resolution</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedTicket.resolution}</p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {selectedDispute && (
-                <>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Dispute Information</h4>
-                      <div className="space-y-2 text-sm">
-                        <div><strong>Booking ID:</strong> {selectedDispute.bookingId}</div>
-                        <div><strong>Service:</strong> {selectedDispute.serviceName}</div>
-                        <div><strong>Type:</strong> {selectedDispute.disputeType.replace("_", " ")}</div>
-                        <div><strong>Status:</strong> {getStatusBadge(selectedDispute.status)}</div>
-                        <div><strong>Created:</strong> {new Date(selectedDispute.createdAt).toLocaleString()}</div>
-                        <div><strong>Updated:</strong> {new Date(selectedDispute.updatedAt).toLocaleString()}</div>
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Parties Involved</h4>
-                      <div className="space-y-2 text-sm">
-                        <div><strong>Customer:</strong> {selectedDispute.customerName}</div>
-                        <div><strong>Service Partner:</strong> {selectedDispute.servicePartnerName}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Dispute Description</h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{selectedDispute.description}</p>
-                  </div>
-
-                  {selectedDispute.customerEvidence && selectedDispute.customerEvidence.length > 0 && (
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Customer Evidence</h4>
-                      <div className="flex gap-2">
-                        {selectedDispute.customerEvidence.map((evidence, index) => (
-                          <span key={index} className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900 dark:text-red-300">
-                            {evidence}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedDispute.servicePartnerEvidence && selectedDispute.servicePartnerEvidence.length > 0 && (
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Service Partner Evidence</h4>
-                      <div className="flex gap-2">
-                        {selectedDispute.servicePartnerEvidence.map((evidence, index) => (
-                          <span key={index} className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-300">
-                            {evidence}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {selectedDispute.resolution && (
-                    <div>
-                      <h4 className="mb-3 font-medium text-gray-900 dark:text-white">Resolution</h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedDispute.resolution}</p>
-                      {selectedDispute.refundAmount && (
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          <strong>Refund Amount:</strong> ${selectedDispute.refundAmount}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Customer ID
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  value={newDispute.customerId}
+                  onChange={(e) => setNewDispute({...newDispute, customerId: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Service Partner ID
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  value={newDispute.servicePartnerId}
+                  onChange={(e) => setNewDispute({...newDispute, servicePartnerId: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Service ID
+                </label>
+                <input
+                  type="text"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  value={newDispute.serviceId}
+                  onChange={(e) => setNewDispute({...newDispute, serviceId: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Description
+                </label>
+                <textarea
+                  rows={4}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                  value={newDispute.description}
+                  onChange={(e) => setNewDispute({...newDispute, description: e.target.value})}
+                />
+              </div>
 
               <div className="flex justify-end gap-2 pt-4">
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowAddModal(false)}
                   className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                 >
-                  Close
+                  Cancel
                 </button>
-                <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-                  {selectedTicket ? "Update Ticket" : "Resolve Dispute"}
+                <button 
+                  onClick={handleAddDispute}
+                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                >
+                  Add Dispute
                 </button>
               </div>
             </div>

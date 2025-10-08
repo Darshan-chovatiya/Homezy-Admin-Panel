@@ -80,6 +80,46 @@ export interface ServiceWithSubcategories extends Service {
   subCategories: Subcategory[];
 }
 
+export interface Dispute {
+  _id: string;
+  bookingId: string;
+  customerId: string;
+  customerName: string;
+  servicePartnerId: string;
+  servicePartnerName: string;
+  serviceId: string;
+  serviceName: string;
+  description: string;
+  customerEvidence?: string[];
+  servicePartnerEvidence?: string[];
+  status: 'open' | 'closed' | 'inProgress' | 'reopen';
+  resolution?: string;
+  refundAmount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDisputeRequest {
+
+  customerId: string;
+  servicePartnerId: string;
+  serviceId: string;
+  description: string;
+}
+
+export interface UpdateDisputeStatusRequest {
+  status: 'open' | 'closed' | 'inProgress' | 'reopen';
+  resolution?: string;
+  refundAmount?: number;
+}
+
+export interface DisputeStats {
+  openDisputes: number;
+  inProgressDisputes: number;
+  closedDisputes: number;
+  reopenDisputes: number;
+}
+
 
 // API Service Class
 class ApiService {
@@ -420,6 +460,49 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
   async updateSubcategoryStatus(id: string, status: 'active' | 'inactive'): Promise<ApiResponse<Subcategory>> {
     return this.request('/subcategories/status', {
       body: JSON.stringify({ id, status })
+    });
+  }
+
+  // Dispute Management
+  async getAllDisputes(params?: {
+    status?: string;
+    search?: string;
+  }): Promise<ApiResponse<Dispute[]>> {
+    return this.request('/disputes/list', {
+      body: JSON.stringify(params || {}),
+    });
+  }
+
+  async getDisputeById(id: string): Promise<ApiResponse<Dispute>> {
+    return this.request('/disputes/get', {
+      body: JSON.stringify({ id }),
+    });
+  }
+
+  async createDispute(disputeData: CreateDisputeRequest): Promise<ApiResponse<Dispute>> {
+    return this.request('/disputes/create', {
+      body: JSON.stringify(disputeData),
+    });
+  }
+
+  async updateDisputeStatus(
+    id: string,
+    statusData: UpdateDisputeStatusRequest
+  ): Promise<ApiResponse<Dispute>> {
+    return this.request('/disputes/updateStatus', {
+      body: JSON.stringify({ id, ...statusData }),
+    });
+  }
+
+  async deleteDispute(id: string): Promise<ApiResponse<void>> {
+    return this.request('/disputes/delete', {
+      body: JSON.stringify({ id }),
+    });
+  }
+
+  async getDisputeStats(): Promise<ApiResponse<DisputeStats>> {
+    return this.request('/disputes/stats', {
+      body: JSON.stringify({}),
     });
   }
 
