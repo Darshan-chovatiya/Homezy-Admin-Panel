@@ -3,6 +3,8 @@ import { Gift, Edit, Trash2, Eye, Plus, Users, Tag, Box, History } from "lucide-
 import { couponService, Coupon, CreateCouponFormData, UpdateCouponFormData, CouponUsage, CouponStats, PaginationParams } from '../../services/coupan';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Swal from "sweetalert2";
+
 
 interface SelectOption {
   _id: string;
