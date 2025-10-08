@@ -213,11 +213,11 @@ export default function BookingOversight() {
   if (loading) {
     return (
       <>
-        <PageMeta
+        {/* <PageMeta
           title="Booking Oversight | Homezy Admin Panel"
           description="Track and manage all bookings on the Homezy platform"
         />
-        <PageBreadcrumb pageTitle="Booking Oversight" />
+        <PageBreadcrumb pageTitle="Booking Oversight" /> */}
         
         <div className="flex items-center justify-center p-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -229,11 +229,11 @@ export default function BookingOversight() {
 
   return (
     <>
-      <PageMeta
+      {/* <PageMeta
         title="Booking Oversight | Homezy Admin Panel"
         description="Track and manage all bookings on the Homezy platform"
       />
-      <PageBreadcrumb pageTitle="Booking Oversight" />
+      <PageBreadcrumb pageTitle="Booking Oversight" /> */}
       
       <div className="space-y-6">
         {/* Error State */}

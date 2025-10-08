@@ -430,18 +430,6 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
-  async getCustomerRetention(period: string = '6months'): Promise<ApiResponse<any>> {
-    return this.request('/analytics/customer-retention', {
-      body: JSON.stringify({ period })
-    });
-  }
-
-  async getServicePartnerPerformance(period: string = '6months'): Promise<ApiResponse<any>> {
-    return this.request('/analytics/service-partner-performance', {
-      body: JSON.stringify({ period })
-    });
-  }
-
   // Order Management APIs
   async getOrders(filters?: {
     status?: string;
