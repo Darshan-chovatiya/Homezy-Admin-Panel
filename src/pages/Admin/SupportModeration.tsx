@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import apiService, { CreateDisputeRequest, DisputeStats } from "../../services/api";
+import Swal from "sweetalert2";
 
 // Updated Dispute interface to match backend response
 interface Dispute {
@@ -52,7 +53,6 @@ export default function SupportModeration() {
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [newDispute, setNewDispute] = useState<CreateDisputeRequest>({
     customerId: "",
     servicePartnerId: "",
@@ -83,7 +83,6 @@ export default function SupportModeration() {
   const loadDisputes = async () => {
     try {
       setLoading(true);
-      setError(null);
       const params: any = {};
       if (filterStatus !== "all") params.status = filterStatus;
       if (searchTerm) params.search = searchTerm;
@@ -91,7 +90,11 @@ export default function SupportModeration() {
       const response = await apiService.getAllDisputes(params);
       setDisputes(response.data as unknown as Dispute[]);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load disputes');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err instanceof Error ? err.message : 'Failed to load disputes'
+      });
       console.error('Error loading disputes:', err);
     } finally {
       setLoading(false);
@@ -135,8 +138,20 @@ export default function SupportModeration() {
       ));
       // Reload stats to reflect changes
       loadStats();
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated!',
+        text: `Dispute status has been updated to ${newStatus === "inProgress" ? "In Progress" : newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update dispute status');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err instanceof Error ? err.message : 'Failed to update dispute status'
+      });
       console.error("Error updating dispute status:", err);
     } finally {
       setLoading(false);
@@ -146,7 +161,6 @@ export default function SupportModeration() {
   const handleAddDispute = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await apiService.createDispute(newDispute);
       setDisputes([response.data as unknown as Dispute, ...disputes]);
       setNewDispute({
@@ -158,8 +172,20 @@ export default function SupportModeration() {
       setShowAddModal(false);
       // Reload stats to reflect changes
       loadStats();
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Dispute Created!',
+        text: 'New dispute has been created successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create dispute');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err instanceof Error ? err.message : 'Failed to create dispute'
+      });
       console.error("Error adding dispute:", err);
     } finally {
       setLoading(false);
@@ -167,7 +193,17 @@ export default function SupportModeration() {
   };
 
   const handleDeleteDispute = async (disputeId: string) => {
-    if (!window.confirm('Are you sure you want to delete this dispute?')) {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this action!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
     
@@ -177,8 +213,20 @@ export default function SupportModeration() {
       setDisputes(disputes.filter(dispute => formatId(dispute._id) !== disputeId));
       // Reload stats to reflect changes
       loadStats();
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: 'Dispute has been deleted successfully',
+        timer: 2000,
+        showConfirmButton: false
+      });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete dispute');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: err instanceof Error ? err.message : 'Failed to delete dispute'
+      });
       console.error("Error deleting dispute:", err);
     } finally {
       setLoading(false);
@@ -209,30 +257,6 @@ export default function SupportModeration() {
       <PageBreadcrumb pageTitle="Dispute Management" />
       
       <div className="space-y-6">
-        {/* Error Message */}
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                  Error
-                </h3>
-                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                  {error}
-                </div>
-                <div className="mt-4">
-                  <button
-                    onClick={() => setError(null)}
-                    className="text-sm font-medium text-red-800 hover:text-red-900 dark:text-red-200 dark:hover:text-red-100"
-                  >
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Stats Cards */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
