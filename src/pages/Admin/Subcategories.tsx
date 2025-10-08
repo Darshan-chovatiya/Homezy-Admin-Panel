@@ -578,6 +578,24 @@ function AddEditSubcategoryForm({
   const [name, setName] = useState(initial?.name || "");
   const [description, setDescription] = useState(initial?.description || "");
   const [duration, setDuration] = useState(initial?.duration || "");
+  // Derived hour/minute selects from duration string like "2h 30m"
+  const initialHours = (() => {
+    const m = (initial?.duration || '').match(/(\d+)h/); return m ? parseInt(m[1]) : 0;
+  })();
+  const initialMinutesOnly = (() => {
+    const m = (initial?.duration || '').match(/(\d+)m/); return m ? parseInt(m[1]) : 0;
+  })();
+  const [hoursPart, setHoursPart] = useState<number>(initialHours);
+  const [minutesPart, setMinutesPart] = useState<number>(initialMinutesOnly);
+  const [useCustomHours, setUseCustomHours] = useState<boolean>(false);
+  const [useCustomMinutes, setUseCustomMinutes] = useState<boolean>(false);
+  const [customHours, setCustomHours] = useState<number>(initialHours);
+  const [customMinutes, setCustomMinutes] = useState<number>(initialMinutesOnly);
+
+  const updateDurationString = (h: number, m: number) => {
+    const str = `${h}h ${m}m`;
+    setDuration(str);
+  };
   const [status, setStatus] = useState<Status>(initial?.status || "active");
   const [price, setPrice] = useState(initial?.price || 0);
   // Existing images persisted in DB (string paths)
@@ -682,13 +700,60 @@ function AddEditSubcategoryForm({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Duration</label>
-            <input 
-              value={duration} 
-              onChange={(e) => setDuration(e.target.value)} 
-              type="text" 
-              placeholder="e.g., 2h 30m" 
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
-            />
+            <div className="mt-1 grid grid-cols-2 gap-2">
+              <div className="relative">
+                <select
+                  value={useCustomHours ? 'custom' : String(hoursPart)}
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') { setUseCustomHours(true); } else { const val = Number(e.target.value); setUseCustomHours(false); setHoursPart(val); updateDurationString(val, minutesPart); }
+                  }}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
+                  {Array.from({ length: 13 }).map((_, i) => (
+                    <option key={i} value={i}>{i} h</option>
+                  ))}
+                  <option value="custom">Custom…</option>
+                </select>
+                {useCustomHours && (
+                  <input
+                    type="number"
+                    min={0}
+                    max={48}
+                    value={customHours}
+                    onChange={(e) => { const v = Math.max(0, Math.min(48, Number(e.target.value))); setCustomHours(v); setHoursPart(v); updateDurationString(v, minutesPart); }}
+                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter hours"
+                  />
+                )}
+              </div>
+              <div className="relative">
+                <select
+                  value={useCustomMinutes ? 'custom' : String(minutesPart)}
+                  onChange={(e) => {
+                    if (e.target.value === 'custom') { setUseCustomMinutes(true); } else { const val = Number(e.target.value); setUseCustomMinutes(false); setMinutesPart(val); updateDurationString(hoursPart, val); }
+                  }}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                >
+                  {Array.from({ length: 12 }).map((_, idx) => {
+                    const val = idx * 5; return <option key={val} value={val}>{val} m</option>;
+                  })}
+                  <option value="custom">Custom…</option>
+                </select>
+                {useCustomMinutes && (
+                  <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    step={1}
+                    value={customMinutes}
+                    onChange={(e) => { const v = Math.max(0, Math.min(59, Number(e.target.value))); setCustomMinutes(v); setMinutesPart(v); updateDurationString(hoursPart, v); }}
+                    className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder="Enter minutes"
+                  />
+                )}
+              </div>
+            </div>
+            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">Selected: {duration || `${hoursPart}h ${minutesPart}m`}</div>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Price (₹)</label>

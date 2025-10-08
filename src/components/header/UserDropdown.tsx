@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import Swal from "sweetalert2";
+import apiService from "../../services/api";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [adminProfile, setAdminProfile] = useState<any>(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -17,18 +19,34 @@ export default function UserDropdown() {
   function closeDropdown() {
     setIsOpen(false);
   }
-  const displayName = useMemo(() => {
-    const name = user?.name || user?.emailId || user?.email || "Admin";
-    return name;
+
+  // Fetch admin profile on component mount
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        const response = await apiService.getCurrentAdmin();
+        setAdminProfile(response.data);
+      } catch (error) {
+        console.error('Error fetching admin profile:', error);
+      }
+    };
+
+    if (user) {
+      fetchAdminProfile();
+    }
   }, [user]);
+  const displayName = useMemo(() => {
+    const name = adminProfile?.name || user?.name || user?.emailId || user?.email || "Admin";
+    return name;
+  }, [adminProfile, user]);
 
   const initials = useMemo(() => {
-    const name = (user?.name || user?.emailId || user?.email || "A").trim();
+    const name = (adminProfile?.name || user?.name || user?.emailId || user?.email || "A").trim();
     const parts = name.split(" ").filter(Boolean);
     if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     if (name.includes("@")) return name.slice(0, 2).toUpperCase();
     return name.slice(0, 2).toUpperCase();
-  }, [user]);
+  }, [adminProfile, user]);
 
   const onSignOut = async () => {
     try {
@@ -58,7 +76,15 @@ export default function UserDropdown() {
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
         <span className="mr-3 overflow-hidden rounded-full h-11 w-11 flex items-center justify-center bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-white/80">
-          <span className="text-sm font-semibold">{initials}</span>
+          {adminProfile?.profileImage ? (
+            <img 
+              src={apiService.resolveImageUrl(adminProfile.profileImage)} 
+              alt="Profile" 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span className="text-sm font-semibold">{initials}</span>
+          )}
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">{displayName}</span>
@@ -92,7 +118,7 @@ export default function UserDropdown() {
             {displayName}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {(user?.emailId || user?.email) ?? ""}
+            {(adminProfile?.emailId || user?.emailId || user?.email) ?? ""}
           </span>
         </div>
 
