@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 import Swal from "sweetalert2";
 import apiService from "../../services/api";
@@ -9,6 +9,7 @@ import apiService from "../../services/api";
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [adminProfile, setAdminProfile] = useState<any>(null);
+  const [imageError, setImageError] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -26,6 +27,7 @@ export default function UserDropdown() {
       try {
         const response = await apiService.getCurrentAdmin();
         setAdminProfile(response.data);
+        setImageError(false); // Reset image error when profile changes
       } catch (error) {
         console.error('Error fetching admin profile:', error);
       }
@@ -37,15 +39,32 @@ export default function UserDropdown() {
   }, [user]);
   const displayName = useMemo(() => {
     const name = adminProfile?.name || user?.name || user?.emailId || user?.email || "Admin";
-    return name;
+    // Capitalize the first letter of each word
+    return name.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
   }, [adminProfile, user]);
 
   const initials = useMemo(() => {
-    const name = (adminProfile?.name || user?.name || user?.emailId || user?.email || "A").trim();
-    const parts = name.split(" ").filter(Boolean);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    if (name.includes("@")) return name.slice(0, 2).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
+    const name = (adminProfile?.name || user?.name || user?.emailId || user?.email || "Admin").trim();
+    
+    // Remove email domain if it's an email
+    const cleanName = name.includes("@") ? name.split("@")[0] : name;
+    
+    // Split by spaces and filter out empty strings
+    const parts = cleanName.split(" ").filter(Boolean);
+    
+    if (parts.length >= 2) {
+      // If we have at least 2 words, take first letter of first two words
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length === 1) {
+      // If we have only one word, take first two letters
+      const word = parts[0];
+      return word.length >= 2 ? word.slice(0, 2).toUpperCase() : (word[0] + "A").toUpperCase();
+    }
+    
+    // Fallback
+    return "AD";
   }, [adminProfile, user]);
 
   const onSignOut = async () => {
@@ -75,15 +94,18 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 flex items-center justify-center bg-gray-100 text-gray-700 dark:bg-white/10 dark:text-white/80">
-          {adminProfile?.profileImage ? (
+        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+          {adminProfile?.profileImage && !imageError ? (
             <img 
               src={apiService.resolveImageUrl(adminProfile.profileImage)} 
               alt="Profile" 
               className="w-full h-full object-cover"
+              onError={() => setImageError(true)}
             />
           ) : (
-            <span className="text-sm font-semibold">{initials}</span>
+            <span className="text-sm font-semibold">
+              {initials}
+            </span>
           )}
         </span>
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useModal } from "../../hooks/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
@@ -6,6 +7,26 @@ import Label from "../form/Label";
 
 export default function UserMetaCard() {
   const { isOpen, openModal, closeModal } = useModal();
+  const [imageError, setImageError] = useState(false);
+  
+  // Sample user data - in real app this would come from props or context
+  const userName = "Musharof Chowdhury";
+  const userImage = "/images/user/owner.jpg";
+  
+  // Generate initials from name
+  const getInitials = (name: string) => {
+    const cleanName = name.trim();
+    const parts = cleanName.split(" ").filter(Boolean);
+    
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length === 1) {
+      const word = parts[0];
+      return word.length >= 2 ? word.slice(0, 2).toUpperCase() : (word[0] + "A").toUpperCase();
+    }
+    
+    return "AD";
+  };
   const handleSave = () => {
     // Handle save logic here
     console.log("Saving changes...");
@@ -16,12 +37,25 @@ export default function UserMetaCard() {
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
-            <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800">
-              <img src="/images/user/owner.jpg" alt="user" />
+            <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 text-2xl font-semibold">
+              {userImage && !imageError ? (
+                <img 
+                  src={userImage} 
+                  alt="user" 
+                  className="w-full h-full object-cover"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <span>
+                  {getInitials(userName)}
+                </span>
+              )}
             </div>
             <div className="order-3 xl:order-2">
               <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                Musharof Chowdhury
+                {userName.split(' ').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ')}
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
