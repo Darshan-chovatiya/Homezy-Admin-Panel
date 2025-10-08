@@ -244,6 +244,22 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
+  async updateAdminProfile(formData: FormData): Promise<ApiResponse<Admin>> {
+    return this.requestForm('/admins/updateProfile', formData);
+  }
+
+  async updatePassword(payload: { currentPassword: string; newPassword: string }): Promise<ApiResponse<string>> {
+    return this.request('/admins/updatePassword', {
+      body: JSON.stringify(payload)
+    });
+  }
+
+  async getCurrentAdmin(): Promise<ApiResponse<Admin>> {
+    return this.request('/admins/me', {
+      method: 'GET'
+    });
+  }
+
   async deleteAdmin(id: string): Promise<ApiResponse<boolean>> {
     return this.request('/admins/delete', {
       body: JSON.stringify({ id })
