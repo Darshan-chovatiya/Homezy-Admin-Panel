@@ -423,6 +423,38 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
+  // Analytics APIs
+  async getDashboardAnalytics(period: string = '6months'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/dashboard', {
+      body: JSON.stringify({ period })
+    });
+  }
+
+  // Order Management APIs
+  async getOrders(filters?: {
+    status?: string;
+    customerId?: string;
+    vendorId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<any[]>> {
+    return this.request('/orders/list', {
+      body: JSON.stringify(filters || {})
+    });
+  }
+
+  async assignOrder(orderId: string, vendorId: string): Promise<ApiResponse<any>> {
+    return this.request('/orders/assign', {
+      body: JSON.stringify({ orderId, vendorId })
+    });
+  }
+
+  async getAvailableVendors(subcategoryId: string, date: string, slotId: string): Promise<ApiResponse<any[]>> {
+    return this.request('/orders/available-vendors', {
+      body: JSON.stringify({ subcategoryId, date, slotId })
+    });
+  }
+
 }
 
 export const apiService = new ApiService();

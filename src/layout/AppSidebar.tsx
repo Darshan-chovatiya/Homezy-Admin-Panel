@@ -35,7 +35,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "Customer Management",
+    name: "User Management",
     path: "/admin/customers",
   },
   {
@@ -56,11 +56,6 @@ const navItems: NavItem[] = [
     icon: <PieChartIcon />,
     name: "Booking Oversight",
     path: "/admin/bookings",
-  },
-  {
-    icon: <GridIcon />,
-    name: "Analytics Dashboard",
-    path: "/admin/analytics",
   },
   {
     icon: <ChatIcon />,
