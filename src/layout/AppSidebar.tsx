@@ -30,27 +30,22 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "Vendor Management",
+    name: "Service Partners",
     path: "/admin/vendors",
   },
   {
     icon: <UserCircleIcon />,
-    name: "User Management",
+    name: "User",
     path: "/admin/customers",
   },
   {
     icon: <UserCircleIcon />,
-    name: "Admin Management",
+    name: "Admin",
     path: "/admin/admins",
   },
   {
     icon: <TableIcon />,
-    name: "Coupan Management",
-    path: "/admin/coupans",
-  },
-  {
-    icon: <TableIcon />,
-    name: "Service Management",
+    name: "Service",
     subItems: [
       { name: "Services", path: "/admin/services" },
       { name: "Subcategories", path: "/admin/subcategories" },
@@ -70,7 +65,10 @@ const navItems: NavItem[] = [
   {
     icon: <DollarLineIcon />,
     name: "Promotions & Marketing",
-    path: "/admin/promotions",
+    subItems: [
+      { name: "Coupon", path: "/admin/coupans" },
+      { name: "Notification", path: "/admin/notifications" },
+    ],
   },
   {
     icon: <UserCircleIcon />,

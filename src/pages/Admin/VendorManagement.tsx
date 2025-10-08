@@ -359,14 +359,14 @@ export default function VendorManagement() {
 
   return (
     <>
-      <PageMeta title="Vendor Management | Admin Panel" description="Manage vendors on the platform" />
-      <PageBreadcrumb pageTitle="Vendor Management" />
+      <PageMeta title="Service Partner | Admin Panel" description="Manage vendors on the platform" />
+      <PageBreadcrumb pageTitle="Service Partner" />
 
       <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 lg:p-8">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Vendor Management</h3>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Service Partner</h3>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Total Vendors: <span className="font-semibold text-gray-900 dark:text-white">{totalDocs}</span>
             </p>
@@ -378,7 +378,7 @@ export default function VendorManagement() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
-            Add Vendor
+            Add Service Partner
           </button>
         </div>
 
@@ -390,7 +390,7 @@ export default function VendorManagement() {
             </svg>
             <input
               type="text"
-              placeholder="Search vendors by name, email, or phone..."
+              placeholder="Search Service Partner by name, email, or phone..."
               className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400"
               value={searchTerm}
               onChange={(e) => {
@@ -417,7 +417,7 @@ export default function VendorManagement() {
         {loading ? (
           <div className="py-16 text-center">
             <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading vendors...</p>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Service Partner...</p>
           </div>
         ) : (
           <>
@@ -426,7 +426,7 @@ export default function VendorManagement() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-gradient-to-r from-gray-50 to-gray-100 text-xs font-semibold uppercase text-gray-700 dark:from-gray-700 dark:to-gray-750 dark:text-gray-300">
                   <tr>
-                    <th scope="col" className="px-6 py-4">Vendor</th>
+                    <th scope="col" className="px-6 py-4">Service Partner</th>
                     <th scope="col" className="px-6 py-4">Business</th>
                     <th scope="col" className="px-6 py-4">Contact</th>
                     <th scope="col" className="px-6 py-4">Status</th>
@@ -501,7 +501,7 @@ export default function VendorManagement() {
                           <button
                             onClick={() => openEditModal(vendor)}
                             className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Edit Vendor"
+                            title="Edit Service Partner"
                           >
                             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -539,9 +539,9 @@ export default function VendorManagement() {
                 <svg className="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-6.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                 </svg>
-                <p className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No vendors found</p>
+                <p className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No Service Partners found</p>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  No vendors match your search criteria. Try adjusting your filters.
+                  No service partners match your search criteria. Try adjusting your filters.
                 </p>
               </div>
             )}
@@ -580,7 +580,7 @@ export default function VendorManagement() {
           <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
             <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Add New Vendor
+                Add New Service Partner
               </h3>
               <button
                 onClick={() => setShowAddModal(false)}
@@ -607,7 +607,7 @@ export default function VendorManagement() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter vendor name"
+                      placeholder="Enter Service Partner name"
                     />
                     {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
                   </div>
@@ -1044,7 +1044,7 @@ export default function VendorManagement() {
                   disabled={formLoading}
                   className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {formLoading ? "Creating..." : "Create Vendor"}
+                  {formLoading ? "Creating..." : "Create Service Partner"}
                 </button>
               </div>
             </form>
@@ -1058,7 +1058,7 @@ export default function VendorManagement() {
           <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
             <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                Edit Vendor
+                Edit Service Partner
               </h3>
               <button
                 onClick={() => setShowEditModal(false)}
@@ -1629,7 +1629,7 @@ export default function VendorManagement() {
                   disabled={formLoading}
                   className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {formLoading ? "Updating..." : "Update Vendor"}
+                  {formLoading ? "Updating..." : "Update Service Partner"}
                 </button>
               </div>
             </form>
@@ -1649,7 +1649,7 @@ export default function VendorManagement() {
             <div className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
               <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Vendor Details
+                  Service Partner Details
                 </h3>
                 <button
                   onClick={() => setShowModal(false)}

@@ -338,97 +338,102 @@ export default function CouponManagement() {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-        <div className="flex-1 relative">
-          <svg
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search coupons by code or name..."
-            className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
-        </div>
-        <select
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          value={filterDiscountType}
-          onChange={(e) => {
-            setFilterDiscountType(e.target.value as any);
-            setCurrentPage(1);
-          }}
-        >
-          <option value="all">All Discount Types</option>
-          <option value="percentage">Percentage</option>
-          <option value="fixed">Fixed</option>
-        </select>
-        <select
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          value={filterApplicableFor}
-          onChange={(e) => {
-            setFilterApplicableFor(e.target.value as any);
-            setCurrentPage(1);
-          }}
-        >
-          <option value="all">All Applicability</option>
-          <option value="all">All Users</option>
-          <option value="specific_users">Specific Users</option>
-          <option value="specific_categories">Specific Categories</option>
-          <option value="specific_subcategories">Specific Subcategories</option>
-          <option value="first_order">First Order</option>
-        </select>
-        <select
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          value={filterStatus}
-          onChange={(e) => {
-            setFilterStatus(e.target.value as any);
-            setCurrentPage(1);
-          }}
-        >
-          <option value="all">All Status</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <div>
-          <DatePicker
-            selected={filterStartDate}
-            onChange={(date: Date | null) => {
-              setFilterStartDate(date);
-              setCurrentPage(1);
-            }}
-            placeholderText="Select start date"
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            dateFormat="yyyy-MM-dd"
-          />
-        </div>
-        <div>
-          <DatePicker
-            selected={filterEndDate}
-            onChange={(date: Date | null) => {
-              setFilterEndDate(date);
-              setCurrentPage(1);
-            }}
-            placeholderText="Select end date"
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            dateFormat="yyyy-MM-dd"
-          />
-        </div>
-      </div>
+     {/* Filters */}
+<div className="mb-6 space-y-4">
+  {/* Search Bar - Full Width on Top */}
+  <div className="relative">
+    <svg
+      className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+      />
+    </svg>
+    <input
+      type="text"
+      placeholder="Search coupons by code or name..."
+      className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+      value={searchTerm}
+      onChange={(e) => {
+        setSearchTerm(e.target.value);
+        setCurrentPage(1);
+      }}
+    />
+  </div>
+
+  {/* All Other Filters in One Row */}
+  <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+    <select
+      className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+      value={filterDiscountType}
+      onChange={(e) => {
+        setFilterDiscountType(e.target.value as any);
+        setCurrentPage(1);
+      }}
+    >
+      <option value="all">All Discount Types</option>
+      <option value="percentage">Percentage</option>
+      <option value="fixed">Fixed</option>
+    </select>
+    <select
+      className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+      value={filterApplicableFor}
+      onChange={(e) => {
+        setFilterApplicableFor(e.target.value as any);
+        setCurrentPage(1);
+      }}
+    >
+      <option value="all">All Applicability</option>
+      <option value="all">All Users</option>
+      <option value="specific_users">Specific Users</option>
+      <option value="specific_categories">Specific Categories</option>
+      <option value="specific_subcategories">Specific Subcategories</option>
+      <option value="first_order">First Order</option>
+    </select>
+    <select
+      className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+      value={filterStatus}
+      onChange={(e) => {
+        setFilterStatus(e.target.value as any);
+        setCurrentPage(1);
+      }}
+    >
+      <option value="all">All Status</option>
+      <option value="active">Active</option>
+      <option value="inactive">Inactive</option>
+    </select>
+    <div>
+      <DatePicker
+        selected={filterStartDate}
+        onChange={(date: Date | null) => {
+          setFilterStartDate(date);
+          setCurrentPage(1);
+        }}
+        placeholderText="Select start date"
+        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+        dateFormat="yyyy-MM-dd"
+      />
+    </div>
+    <div>
+      <DatePicker
+        selected={filterEndDate}
+        onChange={(date: Date | null) => {
+          setFilterEndDate(date);
+          setCurrentPage(1);
+        }}
+        placeholderText="Select end date"
+        className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+        dateFormat="yyyy-MM-dd"
+      />
+    </div>
+  </div>
+</div>
 
       {/* Loading State */}
       {loading ? (

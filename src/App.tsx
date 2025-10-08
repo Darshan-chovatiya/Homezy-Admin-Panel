@@ -18,6 +18,7 @@ import Slot from "./pages/Admin/Slot";
 import { AuthProvider } from "./context/AuthContext";
 import RequireAuth from "./components/auth/RequireAuth";
 import CoupanManagement from "./pages/Admin/CoupanManagement";
+import NotificationManagement from "./pages/Admin/NotificationManagement";
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
                 <Route path="/admin/bookings" element={<BookingOversight />} />
                 <Route path="/admin/support" element={<SupportModeration />} />
                 <Route path="/admin/promotions" element={<PromotionsMarketing />} />
+                <Route path="/admin/notifications" element={<NotificationManagement />} />
                 <Route path="/profile" element={<UserProfiles />} />
               </Route>
             </Route>
