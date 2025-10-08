@@ -6,13 +6,16 @@ import UserProfiles from "./pages/UserProfiles";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
-import UserManagement from "./pages/Admin/UserManagement";
+import VendorManagement from "./pages/Admin/VendorManagement";
+import CustomerManagement from "./pages/Admin/CustomerManagement";
 import ServiceManagement from "./pages/Admin/ServiceManagement";
 import Subcategories from "./pages/Admin/Subcategories";
 import BookingOversight from "./pages/Admin/BookingOversight";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import SupportModeration from "./pages/Admin/SupportModeration";
 import PromotionsMarketing from "./pages/Admin/PromotionsMarketing";
+import AdminManagement from "./pages/Admin/AdminManagement";
+import Slot from "./pages/Admin/Slot";
 import { AuthProvider } from "./context/AuthContext";
 import RequireAuth from "./components/auth/RequireAuth";
 
@@ -26,8 +29,11 @@ export default function App() {
             <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
                 <Route index path="/" element={<Home />} />
-                <Route path="/admin/users" element={<UserManagement />} />
+                <Route path="/admin/vendors" element={<VendorManagement />} />
+                <Route path="/admin/customers" element={<CustomerManagement />} />
+                <Route path="/admin/admins" element={<AdminManagement />} />
                 <Route path="/admin/services" element={<ServiceManagement />} />
+                <Route path="/admin/services/slots" element={<Slot />} />
                 <Route path="/admin/subcategories" element={<Subcategories />} />
                 <Route path="/admin/bookings" element={<BookingOversight />} />
                 <Route path="/admin/analytics" element={<AnalyticsDashboard />} />

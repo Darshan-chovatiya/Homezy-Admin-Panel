@@ -30,8 +30,18 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "User Management",
-    path: "/admin/users",
+    name: "Vendor Management",
+    path: "/admin/vendors",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Customer Management",
+    path: "/admin/customers",
+  },
+  {
+    icon: <UserCircleIcon />,
+    name: "Admin Management",
+    path: "/admin/admins",
   },
   {
     icon: <TableIcon />,
@@ -39,6 +49,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Services", path: "/admin/services" },
       { name: "Subcategories", path: "/admin/subcategories" },
+      { name: "Slots", path: "/admin/services/slots" },
     ],
   },
   {
