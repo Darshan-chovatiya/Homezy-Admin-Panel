@@ -3,6 +3,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import { EyeIcon, PencilIcon, TrashBinIcon } from "../../icons";
 import apiService, { Service, Subcategory } from "../../services/api";
+import { Plus } from "lucide-react";
 
 type Status = "active" | "inactive";
 
@@ -234,13 +235,14 @@ export default function Subcategories() {
             Subcategories Management
           </h3>
           <div className="flex gap-2">
-            <button className="inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">
+            {/* <button className="inline-flex items-center justify-center rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">
               Export
-            </button>
+            </button> */}
             <button 
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
+              <Plus className="h-4 w-4" />
              Add Subcategory
             </button>
           </div>
@@ -496,7 +498,7 @@ export default function Subcategories() {
 
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
               <button onClick={() => setShowAddModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="add-subcategory-form" type="submit" className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">Save</button>
+              <button form="add-subcategory-form" type="submit" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Save</button>
             </div>
           </div>
         </div>
@@ -544,7 +546,7 @@ export default function Subcategories() {
 
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
               <button onClick={() => setShowEditModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="edit-subcategory-form" type="submit" className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">Save</button>
+              <button form="edit-subcategory-form" type="submit" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Save</button>
             </div>
           </div>
         </div>
