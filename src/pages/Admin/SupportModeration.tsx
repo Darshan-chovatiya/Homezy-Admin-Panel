@@ -130,6 +130,21 @@ export default function SupportModeration() {
   });
 
   const handleDisputeStatusChange = async (disputeId: string, newStatus: Dispute["status"]) => {
+    const result = await Swal.fire({
+      title: 'Update Status?',
+      text: `Are you sure you want to change the status to ${newStatus === "inProgress" ? "In Progress" : newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, update it!',
+      cancelButtonText: 'Cancel'
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
     try {
       setLoading(true);
       const response = await apiService.updateDisputeStatus(disputeId, { status: newStatus });
