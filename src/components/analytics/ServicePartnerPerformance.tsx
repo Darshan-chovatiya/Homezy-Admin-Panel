@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { apiService } from "../../services/api";
 
 interface ServicePartnerPerformanceData {
   stats: {
@@ -42,10 +41,11 @@ export default function ServicePartnerPerformance({ period }: ServicePartnerPerf
       try {
         setLoading(true);
         setError(null);
-        const response = await apiService.getServicePartnerPerformance(period);
-        if (response.data) {
-          setData(response.data);
-        }
+        setData(null);
+        // const response = await apiService.getServicePartnerPerformance(period);
+        // if (response.data) {
+        //   setData(response.data);
+        // }
       } catch (err) {
         console.error('Error fetching service partner performance data:', err);
         setError('Failed to load service partner performance data');
@@ -232,7 +232,7 @@ export default function ServicePartnerPerformance({ period }: ServicePartnerPerf
         <div className="h-64">
           {/* Simple bar chart representation */}
           <div className="flex h-full items-end justify-between gap-2">
-            {data.performanceTrends.map((trend, index) => (
+            {data.performanceTrends.map((trend) => (
               <div key={trend.month} className="flex flex-1 flex-col items-center">
                 <div className="mb-2 flex w-full items-end justify-center gap-1">
                   <div

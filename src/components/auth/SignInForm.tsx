@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
-import Button from "../ui/button/Button";
 import { useAuth } from "../../context/AuthContext";
 
 export default function SignInForm() {
@@ -14,7 +13,6 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const { login, isLoading } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -125,7 +123,7 @@ export default function SignInForm() {
                     value={email} 
                     onChange={(e) => setEmail((e.target as HTMLInputElement).value)}
                     type="email"
-                    required
+                    // required
                   />
                 </div>
                 <div>
@@ -138,7 +136,7 @@ export default function SignInForm() {
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword((e.target as HTMLInputElement).value)}
-                      required
+                      // required
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -172,9 +170,14 @@ export default function SignInForm() {
                       {error}
                     </div>
                   )}
-                  <Button className="w-full" size="sm" type="submit" disabled={isLoading}>
-                    {isLoading ? "Signing in..." : "Sign in"}
-                  </Button>
+                  <button
+  type="submit"
+  disabled={isLoading}
+  className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium py-2 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+>
+  {isLoading ? "Signing in..." : "Sign in"}
+</button>
+
                 </div>
               </div>
             </form>

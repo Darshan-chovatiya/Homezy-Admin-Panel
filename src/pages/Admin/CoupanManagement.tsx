@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
-import { Gift, Edit, Trash2, Eye, Plus, Users, Tag, Box, History } from "lucide-react";
+import { Gift, Edit, Trash2, Eye, Plus, Users, History } from "lucide-react";
 import { couponService, Coupon, CreateCouponFormData, UpdateCouponFormData, CouponUsage, CouponStats, PaginationParams } from '../../services/coupan';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import Swal from "sweetalert2";
 
 interface SelectOption {
   _id: string;
   name: string;
+  emailId?: string;
 }
 
 export default function CouponManagement() {
@@ -32,7 +34,7 @@ export default function CouponManagement() {
   const [usageHistoryTotalPages, setUsageHistoryTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [totalDocs, setTotalDocs] = useState(0);
+  // const [totalDocs, setTotalDocs] = useState(0);
   const [formLoading, setFormLoading] = useState(false);
   const [users, setUsers] = useState<SelectOption[]>([]);
   const [categories, setCategories] = useState<SelectOption[]>([]);
@@ -116,7 +118,7 @@ export default function CouponManagement() {
       const response = await couponService.getAllCoupons(params);
       setCoupons(response.data.docs);
       setTotalPages(response.data.totalPages);
-      setTotalDocs(response.data.totalDocs);
+      // setTotalDocs(response.data.totalDocs);
 
       const statsResponse = await couponService.getCouponStats();
       setStats(statsResponse.data);

@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { EyeIcon } from "../../icons";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import apiService, { Service } from "../../services/api";
 import { Plus } from "lucide-react";

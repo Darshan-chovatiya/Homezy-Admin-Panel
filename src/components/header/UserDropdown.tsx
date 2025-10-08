@@ -40,7 +40,7 @@ export default function UserDropdown() {
   const displayName = useMemo(() => {
     const name = adminProfile?.name || user?.name || user?.emailId || user?.email || "Admin";
     // Capitalize the first letter of each word
-    return name.split(' ').map(word => 
+    return name.split(' ').map((word:any) => 
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
   }, [adminProfile, user]);

@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 
-const API_BASE_URL = 'http://localhost:5000/api/admin';
+const API_BASE_URL = 'https://homezy.itfuturz.in/api/admin';
 
 // ============================================
 // TYPES & INTERFACES
@@ -84,10 +84,11 @@ export interface CreateCouponFormData {
 
 export interface UpdateCouponFormData {
   couponId: string;
+  couponCode?: string;
   couponName?: string;
   description?: string;
   discountType?: 'percentage' | 'fixed';
-  discountValue?: number;
+  discountValue: number;
   maxDiscountAmount?: number;
   minOrderAmount?: number;
   startDate?: string;

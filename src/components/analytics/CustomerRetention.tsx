@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiService } from "../../services/api";
+// import { apiService } from "../../services/api";
 
 interface CustomerRetentionData {
   segments: {
@@ -35,10 +35,11 @@ export default function CustomerRetention({ period }: CustomerRetentionProps) {
       try {
         setLoading(true);
         setError(null);
-        const response = await apiService.getCustomerRetention(period);
-        if (response.data) {
-          setData(response.data);
-        }
+        setData(null);
+        // const response = await apiService.getCustomerRetention(period);
+        // if (response.data) {
+        //   setData(response.data);
+        // }
       } catch (err) {
         console.error('Error fetching customer retention data:', err);
         setError('Failed to load customer retention data');

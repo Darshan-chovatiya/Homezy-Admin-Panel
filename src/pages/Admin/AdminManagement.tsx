@@ -211,7 +211,7 @@ export default function AdminManagement() {
   );
 }
 
-type ModalPayload = { id?: string; name: string; emailId: string; password?: string; status: Status };
+type ModalPayload = { id?: string; name: string; emailId: string; password: string; status: Status };
 
 function AdminModal({ title, initial, onClose, onSubmit }: { title: string; initial?: AdminUI; onClose: () => void; onSubmit: (p: ModalPayload) => void; }) {
   const [name, setName] = useState(initial?.name || "");
@@ -222,7 +222,7 @@ function AdminModal({ title, initial, onClose, onSubmit }: { title: string; init
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     if (!name.trim() || !emailId.trim()) return;
-    const payload: ModalPayload = { id: initial?.id, name: name.trim(), emailId: emailId.trim(), status };
+    const payload: ModalPayload = { id: initial?.id, name: name.trim(), emailId: emailId.trim(), status, password: "" };
     if (!initial) payload.password = password;
     onSubmit(payload);
   };

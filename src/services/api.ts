@@ -1,5 +1,5 @@
-const API_BASE_URL = 'http://localhost:5000/api/admin';
-export const IMAGE_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'https://homezy.itfuturz.in/api/admin';
+export const IMAGE_BASE_URL = 'https://homezy.itfuturz.in';
 
 
 // Types
@@ -216,11 +216,13 @@ class ApiService {
 
 // Profile
 async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
+    console.log('getProfile called with id:', id);
     // Not implemented on backend yet; placeholder for future use
     throw new Error('getProfile not implemented on backend');
   }
 
   async updateProfile(profileData: { name?: string; email?: string; id?: string }): Promise<ApiResponse<{ admin: Admin }>> {
+    console.log('updateProfile called with:', profileData);
     // Not implemented on backend yet; placeholder for future use
     throw new Error('updateProfile not implemented on backend');
   }

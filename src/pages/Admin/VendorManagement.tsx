@@ -276,7 +276,7 @@ export default function VendorManagement() {
     setPoliceVerificationPreview(null);
   };
   // Load Edit Data
-  const loadEditVendor = (vendor: Vendor) => {
+  const loadEditVendor = (vendor: any) => {
     setEditFormData({
       vendorId: vendor._id,
       name: vendor.name,

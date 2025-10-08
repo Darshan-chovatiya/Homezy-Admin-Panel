@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Eye, Edit, Trash2, Plus } from "lucide-react";
-import customerService, { Customer } from "../../services/customer";
+import customerService from "../../services/customer";
 import Swal from "sweetalert2";
 
 // Customer interface (unchanged)

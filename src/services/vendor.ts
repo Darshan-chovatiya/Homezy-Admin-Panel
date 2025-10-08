@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 
-const API_BASE_URL = 'http://localhost:5000/api/admin';
+const API_BASE_URL = 'https://homezy.itfuturz.in/api/admin';
 
 // ============================================
 // TYPES & INTERFACES
@@ -161,7 +161,7 @@ export interface CreateVendorFormData {
   };
 
   // Availability
-  availability?: {
+  availability: {
     workingDays: string[];
     workingHours: {
       start: string;
@@ -183,9 +183,9 @@ export interface UpdateVendorFormData {
   businessDescription?: string;
   businessLogo?: File;
   businessBanner?: File;
-  professionalInfo?: {
+  professionalInfo: {
     experience?: number;
-    skills?: string[];
+    skills: string[];
     certifications?: Array<{
       name: string;
       issuingAuthority: string;
@@ -226,12 +226,12 @@ export interface UpdateVendorFormData {
     ifscCode?: string;
     bankName?: string;
   };
-  availability?: {
+  availability: {
     isOnline?: boolean;
-    workingDays?: string[];
-    workingHours?: {
-      start?: string;
-      end?: string;
+    workingDays: string[];
+    workingHours: {
+      start: string;
+      end: string;
     };
   };
   overallRating?: number;
@@ -568,7 +568,7 @@ class VendorService {
   /**
    * Update Vendor with File Upload
    */
-  async updateVendor(updateData: UpdateVendorFormData): Promise<ApiResponse<Vendor>> {
+  async updateVendor(updateData: any): Promise<ApiResponse<Vendor>> {
     const formData = this.updateVendorFormData(updateData);
     return this.requestFormData<Vendor>('/vendor/updateVendor', formData, true, true);
   }

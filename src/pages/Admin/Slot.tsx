@@ -89,7 +89,7 @@ export default function Slot() {
   const loadVendors = async () => {
     try {
       setVendorsLoading(true);
-      const res = await fetch('http://localhost:5000/api/admin/vendor/getAllVendors', {
+      const res = await fetch('https://homezy.itfuturz.in/api/admin/vendor/getAllVendors', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
