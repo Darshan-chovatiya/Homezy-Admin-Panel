@@ -3,6 +3,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import apiService, { CreateDisputeRequest, DisputeStats } from "../../services/api";
 import Swal from "sweetalert2";
+import { AlertCircle, Clock, CheckCircle, RotateCcw } from "lucide-react";
 
 // Updated Dispute interface to match backend response
 interface Dispute {
@@ -112,9 +113,9 @@ export default function SupportModeration() {
 
   const filteredDisputes = disputes.filter(dispute => {
     const disputeId = formatId(dispute._id);
-    const customerId = formatId(dispute.customerId._id);
-    const servicePartnerId = formatId(dispute.servicePartnerId._id);
-    const serviceId = formatId(dispute.serviceId._id);
+    const customerId = formatId(dispute.customerId?._id);
+    const servicePartnerId = formatId(dispute.servicePartnerId?._id);
+    const serviceId = formatId(dispute.serviceId?._id);
     
     const matchesSearch = disputeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          dispute.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -278,7 +279,7 @@ export default function SupportModeration() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900">
-                  <span className="text-red-600 dark:text-red-300">🔴</span>
+                  <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -292,7 +293,7 @@ export default function SupportModeration() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900">
-                  <span className="text-yellow-600 dark:text-yellow-300">🟡</span>
+                  <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -306,7 +307,7 @@ export default function SupportModeration() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700">
-                  <span className="text-gray-600 dark:text-gray-300">✅</span>
+                  <CheckCircle className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -320,7 +321,7 @@ export default function SupportModeration() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900">
-                  <span className="text-orange-600 dark:text-orange-300">🔄</span>
+                  <RotateCcw className="h-5 w-5 text-orange-600 dark:text-orange-300" />
                 </div>
               </div>
               <div className="ml-4">

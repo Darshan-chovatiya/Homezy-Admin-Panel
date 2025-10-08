@@ -18,6 +18,7 @@ export default function UserProfiles() {
   const [loading, setLoading] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const [profileForm, setProfileForm] = useState({
     name: '',
     profileImage: null as File | null
@@ -43,6 +44,7 @@ export default function UserProfiles() {
       // Get current admin profile - you might need to implement this API
       const response = await apiService.getCurrentAdmin();
       setProfile(response.data as AdminProfile);
+      setImageError(false); // Reset image error when profile changes
       setProfileForm({
         name: response.data.name || '',
         profileImage: null
@@ -56,6 +58,29 @@ export default function UserProfiles() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Generate initials from name
+  const getInitials = (name: string) => {
+    const cleanName = name.trim();
+    
+    // Remove email domain if it's an email
+    const nameWithoutEmail = cleanName.includes("@") ? cleanName.split("@")[0] : cleanName;
+    
+    // Split by spaces and filter out empty strings
+    const parts = nameWithoutEmail.split(" ").filter(Boolean);
+    
+    if (parts.length >= 2) {
+      // If we have at least 2 words, take first letter of first two words
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length === 1) {
+      // If we have only one word, take first two letters
+      const word = parts[0];
+      return word.length >= 2 ? word.slice(0, 2).toUpperCase() : (word[0] + "A").toUpperCase();
+    }
+    
+    // Fallback
+    return "AD";
   };
 
   const handleProfileUpdate = async () => {
@@ -169,22 +194,25 @@ export default function UserProfiles() {
               <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
                 <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
                   <div className="flex flex-col items-center w-full gap-6 xl:flex-row">
-                    <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-primary text-white text-2xl font-semibold">
-                      {profile.profileImage ? (
+                    <div className="w-20 h-20 overflow-hidden border border-gray-200 rounded-full dark:border-gray-800 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300 text-2xl font-semibold">
+                      {profile.profileImage && !imageError ? (
                         <img 
                           src={apiService.resolveImageUrl(profile.profileImage)} 
                           alt="Profile" 
                           className="w-full h-full object-cover"
+                          onError={() => setImageError(true)}
                         />
                       ) : (
                         <span>
-                          {profile.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
+                          {getInitials(profile.name)}
                         </span>
                       )}
                     </div>
                     <div className="order-3 xl:order-2">
                       <h4 className="mb-2 text-lg font-semibold text-center text-gray-800 dark:text-white/90 xl:text-left">
-                        {profile.name.toUpperCase()}
+                        {profile.name.split(' ').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                        ).join(' ')}
                       </h4>
                       <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                         <p className="text-sm text-gray-500 dark:text-gray-400">

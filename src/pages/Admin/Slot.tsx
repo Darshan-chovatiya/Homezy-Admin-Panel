@@ -1,10 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import PageMeta from "../../components/common/PageMeta";
+import { useEffect, useState } from "react";
 import api, { type Service, type ServiceWithSubcategories, type Subcategory } from "../../services/api";
 import Swal from "sweetalert2";
-
-type Status = "active" | "inactive";
 
 type SlotEntry = {
   id: string;
@@ -125,9 +121,6 @@ export default function Slot() {
 
   return (
     <>
-      <PageMeta title="Slots | Homezy Admin Panel" description="Manage service slots" />
-      <PageBreadcrumb pageTitle="Slots" />
-
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         {error && (
           <div className="mb-4 rounded-lg bg-red-50 border border-red-200 p-4 dark:bg-red-900/20 dark:border-red-800">

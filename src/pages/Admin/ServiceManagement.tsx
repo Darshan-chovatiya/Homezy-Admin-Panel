@@ -58,6 +58,9 @@ export default function ServiceManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [expandedDescriptions, setExpandedDescriptions] = useState<Record<string, boolean>>({});
+  const [imageErrors, setImageErrors] = useState<{[key: string]: boolean}>({});
+  const [modalImageError, setModalImageError] = useState(false);
+  const [subcategoryImageErrors, setSubcategoryImageErrors] = useState<{[key: string]: boolean}>({});
 
   // SweetAlert helpers (fallback to alert)
   const showSuccess = async (title: string, text?: string) => {
@@ -83,6 +86,52 @@ export default function ServiceManagement() {
   useEffect(() => {
     loadServices();
   }, []);
+
+  // Generate initials from name
+  const getInitials = (name: string) => {
+    const cleanName = name.trim();
+    
+    // Remove email domain if it's an email
+    const nameWithoutEmail = cleanName.includes("@") ? cleanName.split("@")[0] : cleanName;
+    
+    // Split by spaces and filter out empty strings
+    const parts = nameWithoutEmail.split(" ").filter(Boolean);
+    
+    if (parts.length >= 2) {
+      // If we have at least 2 words, take first letter of first two words
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length === 1) {
+      // If we have only one word, take first two letters
+      const word = parts[0];
+      return word.length >= 2 ? word.slice(0, 2).toUpperCase() : (word[0] + "A").toUpperCase();
+    }
+    
+    // Fallback
+    return "AD";
+  };
+
+  // Handle image error
+  const handleImageError = (serviceId: string) => {
+    setImageErrors(prev => ({ ...prev, [serviceId]: true }));
+  };
+
+  // Handle modal image error
+  const handleModalImageError = () => {
+    setModalImageError(true);
+  };
+
+  // Reset modal image error when modal opens
+  const handleModalOpen = (service: ServiceUI) => {
+    setSelectedService(service);
+    setModalImageError(false);
+    setSubcategoryImageErrors({}); // Reset subcategory image errors
+    setShowModal(true);
+  };
+
+  // Handle subcategory image error
+  const handleSubcategoryImageError = (subcategoryId: string) => {
+    setSubcategoryImageErrors(prev => ({ ...prev, [subcategoryId]: true }));
+  };
 
   const loadServices = async () => {
     try {
@@ -233,21 +282,15 @@ export default function ServiceManagement() {
                   <div className="mb-4 flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="text-lg font-semibold text-gray-900 dark:text-white">
-                        {service.name}
+                        {service.name.split(' ').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                        ).join(' ')}
                       </h4>
                       <p className="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{service.description}</p>
                       <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">{service.subCategories.length} Subcategories</div>
                     </div>
-                    {service.image && (
-                      <div className="ml-4 flex-shrink-0">
-                        <img
-                          src={service.image}
-                          alt={service.name}
-                          className="h-16 w-16 rounded-lg object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="text-right" onClick={(e) => e.stopPropagation()}>
+                    <div className="ml-4 flex-shrink-0">
+                      <div className="text-right mb-3" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -258,13 +301,28 @@ export default function ServiceManagement() {
                         {getStatusBadge(service.status)}
                       </button>
                     </div>
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                        {service.image && !imageErrors[service.id] ? (
+                          <img
+                            src={service.image}
+                            alt={service.name}
+                            className="h-full w-full rounded-lg object-cover"
+                            onError={() => handleImageError(service.id)}
+                          />
+                        ) : (
+                          <span className="text-lg font-bold">
+                            {getInitials(service.name)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
                   </div>
                   <div className="flex items-center gap-2">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setSelectedService(service);
-                    setShowModal(true);
+                    handleModalOpen(service);
                   }}
                   className="flex items-center justify-center gap-2 flex-1 rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-300"
                 >
@@ -306,80 +364,114 @@ export default function ServiceManagement() {
             <div className="space-y-6">
               <div className="flex gap-6">
                   <div className="flex-1">
-                    <h4 className="text-xl font-semibold text-gray-900 dark:text-white">{selectedService.name}</h4>
+                    <h4 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {selectedService.name.split(' ').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                      ).join(' ')}
+                    </h4>
                     <div className="mt-2 flex items-center gap-2">
                       {getStatusBadge(selectedService.status)}
                     </div>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{selectedService.description}</p>
                   </div>
-                  {selectedService.image && (
-                    <div className="flex-shrink-0">
-                <img
-                  src={selectedService.image}
-                  alt={selectedService.name}
-                  className="h-32 w-32 rounded-lg object-cover"
-                />
+                  <div className="flex-shrink-0">
+                    <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                      {selectedService.image && !modalImageError ? (
+                        <img
+                          src={selectedService.image}
+                          alt={selectedService.name}
+                          className="h-full w-full rounded-lg object-cover"
+                          onError={handleModalImageError}
+                        />
+                      ) : (
+                        <span className="text-3xl font-bold">
+                          {getInitials(selectedService.name)}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
-
-                <div>
-                  <h5 className="mb-3 font-medium text-gray-900 dark:text-white">Subcategories</h5>
-                  <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                      <thead className="bg-gray-50 dark:bg-gray-800/50">
-                        <tr>
-                          <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Name</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Description</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Duration</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Status</th>
-                          <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Images</th>
-                          <th className="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Price (₹)</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {selectedService.subCategories.map((s) => (
-                          <tr key={s.id} className="bg-white dark:bg-gray-800">
-                            <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">{s.name}</td>
-                            <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-                              {expandedDescriptions[s.id]
-                                ? s.description
-                                : (s.description?.length > 30 ? s.description.slice(0, 30) + "..." : s.description)}
-                              {s.description && s.description.length > 30 && (
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedDescriptions(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
-                                  className="ml-2 text-xs text-blue-600 hover:underline dark:text-blue-400"
-                                >
-                                  {expandedDescriptions[s.id] ? "Show less" : "Show more"}
-                                </button>
-                              )}
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{s.duration}</td>
-                            <td className="whitespace-nowrap px-4 py-2">{getStatusBadge(s.status)}</td>
-                            <td className="px-4 py-2">
-                              {s.images && s.images.length > 0 ? (
-                                <div className="flex gap-1">
-                                  {s.images.slice(0, 3).map((img, idx) => (
-                                    <img key={idx} src={img} alt={`${s.name} ${idx + 1}`} className="h-8 w-8 rounded object-cover" />
-                                  ))}
-                                  {s.images.length > 3 && (
-                                    <div className="h-8 w-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600 dark:text-gray-400">
-                                      +{s.images.length - 3}
-                    </div>
-                                  )}
-                    </div>
-                              ) : (
-                                <span className="text-gray-400 text-xs">No images</span>
-                              )}
-                            </td>
-                            <td className="whitespace-nowrap px-4 py-2 text-right text-sm text-gray-900 dark:text-white">{s.price} (₹)</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
                   </div>
                 </div>
+
+                {selectedService.subCategories.length > 0 && (
+                  <div>
+                    <h5 className="mb-3 font-medium text-gray-900 dark:text-white">Subcategories</h5>
+                    <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                      <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <thead className="bg-gray-50 dark:bg-gray-800/50">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Name</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Description</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Duration</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Status</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Images</th>
+                            <th className="px-4 py-2 text-right text-xs font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">Price (₹)</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                          {selectedService.subCategories.map((s) => (
+                            <tr key={s.id} className="bg-white dark:bg-gray-800">
+                              <td className="whitespace-nowrap px-4 py-2 text-sm font-medium text-gray-900 dark:text-white">
+                                {s.name.split(' ').map(word => 
+                                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                                ).join(' ')}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
+                                {expandedDescriptions[s.id]
+                                  ? s.description
+                                  : (s.description?.length > 30 ? s.description.slice(0, 30) + "..." : s.description)}
+                                {s.description && s.description.length > 30 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setExpandedDescriptions(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
+                                    className="ml-2 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                  >
+                                    {expandedDescriptions[s.id] ? "Show less" : "Show more"}
+                                  </button>
+                                )}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{s.duration}</td>
+                              <td className="whitespace-nowrap px-4 py-2">{getStatusBadge(s.status)}</td>
+                              <td className="px-4 py-2">
+                                {s.images && s.images.length > 0 ? (
+                                  <div className="flex gap-1">
+                                    {s.images.slice(0, 3).map((img, idx) => (
+                                      <div key={idx} className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                        {!subcategoryImageErrors[`${s.id}-${idx}`] ? (
+                                          <img 
+                                            src={img} 
+                                            alt={`${s.name} ${idx + 1}`} 
+                                            className="h-full w-full rounded object-cover"
+                                            onError={() => handleSubcategoryImageError(`${s.id}-${idx}`)}
+                                          />
+                                        ) : (
+                                          <span className="text-xs font-bold">
+                                            {getInitials(s.name)}
+                                          </span>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {s.images.length > 3 && (
+                                      <div className="h-8 w-8 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs text-gray-600 dark:text-gray-400">
+                                        +{s.images.length - 3}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                    <span className="text-xs font-bold">
+                                      {getInitials(s.name)}
+                                    </span>
+                                  </div>
+                                )}
+                              </td>
+                              <td className="whitespace-nowrap px-4 py-2 text-right text-sm text-gray-900 dark:text-white">{s.price} (₹)</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
                 </div>
 
@@ -509,6 +601,35 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI
   const [description, setDescription] = useState(initial?.description || "");
   const [status, setStatus] = useState<Status>(initial?.status || "active");
   const [serviceImage, setServiceImage] = useState<File | null>(null);
+  const [imageError, setImageError] = useState(false);
+
+  // Generate initials from name
+  const getInitials = (name: string) => {
+    const cleanName = name.trim();
+    
+    // Remove email domain if it's an email
+    const nameWithoutEmail = cleanName.includes("@") ? cleanName.split("@")[0] : cleanName;
+    
+    // Split by spaces and filter out empty strings
+    const parts = nameWithoutEmail.split(" ").filter(Boolean);
+    
+    if (parts.length >= 2) {
+      // If we have at least 2 words, take first letter of first two words
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length === 1) {
+      // If we have only one word, take first two letters
+      const word = parts[0];
+      return word.length >= 2 ? word.slice(0, 2).toUpperCase() : (word[0] + "A").toUpperCase();
+    }
+    
+    // Fallback
+    return "AD";
+  };
+
+  // Handle image error
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
@@ -543,22 +664,48 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI
                 <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Service Image (Optional)</label>
           <div className="mt-1">
-            {initial?.image && !serviceImage && (
+            {(initial?.image && !serviceImage) || serviceImage ? (
               <div className="mb-2">
-                <img src={initial.image} alt="Current service image" className="h-20 w-20 rounded-lg object-cover" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                  {serviceImage ? (
+                    <img 
+                      src={URL.createObjectURL(serviceImage)} 
+                      alt="New service image" 
+                      className="h-full w-full rounded-lg object-cover"
+                      onError={handleImageError}
+                    />
+                  ) : initial?.image && !imageError ? (
+                    <img 
+                      src={initial.image} 
+                      alt="Current service image" 
+                      className="h-full w-full rounded-lg object-cover"
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <span className="text-xl font-bold">
+                      {getInitials(name || initial?.name || "Service")}
+                    </span>
+                  )}
                 </div>
-            )}
-            {serviceImage && (
+              </div>
+            ) : (
               <div className="mb-2">
-                <img src={URL.createObjectURL(serviceImage)} alt="New service image" className="h-20 w-20 rounded-lg object-cover" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                  <span className="text-xl font-bold">
+                    {getInitials(name || initial?.name || "Service")}
+                  </span>
                 </div>
+              </div>
             )}
                   <input
               type="file"
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) setServiceImage(file);
+                if (file) {
+                  setServiceImage(file);
+                  setImageError(false); // Reset error when new image is selected
+                }
               }}
               className="w-full rounded-lg border border-dashed border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   />

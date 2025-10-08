@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
-import { EyeIcon, UserIcon } from "../../icons";
-import { Eye } from "lucide-react";
+import { UserIcon } from "../../icons";
+import { Eye, BarChart3, CheckCircle, Clock, DollarSign } from "lucide-react";
 
 interface Order {
   _id: string;
@@ -214,12 +214,6 @@ export default function BookingOversight() {
   if (loading) {
     return (
       <>
-        {/* <PageMeta
-          title="Booking Oversight | Homezy Admin Panel"
-          description="Track and manage all bookings on the Homezy platform"
-        />
-        <PageBreadcrumb pageTitle="Booking Oversight" /> */}
-        
         <div className="flex items-center justify-center p-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           <span className="ml-2 text-gray-600 dark:text-gray-400">Loading orders...</span>
@@ -230,12 +224,6 @@ export default function BookingOversight() {
 
   return (
     <>
-      {/* <PageMeta
-        title="Booking Oversight | Homezy Admin Panel"
-        description="Track and manage all bookings on the Homezy platform"
-      />
-      <PageBreadcrumb pageTitle="Booking Oversight" /> */}
-      
       <div className="space-y-6">
         {/* Error State */}
         {error && (
@@ -250,7 +238,7 @@ export default function BookingOversight() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                  <span className="text-blue-600 dark:text-blue-300">📊</span>
+                  <BarChart3 className="h-5 w-5 text-blue-600 dark:text-blue-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -264,7 +252,7 @@ export default function BookingOversight() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900">
-                  <span className="text-green-600 dark:text-green-300">✅</span>
+                  <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -278,7 +266,7 @@ export default function BookingOversight() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-yellow-100 dark:bg-yellow-900">
-                  <span className="text-yellow-600 dark:text-yellow-300">⏳</span>
+                  <Clock className="h-5 w-5 text-yellow-600 dark:text-yellow-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -306,7 +294,7 @@ export default function BookingOversight() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900">
-                  <span className="text-purple-600 dark:text-purple-300">💰</span>
+                  <DollarSign className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -319,22 +307,6 @@ export default function BookingOversight() {
 
         {/* Main Content */}
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              All Orders
-            </h3>
-            <div className="flex gap-2">
-              <button 
-                onClick={fetchOrders}
-                className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                🔄 Refresh
-              </button>
-              <button className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
-                Export Orders
-              </button>
-            </div>
-          </div>
 
           {/* Filters */}
           <div className="mb-6 flex flex-col gap-4 sm:flex-row">
@@ -393,7 +365,6 @@ export default function BookingOversight() {
             <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
               <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                  {/* <th scope="col" className="px-6 py-3">Order ID</th> */}
                   <th scope="col" className="px-6 py-3">Customer</th>
                   <th scope="col" className="px-6 py-3">Service</th>
                   <th scope="col" className="px-6 py-3">Vendor</th>
@@ -407,14 +378,6 @@ export default function BookingOversight() {
               <tbody>
                 {filteredOrders.map((order) => (
                   <tr key={order._id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
-                    {/* <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {order._id.slice(-8).toUpperCase()}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatDate(order.createdAt)}
-                      </div>
-                    </td> */}
                     <td className="px-6 py-4">
                       {order.customerId ? (
                         <>
@@ -673,7 +636,7 @@ export default function BookingOversight() {
                   {availableVendors.map((vendor) => (
                     <option key={vendor._id} value={vendor._id}>
                       {vendor.name} - {vendor.businessName} 
-                      {vendor.overallRating > 0 && ` (⭐ ${vendor.overallRating.toFixed(1)})`}
+                      {vendor.overallRating > 0 && ` (★ ${vendor.overallRating.toFixed(1)})`}
                     </option>
                   ))}
                 </select>
