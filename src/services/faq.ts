@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 
-const API_BASE_URL = 'http://localhost:5000/api/admin';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
 // Types & Interfaces
 export interface ApiResponse<T = any> {
