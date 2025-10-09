@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import socketService from '../services/socketService';
-import chatApiService, { ChatMessage, ChatListItem } from '../services/chatApi';
+import chatApiService, { ChatListItem } from '../services/chatApi';
 import notificationService, { User, Vendor } from '../services/notification';
 import { useAuth } from './AuthContext';
 
@@ -63,32 +63,44 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   // Initialize Socket on Mount
   useEffect(() => {
+    console.log('🔍 ChatContext: Checking auth state...', { user, token: token ? 'present' : 'missing' });
+    
     if (!user || !token) {
       console.log('⚠️ No user or token available for socket connection');
       return;
     }
 
-    // Get admin ID from user or generate one
-    const adminId = user._id || user.emailId || 'admin123';
+    // Add a small delay to ensure auth is fully loaded
+    const initSocket = () => {
+      // Get admin ID from user or generate one
+      const adminId = user._id || user.emailId || 'admin123';
 
-    console.log('🚀 Initializing socket for admin:', adminId);
-    socketService.initSocket(adminId);
+      console.log('🚀 Initializing socket for admin:', adminId, 'with token:', token.substring(0, 20) + '...');
+      socketService.initSocket(adminId);
 
-    // Check connection status
-    const checkConnection = setInterval(() => {
-      setIsSocketConnected(socketService.isSocketConnected());
-    }, 1000);
+      // Check connection status
+      const checkConnection = setInterval(() => {
+        setIsSocketConnected(socketService.isSocketConnected());
+      }, 1000);
 
-    // Setup Socket Listeners
-    setupSocketListeners();
+      // Setup Socket Listeners
+      setupSocketListeners();
 
-    // Load initial chat list
-    loadChatList();
+      // Load initial chat list
+      loadChatList();
 
-    // Cleanup on unmount
+      // Cleanup on unmount
+      return () => {
+        clearInterval(checkConnection);
+        socketService.disconnectSocket();
+      };
+    };
+
+    // Small delay to ensure auth context is fully initialized
+    const timeoutId = setTimeout(initSocket, 100);
+    
     return () => {
-      clearInterval(checkConnection);
-      socketService.disconnectSocket();
+      clearTimeout(timeoutId);
     };
   }, [user, token]);
 
@@ -155,6 +167,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     socketService.onVendorAdminMessageReceived((data) => {
       console.log('📩 Vendor-admin message received:', data);
       
+      if (!data.message.sender) {
+        console.warn('⚠️ Received message without sender info');
+        return;
+      }
+      
       const newMessage: Message = {
         _id: data.message._id,
         senderId: data.message.sender._id,
@@ -176,7 +193,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       // Update unread count
       setUnreadCounts(prev => ({
         ...prev,
-        [data.message.sender._id]: data.unreadCount || 0
+        [data.message.sender!._id]: data.unreadCount || 0
       }));
 
       // Show notification if chat not open
@@ -267,16 +284,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const fetchUsers = async () => {
     try {
       setIsLoading(true);
-      let response;
       
-      if (chatType === 'users') {
-        response = await chatApiService.getUsers({ page: 1, limit: 100 });
-      } else {
-        response = await chatApiService.getVendors({ page: 1, limit: 100 });
-      }
+      const response = await notificationService.getUsersOrVendors(chatType, {
+        page: 1,
+        limit: 100,
+      });
 
       if (response.data) {
-        setAllUsers(response.data.docs || response.data);
+        setAllUsers(response.data.docs);
       }
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -306,7 +321,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       const response = await chatApiService.getChatHistory({
         page: 1,
         limit: 50,
-        chatType: chatType,
+        chatType: chatType === 'users' ? 'user' : 'vendor',
         userId: selectedUserId,
       });
 
@@ -326,7 +341,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         }));
 
         setMessages(formattedMessages);
-        setCurrentChatId(response.chatInfo?._id || null);
+        setCurrentChatId(selectedUserId); // Use selectedUserId as chatId for now
       }
     } catch (error) {
       console.error('Error loading chat history:', error);

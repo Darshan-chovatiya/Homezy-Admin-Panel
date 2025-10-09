@@ -188,12 +188,12 @@ class SocketService {
   }
 
   // Listen for vendor-admin messages
-  onVendorAdminMessageReceived(callback: (data: any) => void) {
+  onVendorAdminMessageReceived(callback: (data: { message: SocketMessage; chatId: string; senderType: string; unreadCount: number }) => void) {
     if (!this.socket) return;
     this.socket.on('vendor_admin_message_received', callback);
   }
 
-  onVendorAdminMessageSent(callback: (data: any) => void) {
+  onVendorAdminMessageSent(callback: (data: { message: SocketMessage; chatId: string }) => void) {
     if (!this.socket) return;
     this.socket.on('vendor_admin_message_sent', callback);
   }
@@ -230,31 +230,31 @@ class SocketService {
   }
 
   // Listen for order updates
-  onOrderUpdate(callback: (data: any) => void) {
+  onOrderUpdate(callback: (data: { orderId: string; orderNumber: string; status: string; timestamp: string }) => void) {
     if (!this.socket) return;
     this.socket.on('order_updated', callback);
   }
 
   // Listen for vendor location updates
-  onVendorLocationUpdate(callback: (data: any) => void) {
+  onVendorLocationUpdate(callback: (data: { orderId: string; orderNumber: string; location: { latitude: number; longitude: number; address: string }; timestamp: string }) => void) {
     if (!this.socket) return;
     this.socket.on('vendor_location_updated', callback);
   }
 
   // Listen for vendor availability updates
-  onVendorAvailabilityUpdate(callback: (data: any) => void) {
+  onVendorAvailabilityUpdate(callback: (data: { vendorId: string; vendorName: string; isOnline: boolean; timestamp: string }) => void) {
     if (!this.socket) return;
     this.socket.on('vendor_availability_updated', callback);
   }
 
   // Listen for vendor going offline
-  onVendorWentOffline(callback: (data: any) => void) {
+  onVendorWentOffline(callback: (data: { vendorId: string; vendorName: string; timestamp: string }) => void) {
     if (!this.socket) return;
     this.socket.on('vendor_went_offline', callback);
   }
 
   // Listen for messages read receipts
-  onMessagesRead(callback: (data: any) => void) {
+  onMessagesRead(callback: (data: { chatId: string; readBy: string; readAt: string }) => void) {
     if (!this.socket) return;
     this.socket.on('messages_read', callback);
   }
@@ -283,6 +283,8 @@ class SocketService {
       return '';
     }
 
+    console.log('🔑 Using auth token for socket:', token.substring(0, 20) + '...');
+    
     // If your backend expects encrypted token, you might need to encrypt it here
     // For now, assuming the token is already encrypted or ready to use
     return token;
