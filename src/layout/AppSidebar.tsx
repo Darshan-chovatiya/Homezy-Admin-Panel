@@ -10,6 +10,7 @@ import {
   PieChartIcon,
   ChatIcon,
   DollarLineIcon,
+  DocsIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
@@ -61,6 +62,11 @@ const navItems: NavItem[] = [
     icon: <ChatIcon />,
     name: "Support & Moderation",
     path: "/admin/support",
+  },
+  {
+    icon: <DocsIcon />,
+    name: "FAQ Management",
+    path: "/admin/faqs",
   },
   {
     icon: <DollarLineIcon />,
