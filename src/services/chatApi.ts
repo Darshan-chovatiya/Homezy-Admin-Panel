@@ -92,9 +92,37 @@ class ChatApiService {
     receiverType: 'user' | 'vendor';
   }) {
     try {
-      // For now, just return success since chat API endpoints may not be implemented yet
-      console.log('📤 Sending message:', data);
-      return { success: true, data: { messageId: Date.now().toString() } };
+      const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+      if (!token) {
+        throw new Error('No auth token found');
+      }
+
+      const response = await fetch('http://localhost:5000/api/vendors/admin/send-message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          message: data.message,
+          messageType: data.messageType || 'text',
+          mediaUrl: data.mediaUrl,
+          fileName: data.fileName,
+          fileSize: data.fileSize,
+          fileMimeType: data.fileMimeType,
+          thumbnailUrl: data.thumbnailUrl,
+          orderId: data.orderId,
+          orderUpdate: data.orderUpdate,
+          vendorId: data.receiverType === 'vendor' ? data.receiverId : undefined,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to send message');
+      }
+
+      return result;
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
@@ -133,18 +161,30 @@ class ChatApiService {
     userId?: string;
   }): Promise<ChatHistoryResponse> {
     try {
-      // For now, return empty chat history since API may not be implemented yet
-      console.log('📚 Getting chat history:', data);
-      return {
-        messages: [],
-        chatInfo: null,
-        pagination: {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+      if (!token) {
+        throw new Error('No auth token found');
+      }
+
+      const response = await fetch('http://localhost:5000/api/vendors/admin/chat-history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           page: data.page || 1,
           limit: data.limit || 50,
-          totalPages: 0,
-          totalMessages: 0
-        }
-      };
+          orderId: data.orderId,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to get chat history');
+      }
+
+      return result.data;
     } catch (error) {
       console.error('Error getting chat history:', error);
       throw error;
@@ -158,17 +198,30 @@ class ChatApiService {
     search?: string;
   }): Promise<ChatListResponse> {
     try {
-      // For now, return empty chat list since API may not be implemented yet
-      console.log('📋 Getting chat list:', data);
-      return {
-        chats: [],
-        pagination: {
+      const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+      if (!token) {
+        throw new Error('No auth token found');
+      }
+
+      const response = await fetch('http://localhost:5000/api/vendors/admin/chat-list', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
           page: data.page || 1,
           limit: data.limit || 20,
-          totalPages: 0,
-          totalChats: 0
-        }
-      };
+          search: data.search,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to get chat list');
+      }
+
+      return result.data;
     } catch (error) {
       console.error('Error getting chat list:', error);
       throw error;
@@ -181,9 +234,29 @@ class ChatApiService {
     chatId: string;
   }) {
     try {
-      // For now, just return success since API may not be implemented yet
-      console.log('✅ Marking messages as read:', data);
-      return { success: true };
+      const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
+      if (!token) {
+        throw new Error('No auth token found');
+      }
+
+      const response = await fetch('http://localhost:5000/api/vendors/admin/mark-read', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          messageId: data.messageId,
+          chatId: data.chatId,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to mark messages as read');
+      }
+
+      return result;
     } catch (error) {
       console.error('Error marking messages as read:', error);
       throw error;

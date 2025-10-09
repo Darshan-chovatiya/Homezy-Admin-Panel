@@ -47,7 +47,7 @@ function ChatWindow({ chatType, selectedUserId }: ChatWindowProps) {
     if (selectedUserId && messages.length > 0) {
       markAsRead();
     }
-  }, [selectedUserId, messages, markAsRead]);
+  }, [selectedUserId, messages.length]); // Remove markAsRead from dependencies to prevent infinite loop
 
   // Get selected user details
   const selectedUser = allUsers.find(user => user._id === selectedUserId);
