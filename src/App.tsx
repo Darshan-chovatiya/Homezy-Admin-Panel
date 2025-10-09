@@ -16,6 +16,7 @@ import PromotionsMarketing from "./pages/Admin/PromotionsMarketing";
 import AdminManagement from "./pages/Admin/AdminManagement";
 import Slot from "./pages/Admin/Slot";
 import { AuthProvider } from "./context/AuthContext";
+import { ChatProvider } from "./context/ChatContext";
 import RequireAuth from "./components/auth/RequireAuth";
 import CoupanManagement from "./pages/Admin/CoupanManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
@@ -26,8 +27,9 @@ export default function App() {
     <>
       <Router>
         <AuthProvider>
-          <ScrollToTop />
-          <Routes>
+          <ChatProvider>
+            <ScrollToTop />
+            <Routes>
             <Route element={<RequireAuth />}>
               <Route element={<AppLayout />}>
                 <Route index path="/" element={<Home />} />
@@ -53,7 +55,8 @@ export default function App() {
 
             {/* Fallback Route */}
             <Route path="*" element={<NotFound />} />
-          </Routes>
+            </Routes>
+          </ChatProvider>
         </AuthProvider>
       </Router>
     </>

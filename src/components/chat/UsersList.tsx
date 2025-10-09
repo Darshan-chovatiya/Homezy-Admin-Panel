@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import notificationService, { User, Vendor } from '../../services/notification';
+import { useChatContext } from '../../context/ChatContext';
+import chatApiService from '../../services/chatApi';
+import { User, Vendor } from '../../services/notification';
 
 interface UsersListProps {
   chatType: 'users' | 'vendors';
@@ -8,33 +10,34 @@ interface UsersListProps {
 }
 
 function UsersList({ chatType, selectedUserId, onSelectUser }: UsersListProps) {
-  const [entities, setEntities] = useState<(User | Vendor)[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { allUsers, isLoading, unreadCounts } = useChatContext();
   const [searchTerm, setSearchTerm] = useState('');
+  const [filteredEntities, setFilteredEntities] = useState<(User | Vendor)[]>([]);
 
-  // Fetch users or vendors
-  const fetchEntities = async () => {
-    try {
-      setLoading(true);
-      const response = await notificationService.getUsersOrVendors(chatType, {
-        page: 1,
-        limit: 100,
-        search: searchTerm,
-      });
-
-      if (response.data) {
-        setEntities(response.data.docs);
-      }
-    } catch (error) {
-      console.error(`Error fetching ${chatType}:`, error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Filter entities based on search term
   useEffect(() => {
-    fetchEntities();
-  }, [chatType, searchTerm]);
+    if (!searchTerm.trim()) {
+      setFilteredEntities(allUsers);
+    } else {
+      const filtered = allUsers.filter(entity => {
+        const name = entity.name.toLowerCase();
+        const search = searchTerm.toLowerCase();
+        
+        if (chatType === 'users') {
+          const user = entity as User;
+          return name.includes(search) || 
+                 user.emailId?.toLowerCase().includes(search) ||
+                 user.mobileNo?.includes(search);
+        } else {
+          const vendor = entity as Vendor;
+          return name.includes(search) || 
+                 vendor.businessName?.toLowerCase().includes(search) ||
+                 vendor.email?.toLowerCase().includes(search);
+        }
+      });
+      setFilteredEntities(filtered);
+    }
+  }, [allUsers, searchTerm, chatType]);
 
   return (
     <div className="h-full flex flex-col">
@@ -51,20 +54,24 @@ function UsersList({ chatType, selectedUserId, onSelectUser }: UsersListProps) {
 
       {/* Users List */}
       <div className="flex-1 overflow-y-auto">
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center h-32">
-            <p className="text-gray-500 dark:text-gray-400">Loading...</p>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-        ) : entities.length === 0 ? (
+        ) : filteredEntities.length === 0 ? (
           <div className="flex items-center justify-center h-32">
-            <p className="text-gray-500 dark:text-gray-400">No {chatType} found</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              {searchTerm ? `No ${chatType} found matching "${searchTerm}"` : `No ${chatType} found`}
+            </p>
           </div>
         ) : (
-          entities.map((entity) => {
+          filteredEntities.map((entity) => {
             const isUser = chatType === 'users';
             const name = entity.name;
             const subText = isUser ? (entity as User).emailId : (entity as Vendor).businessName;
             const isSelected = selectedUserId === entity._id;
+            const unreadCount = unreadCounts[entity._id] || 0;
+            const isOnline = isUser ? (entity as User).isActive : (entity as Vendor).isActive;
 
             return (
               <div
@@ -74,21 +81,47 @@ function UsersList({ chatType, selectedUserId, onSelectUser }: UsersListProps) {
                   isSelected ? 'bg-blue-50 dark:bg-blue-900/20' : ''
                 }`}
               >
-                {/* Avatar */}
-                <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {name.slice(0, 2).toUpperCase()}
-                  </span>
+                {/* Avatar with Online Status */}
+                <div className="relative">
+                  <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    {entity.userImage || (entity as Vendor).image ? (
+                      <img
+                        src={entity.userImage || (entity as Vendor).image}
+                        alt={name}
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                        {name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  {/* Online Status Indicator */}
+                  <div className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white dark:border-gray-900 ${
+                    isOnline ? 'bg-green-500' : 'bg-gray-400'
+                  }`}></div>
                 </div>
 
                 {/* User Info */}
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                    {name}
-                  </h4>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                      {name}
+                    </h4>
+                    {unreadCount > 0 && (
+                      <span className="bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
                     {subText}
                   </p>
+                  {isUser && (entity as User).mobileNo && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500 truncate">
+                      {(entity as User).mobileNo}
+                    </p>
+                  )}
                 </div>
               </div>
             );

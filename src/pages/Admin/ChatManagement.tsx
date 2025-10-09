@@ -1,21 +1,30 @@
 import React, { useState } from 'react';
 import UsersList from '../../components/chat/UsersList';
 import ChatWindow from '../../components/chat/ChatWindow';
+import { useChatContext } from '../../context/ChatContext';
 
 type ChatType = 'users' | 'vendors';
 
 function ChatManagement() {
-  const [chatType, setChatType] = useState<ChatType>('users');
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const { chatType, setChatType, selectedUserId, setSelectedUserId, isSocketConnected } = useChatContext();
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] h-[calc(100vh-120px)]">
       {/* Header with Dropdown */}
       <div className="border-b border-gray-200 dark:border-gray-700 p-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Chat Management
-          </h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Chat Management
+            </h3>
+            {/* Socket Connection Status */}
+            <div className="flex items-center gap-2">
+              <div className={`h-2 w-2 rounded-full ${isSocketConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+              <span className="text-xs text-gray-500 dark:text-gray-400">
+                {isSocketConnected ? 'Connected' : 'Disconnected'}
+              </span>
+            </div>
+          </div>
           <select
             value={chatType}
             onChange={(e) => {
