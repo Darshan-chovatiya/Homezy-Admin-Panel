@@ -221,7 +221,7 @@ export default function CustomerManagement() {
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">User Management</h3>
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Users</h3>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
               Total Customers: <span className="font-semibold">{totalDocs}</span>
             </p>
@@ -380,7 +380,7 @@ export default function CustomerManagement() {
 
       {/* Add Customer Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-[99] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-800 shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-lg">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Add New Customer</h3>
@@ -445,7 +445,7 @@ export default function CustomerManagement() {
 
       {/* Edit Customer Modal */}
       {showEditModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-[99] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-800 shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-lg">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Customer</h3>
@@ -522,7 +522,7 @@ export default function CustomerManagement() {
 
       {/* Customer Detail Modal */}
       {showModal && selectedCustomer && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+        <div className="fixed inset-0 z-[99] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-md max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-800 shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-lg">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Customer Details</h3>

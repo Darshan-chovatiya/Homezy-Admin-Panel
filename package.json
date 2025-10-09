@@ -20,6 +20,7 @@
     "@react-jvectormap/world": "^1.1.2",
     "apexcharts": "^4.1.0",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "flatpickr": "^4.6.13",
     "lucide-react": "^0.545.0",
     "react": "^19.0.0",
