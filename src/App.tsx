@@ -20,6 +20,7 @@ import RequireAuth from "./components/auth/RequireAuth";
 import CoupanManagement from "./pages/Admin/CoupanManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
 import FAQManagement from "./pages/Admin/FAQManagement";
+import ChatManagement from "./pages/Admin/ChatManagement";
 
 export default function App() {
   return (
@@ -43,6 +44,7 @@ export default function App() {
                 <Route path="/admin/promotions" element={<PromotionsMarketing />} />
                 <Route path="/admin/notifications" element={<NotificationManagement />} />
                 <Route path="/admin/faqs" element={<FAQManagement />} />
+                <Route path="/admin/chats" element={<ChatManagement />} />
                 <Route path="/profile" element={<UserProfiles />} />
               </Route>
             </Route>

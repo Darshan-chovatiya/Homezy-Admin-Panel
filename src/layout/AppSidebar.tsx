@@ -54,6 +54,11 @@ const navItems: NavItem[] = [
   //   path: "/admin/admins",
   // },
   {
+    icon: <ChatIcon />,
+    name: "Chat",
+    path: "/admin/chats",
+  },
+  {
     icon: <TableIcon />,
     name: "Services",
     subItems: [
