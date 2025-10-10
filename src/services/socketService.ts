@@ -25,7 +25,7 @@ interface TypingData {
 }
 
 // Socket configuration
-const SOCKET_URL =  'http://localhost:5000';
+const SOCKET_URL =  'https://homezy.itfuturz.in/';
 
 class SocketService {
   private socket: Socket | null = null;
