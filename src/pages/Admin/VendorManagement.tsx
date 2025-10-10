@@ -15,6 +15,8 @@ export default function VendorManagement() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalDocs, setTotalDocs] = useState(0);
   const [formLoading, setFormLoading] = useState(false);
+  const [addFormStep, setAddFormStep] = useState(0); // State for add form step
+  const [editFormStep, setEditFormStep] = useState(0); // State for edit form step
   // Form state for creating vendor
   const [formData, setFormData] = useState<CreateVendorFormData>({
     name: "",
@@ -76,6 +78,26 @@ export default function VendorManagement() {
   const [editPoliceVerificationPreview, setEditPoliceVerificationPreview] = useState<string | null>(null);
   // Validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Steps for the multi-step forms
+  const addFormSteps = [
+    "Personal Info",
+    "Business Details",
+    "Professional Info",
+    "Business Address",
+    "Verification Details",
+    "Bank Details",
+    "Availability"
+  ];
+  const editFormSteps = [
+    "Personal Info",
+    "Business Details",
+    "Professional Info",
+    "Business Address",
+    "Verification Details",
+    "Bank Details",
+    "Availability"
+  ];
   // Fetch vendors
   const fetchVendors = async () => {
     try {
@@ -274,6 +296,7 @@ export default function VendorManagement() {
     setAadhaarBackPreview(null);
     setPanImagePreview(null);
     setPoliceVerificationPreview(null);
+    setAddFormStep(0); // Reset step
   };
   // Load Edit Data
   const loadEditVendor = (vendor: any) => {
@@ -305,6 +328,7 @@ export default function VendorManagement() {
     setEditPanImagePreview(vendor.verification?.panImage || null);
     setEditPoliceVerificationPreview(vendor.verification?.policeVerification || null);
     setMode('edit');
+    setEditFormStep(0); // Reset step
   };
   // Handle Edit Vendor
   const handleEditVendor = async (e: React.FormEvent) => {
@@ -334,6 +358,977 @@ export default function VendorManagement() {
         {vendor.isActive ? "Active" : "Inactive"}
       </span>
     );
+  };
+
+  // Navigation handlers for add form
+  const handleAddNextStep = () => {
+    if (addFormStep < addFormSteps.length - 1) {
+      setAddFormStep(addFormStep + 1);
+    }
+  };
+
+  const handleAddPrevStep = () => {
+    if (addFormStep > 0) {
+      setAddFormStep(addFormStep - 1);
+    }
+  };
+
+  // Navigation handlers for edit form
+  const handleEditNextStep = () => {
+    if (editFormStep < editFormSteps.length - 1) {
+      setEditFormStep(editFormStep + 1);
+    }
+  };
+
+  const handleEditPrevStep = () => {
+    if (editFormStep > 0) {
+      setEditFormStep(editFormStep - 1);
+    }
+  };
+
+  // Render form step content
+  const renderAddFormStep = () => {
+    switch (addFormStep) {
+      case 0: // Personal Info
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Info</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter Service Partner name"
+                />
+                {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter email address"
+                />
+                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter phone number"
+                />
+                {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Profile Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "image")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {imagePreview && (
+                  <img src={imagePreview} alt="Profile Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      case 1: // Business Details
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={formData.businessName}
+                  onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter business name"
+                />
+                {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.businessDescription}
+                  onChange={(e) => setFormData({ ...formData, businessDescription: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter business description (optional)"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Logo
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "businessLogo")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {businessLogoPreview && (
+                  <img src={businessLogoPreview} alt="Logo Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Banner
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "businessBanner")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {businessBannerPreview && (
+                  <img src={businessBannerPreview} alt="Banner Preview" className="mt-2 h-24 w-48 object-cover rounded-lg" />
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      case 2: // Professional Info
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Professional Info</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Experience (years)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={formData.professionalInfo.experience}
+                  onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, experience: Number(e.target.value) } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter experience"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Skills (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={formData.professionalInfo.skills.join(', ')}
+                  onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, skills: e.target.value.split(',').map(s => s.trim()) } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter skills"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Bio
+                </label>
+                <textarea
+                  rows={3}
+                  value={formData.professionalInfo.bio}
+                  onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, bio: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter bio"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 3: // Business Address
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessAddress.address}
+                  onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, address: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter address"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Pincode
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessAddress.pincode}
+                  onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, pincode: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter pincode"
+                />
+                {errors.pincode && <p className="mt-1 text-xs text-red-500">{errors.pincode}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessAddress.city}
+                  onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, city: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter city"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={formData.businessAddress.state}
+                  onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, state: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter state"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  value={formData.businessAddress.latitude || ""}
+                  onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, latitude: Number(e.target.value) || undefined } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter latitude"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  value={formData.businessAddress.longitude || ""}
+                  onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, longitude: Number(e.target.value) || undefined } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter longitude"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 4: // Verification Details
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Aadhaar Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.verification.aadhaarNumber}
+                  onChange={(e) => setFormData({ ...formData, verification: { ...formData.verification, aadhaarNumber: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter Aadhaar number"
+                />
+                {errors.aadhaarNumber && <p className="mt-1 text-xs text-red-500">{errors.aadhaarNumber}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  PAN Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.verification.panNumber}
+                  onChange={(e) => setFormData({ ...formData, verification: { ...formData.verification, panNumber: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter PAN number"
+                />
+                {errors.panNumber && <p className="mt-1 text-xs text-red-500">{errors.panNumber}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Aadhaar Front
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "aadhaarFront")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {aadhaarFrontPreview && (
+                  <img src={aadhaarFrontPreview} alt="Aadhaar Front Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Aadhaar Back
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "aadhaarBack")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {aadhaarBackPreview && (
+                  <img src={aadhaarBackPreview} alt="Aadhaar Back Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  PAN Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "panImage")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {panImagePreview && (
+                  <img src={panImagePreview} alt="PAN Image Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Police Verification
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "policeVerification")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {policeVerificationPreview && (
+                  <img src={policeVerificationPreview} alt="Police Verification Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      case 5: // Bank Details
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Account Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankDetails.accountNumber}
+                  onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, accountNumber: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter account number"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Account Holder Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankDetails.accountHolderName}
+                  onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, accountHolderName: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter account holder name"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  IFSC Code
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankDetails.ifscCode}
+                  onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, ifscCode: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter IFSC code"
+                />
+                {errors.ifscCode && <p className="mt-1 text-xs text-red-500">{errors.ifscCode}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Bank Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.bankDetails.bankName}
+                  onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, bankName: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter bank name"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 6: // Availability
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Working Days (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={formData.availability.workingDays.join(', ')}
+                  onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g., monday, tuesday"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Start Time
+                </label>
+                <input
+                  type="time"
+                  value={formData.availability.workingHours.start}
+                  onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingHours: { ...formData.availability.workingHours, start: e.target.value } } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  End Time
+                </label>
+                <input
+                  type="time"
+                  value={formData.availability.workingHours.end}
+                  onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingHours: { ...formData.availability.workingHours, end: e.target.value } } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderEditFormStep = () => {
+    switch (editFormStep) {
+      case 0: // Personal Info
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Info</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editFormData.name || ""}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter vendor name"
+                />
+                {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={editFormData.email || ""}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter email address"
+                />
+                {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Phone <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  required
+                  value={editFormData.phone || ""}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter phone number"
+                />
+                {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Profile Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "image")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editImagePreview && (
+                  <img src={editImagePreview} alt="Profile Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      case 1: // Business Details
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editFormData.businessName || ""}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessName: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter business name"
+                />
+                {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={editFormData.businessDescription || ""}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessDescription: e.target.value })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter business description (optional)"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Logo
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "businessLogo")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editBusinessLogoPreview && (
+                  <img src={editBusinessLogoPreview} alt="Logo Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Business Banner
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "businessBanner")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editBusinessBannerPreview && (
+                  <img src={editBusinessBannerPreview} alt="Banner Preview" className="mt-2 h-24 w-48 object-cover rounded-lg" />
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      case 2: // Professional Info
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Professional Info</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Experience (years)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  value={editFormData.professionalInfo?.experience || 0}
+                  onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, experience: Number(e.target.value) } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter experience"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Skills (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.professionalInfo?.skills.join(', ') || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, skills: e.target.value.split(',').map(s => s.trim()) } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter skills"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Bio
+                </label>
+                <textarea
+                  rows={3}
+                  value={editFormData.professionalInfo?.bio || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, bio: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter bio"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 3: // Business Address
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.businessAddress?.address || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, address: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter address"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Pincode
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.businessAddress?.pincode || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, pincode: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter pincode"
+                />
+                {errors.pincode && <p className="mt-1 text-xs text-red-500">{errors.pincode}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.businessAddress?.city || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, city: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter city"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.businessAddress?.state || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, state: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter state"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Latitude
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  value={editFormData.businessAddress?.latitude || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, latitude: Number(e.target.value) || undefined } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter latitude"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Longitude
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  value={editFormData.businessAddress?.longitude || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, longitude: Number(e.target.value) || undefined } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter longitude"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 4: // Verification Details
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Aadhaar Number
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.verification?.aadhaarNumber || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, aadhaarNumber: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter Aadhaar number"
+                />
+                {errors.aadhaarNumber && <p className="mt-1 text-xs text-red-500">{errors.aadhaarNumber}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  PAN Number
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.verification?.panNumber || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, panNumber: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter PAN number"
+                />
+                {errors.panNumber && <p className="mt-1 text-xs text-red-500">{errors.panNumber}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Aadhaar Front
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "aadhaarFront")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editAadhaarFrontPreview && (
+                  <img src={editAadhaarFrontPreview} alt="Aadhaar Front Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Aadhaar Back
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "aadhaarBack")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editAadhaarBackPreview && (
+                  <img src={editAadhaarBackPreview} alt="Aadhaar Back Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  PAN Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "panImage")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editPanImagePreview && (
+                  <img src={editPanImagePreview} alt="PAN Image Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Police Verification
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleEditFileChange(e, "policeVerification")}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+                {editPoliceVerificationPreview && (
+                  <img src={editPoliceVerificationPreview} alt="Police Verification Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editFormData.verification?.isVerified || false}
+                  onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, isVerified: e.target.checked } })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Verified
+                </label>
+              </div>
+            </div>
+          </div>
+        );
+      case 5: // Bank Details
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Account Number
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.bankDetails?.accountNumber || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountNumber: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter account number"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Account Holder Name
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.bankDetails?.accountHolderName || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountHolderName: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter account holder name"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  IFSC Code
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.bankDetails?.ifscCode || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, ifscCode: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter IFSC code"
+                />
+                {errors.ifscCode && <p className="mt-1 text-xs text-red-500">{errors.ifscCode}</p>}
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Bank Name
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.bankDetails?.bankName || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, bankName: e.target.value } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="Enter bank name"
+                />
+              </div>
+            </div>
+          </div>
+        );
+      case 6: // Availability
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Working Days (comma separated)
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.availability?.workingDays.join(', ') || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder="e.g., monday, tuesday"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Start Time
+                </label>
+                <input
+                  type="time"
+                  value={editFormData.availability?.workingHours.start || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingHours: { ...editFormData.availability.workingHours, start: e.target.value } } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  End Time
+                </label>
+                <input
+                  type="time"
+                  value={editFormData.availability?.workingHours.end || ''}
+                  onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingHours: { ...editFormData.availability.workingHours, end: e.target.value } } })}
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editFormData.availability?.isOnline || false}
+                  onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, isOnline: e.target.checked } })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Is Online
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editFormData.isActive || false}
+                  onChange={(e) => setEditFormData({ ...editFormData, isActive: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Active Status
+                </label>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={editFormData.isApproved || false}
+                  onChange={(e) => setEditFormData({ ...editFormData, isApproved: e.target.checked })}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Approved
+                </label>
+              </div>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
   };
   return (
     <>
@@ -544,7 +1539,7 @@ export default function VendorManagement() {
           </>
         )}
         {mode === 'add' && (
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-4xl">
             <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Add New Service Partner
@@ -559,457 +1554,81 @@ export default function VendorManagement() {
               </button>
             </div>
             <form onSubmit={handleAddVendor} className="space-y-6">
-              {/* Personal Info */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Info</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter Service Partner name"
-                    />
-                    {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter email address"
-                    />
-                    {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Phone <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter phone number"
-                    />
-                    {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Profile Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "image")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {imagePreview && (
-                      <img src={imagePreview} alt="Profile Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
-                    )}
-                  </div>
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between mb-4">
+                  {addFormSteps.map((step, index) => (
+                    <div
+                      key={step}
+                      className={`flex-1 text-center text-sm font-medium ${
+                        index <= addFormStep ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center mb-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                          index <= addFormStep 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      </div>
+                      {step}
+                      {index < addFormSteps.length - 1 && (
+                        <div className={`h-1 mt-2 mx-2 ${
+                          index < addFormStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}></div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-              {/* Business Details */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.businessName}
-                      onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter business name"
-                    />
-                    {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Description
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.businessDescription}
-                      onChange={(e) => setFormData({ ...formData, businessDescription: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter business description (optional)"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Logo
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "businessLogo")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {businessLogoPreview && (
-                      <img src={businessLogoPreview} alt="Logo Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Banner
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "businessBanner")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {businessBannerPreview && (
-                      <img src={businessBannerPreview} alt="Banner Preview" className="mt-2 h-24 w-48 object-cover rounded-lg" />
-                    )}
-                  </div>
-                </div>
-              </div>
-              {/* Professional Info */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Professional Info</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Experience (years)
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={formData.professionalInfo.experience}
-                      onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, experience: Number(e.target.value) } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter experience"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Skills (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.professionalInfo.skills.join(', ')}
-                      onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, skills: e.target.value.split(',').map(s => s.trim()) } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter skills"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Bio
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.professionalInfo.bio}
-                      onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, bio: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter bio"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Skip services and certifications for simplicity */}
-              {/* Business Address */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.businessAddress.address}
-                      onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, address: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter address"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Pincode
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.businessAddress.pincode}
-                      onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, pincode: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter pincode"
-                    />
-                    {errors.pincode && <p className="mt-1 text-xs text-red-500">{errors.pincode}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.businessAddress.city}
-                      onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, city: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter city"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.businessAddress.state}
-                      onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, state: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter state"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Latitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.businessAddress.latitude || ""}
-                      onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, latitude: Number(e.target.value) || undefined } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter latitude"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Longitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.businessAddress.longitude || ""}
-                      onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, longitude: Number(e.target.value) || undefined } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter longitude"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Verification Details */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Aadhaar Number
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.verification.aadhaarNumber}
-                      onChange={(e) => setFormData({ ...formData, verification: { ...formData.verification, aadhaarNumber: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter Aadhaar number"
-                    />
-                    {errors.aadhaarNumber && <p className="mt-1 text-xs text-red-500">{errors.aadhaarNumber}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      PAN Number
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.verification.panNumber}
-                      onChange={(e) => setFormData({ ...formData, verification: { ...formData.verification, panNumber: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter PAN number"
-                    />
-                    {errors.panNumber && <p className="mt-1 text-xs text-red-500">{errors.panNumber}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Aadhaar Front
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "aadhaarFront")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {aadhaarFrontPreview && (
-                      <img src={aadhaarFrontPreview} alt="Aadhaar Front Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Aadhaar Back
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "aadhaarBack")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {aadhaarBackPreview && (
-                      <img src={aadhaarBackPreview} alt="Aadhaar Back Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      PAN Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "panImage")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {panImagePreview && (
-                      <img src={panImagePreview} alt="PAN Image Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Police Verification
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "policeVerification")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {policeVerificationPreview && (
-                      <img src={policeVerificationPreview} alt="Police Verification Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                </div>
-              </div>
-              {/* Bank Details */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Account Number
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.bankDetails.accountNumber}
-                      onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, accountNumber: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter account number"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Account Holder Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.bankDetails.accountHolderName}
-                      onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, accountHolderName: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter account holder name"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.bankDetails.ifscCode}
-                      onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, ifscCode: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter IFSC code"
-                    />
-                    {errors.ifscCode && <p className="mt-1 text-xs text-red-500">{errors.ifscCode}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Bank Name
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.bankDetails.bankName}
-                      onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, bankName: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter bank name"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Availability */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Working Days (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.availability.workingDays.join(', ')}
-                      onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="e.g., monday, tuesday"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Start Time
-                    </label>
-                    <input
-                      type="time"
-                      value={formData.availability.workingHours.start}
-                      onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingHours: { ...formData.availability.workingHours, start: e.target.value } } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      End Time
-                    </label>
-                    <input
-                      type="time"
-                      value={formData.availability.workingHours.end}
-                      onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingHours: { ...formData.availability.workingHours, end: e.target.value } } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
+
+              {/* Step Content */}
+              {renderAddFormStep()}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={() => setMode('list')}
-                  className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  onClick={handleAddPrevStep}
+                  disabled={addFormStep === 0}
+                  className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 >
-                  Cancel
+                  Previous
                 </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {formLoading ? "Creating..." : "Create Service Partner"}
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMode('list')}
+                    className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  {addFormStep < addFormSteps.length - 1 ? (
+                    <button
+                      type="button"
+                      onClick={handleAddNextStep}
+                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={formLoading}
+                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {formLoading ? "Creating..." : "Create Service Partner"}
+                    </button>
+                  )}
+                </div>
               </div>
             </form>
           </div>
         )}
         {mode === 'edit' && (
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-4xl">
             <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Edit Service Partner
@@ -1024,557 +1643,75 @@ export default function VendorManagement() {
               </button>
             </div>
             <form onSubmit={handleEditVendor} className="space-y-6">
-              {/* Personal Info */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Personal Info</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editFormData.name || ""}
-                      onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter vendor name"
-                    />
-                    {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={editFormData.email || ""}
-                      onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter email address"
-                    />
-                    {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Phone <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      value={editFormData.phone || ""}
-                      onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter phone number"
-                    />
-                    {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Profile Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "image")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editImagePreview && (
-                      <img src={editImagePreview} alt="Profile Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
-                    )}
-                  </div>
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between mb-4">
+                  {editFormSteps.map((step, index) => (
+                    <div
+                      key={step}
+                      className={`flex-1 text-center text-sm font-medium ${
+                        index <= editFormStep ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center mb-2">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                          index <= editFormStep 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
+                        }`}>
+                          {index + 1}
+                        </div>
+                      </div>
+                      {step}
+                      {index < editFormSteps.length - 1 && (
+                        <div className={`h-1 mt-2 mx-2 ${
+                          index < editFormStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                        }`}></div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-              {/* Business Details */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={editFormData.businessName || ""}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessName: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter business name"
-                    />
-                    {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Description
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={editFormData.businessDescription || ""}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessDescription: e.target.value })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter business description (optional)"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Logo
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "businessLogo")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editBusinessLogoPreview && (
-                      <img src={editBusinessLogoPreview} alt="Logo Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Business Banner
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "businessBanner")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editBusinessBannerPreview && (
-                      <img src={editBusinessBannerPreview} alt="Banner Preview" className="mt-2 h-24 w-48 object-cover rounded-lg" />
-                    )}
-                  </div>
-                </div>
-              </div>
-              {/* Professional Info */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Professional Info</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Experience (years)
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={editFormData.professionalInfo?.experience || 0}
-                      onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, experience: Number(e.target.value) } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter experience"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Skills (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.professionalInfo?.skills.join(', ') || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, skills: e.target.value.split(',').map(s => s.trim()) } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter skills"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Bio
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={editFormData.professionalInfo?.bio || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, bio: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter bio"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Business Address */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Address
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.businessAddress?.address || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, address: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter address"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Pincode
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.businessAddress?.pincode || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, pincode: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter pincode"
-                    />
-                    {errors.pincode && <p className="mt-1 text-xs text-red-500">{errors.pincode}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.businessAddress?.city || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, city: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter city"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.businessAddress?.state || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, state: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter state"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Latitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={editFormData.businessAddress?.latitude || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, latitude: Number(e.target.value) || undefined } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter latitude"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Longitude
-                    </label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={editFormData.businessAddress?.longitude || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, longitude: Number(e.target.value) || undefined } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter longitude"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Verification Details */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Aadhaar Number
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.verification?.aadhaarNumber || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, aadhaarNumber: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter Aadhaar number"
-                    />
-                    {errors.aadhaarNumber && <p className="mt-1 text-xs text-red-500">{errors.aadhaarNumber}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      PAN Number
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.verification?.panNumber || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, panNumber: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter PAN number"
-                    />
-                    {errors.panNumber && <p className="mt-1 text-xs text-red-500">{errors.panNumber}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Aadhaar Front
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "aadhaarFront")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editAadhaarFrontPreview && (
-                      <img src={editAadhaarFrontPreview} alt="Aadhaar Front Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Aadhaar Back
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "aadhaarBack")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editAadhaarBackPreview && (
-                      <img src={editAadhaarBackPreview} alt="Aadhaar Back Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      PAN Image
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "panImage")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editPanImagePreview && (
-                      <img src={editPanImagePreview} alt="PAN Image Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Police Verification
-                    </label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleEditFileChange(e, "policeVerification")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                    {editPoliceVerificationPreview && (
-                      <img src={editPoliceVerificationPreview} alt="Police Verification Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={editFormData.verification?.isVerified || false}
-                      onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, isVerified: e.target.checked } })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Verified
-                    </label>
-                  </div>
-                </div>
-              </div>
-              {/* Bank Details */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Account Number
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.bankDetails?.accountNumber || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountNumber: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter account number"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Account Holder Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.bankDetails?.accountHolderName || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountHolderName: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter account holder name"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      IFSC Code
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.bankDetails?.ifscCode || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, ifscCode: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter IFSC code"
-                    />
-                    {errors.ifscCode && <p className="mt-1 text-xs text-red-500">{errors.ifscCode}</p>}
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Bank Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.bankDetails?.bankName || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, bankName: e.target.value } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter bank name"
-                    />
-                  </div>
-                </div>
-              </div>
-              {/* Availability */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="md:col-span-2">
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Working Days (comma separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={editFormData.availability?.workingDays.join(', ') || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="e.g., monday, tuesday"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Start Time
-                    </label>
-                    <input
-                      type="time"
-                      value={editFormData.availability?.workingHours.start || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingHours: { ...editFormData.availability.workingHours, start: e.target.value } } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      End Time
-                    </label>
-                    <input
-                      type="time"
-                      value={editFormData.availability?.workingHours.end || ''}
-                      onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingHours: { ...editFormData.availability.workingHours, end: e.target.value } } })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                    />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={editFormData.availability?.isOnline || false}
-                      onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, isOnline: e.target.checked } })}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Is Online
-                    </label>
-                  </div>
-                </div>
-              </div>
-              {/* Performance Metrics */}
-              <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Performance Metrics</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Overall Rating
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      min={0}
-                      max={5}
-                      value={editFormData.overallRating || 0}
-                      onChange={(e) => setEditFormData({ ...editFormData, overallRating: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter overall rating"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Total Ratings
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={editFormData.totalRatings || 0}
-                      onChange={(e) => setEditFormData({ ...editFormData, totalRatings: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter total ratings"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Completed Jobs
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      value={editFormData.completedJobs || 0}
-                      onChange={(e) => setEditFormData({ ...editFormData, completedJobs: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter completed jobs"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                      Response Rate (%)
-                    </label>
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={editFormData.responseRate || 0}
-                      onChange={(e) => setEditFormData({ ...editFormData, responseRate: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                      placeholder="Enter response rate"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={editFormData.isActive || false}
-                    onChange={(e) => setEditFormData({ ...editFormData, isActive: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Active
-                  </label>
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={editFormData.isApproved || false}
-                    onChange={(e) => setEditFormData({ ...editFormData, isApproved: e.target.checked })}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Approved
-                  </label>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
+
+              {/* Step Content */}
+              {renderEditFormStep()}
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={() => setMode('list')}
-                  className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  onClick={handleEditPrevStep}
+                  disabled={editFormStep === 0}
+                  className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 >
-                  Cancel
+                  Previous
                 </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {formLoading ? "Updating..." : "Update Service Partner"}
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setMode('list')}
+                    className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  {editFormStep < editFormSteps.length - 1 ? (
+                    <button
+                      type="button"
+                      onClick={handleEditNextStep}
+                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+                    >
+                      Next
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={formLoading}
+                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {formLoading ? "Updating..." : "Update Service Partner"}
+                    </button>
+                  )}
+                </div>
               </div>
             </form>
           </div>
