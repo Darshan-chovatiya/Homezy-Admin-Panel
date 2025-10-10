@@ -193,6 +193,12 @@ class SocketService {
     this.socket.on('vendor_admin_message_received', callback);
   }
 
+  // Listen for user-admin messages
+  onUserAdminMessageReceived(callback: (data: { message: SocketMessage; chatId: string; senderType: string; unreadCount: number }) => void) {
+    if (!this.socket) return;
+    this.socket.on('user_admin_message_received', callback);
+  }
+
   onVendorAdminMessageSent(callback: (data: { message: SocketMessage; chatId: string }) => void) {
     if (!this.socket) return;
     this.socket.on('vendor_admin_message_sent', callback);

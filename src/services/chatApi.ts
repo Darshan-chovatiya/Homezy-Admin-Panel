@@ -100,7 +100,7 @@ class ChatApiService {
       // Choose the correct endpoint based on receiver type
       const endpoint = data.receiverType === 'vendor' 
         ? 'http://localhost:5000/api/vendors/admin/send-message'
-        : 'http://localhost:5000/api/vendors/admin/send-message';
+        : 'http://localhost:5000/api/users/admin/send-message';
 
       const requestBody: any = {
         message: data.message,
@@ -182,7 +182,7 @@ class ChatApiService {
       // Choose the correct endpoint based on chat type
       const endpoint = data.chatType === 'vendor' 
         ? 'http://localhost:5000/api/vendors/admin/chat-history'
-        : 'http://localhost:5000/api/vendors/admin/chat-history';
+        : 'http://localhost:5000/api/users/admin/chat-history';
 
       const requestBody: any = {
         page: data.page || 1,
@@ -223,6 +223,7 @@ class ChatApiService {
     page?: number;
     limit?: number;
     search?: string;
+    chatType?: 'user' | 'vendor';
   }): Promise<ChatListResponse> {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
@@ -230,7 +231,12 @@ class ChatApiService {
         throw new Error('No auth token found');
       }
 
-      const response = await fetch('http://localhost:5000/api/vendors/admin/chat-list', {
+      // Choose the correct endpoint based on chat type
+      const endpoint = data.chatType === 'vendor' 
+        ? 'http://localhost:5000/api/vendors/admin/chat-list'
+        : 'http://localhost:5000/api/users/admin/chat-list';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -259,6 +265,7 @@ class ChatApiService {
   async markAsRead(data: {
     messageId?: string;
     chatId: string;
+    chatType?: 'user' | 'vendor';
   }) {
     try {
       const token = localStorage.getItem('authToken') || localStorage.getItem('adminToken');
@@ -266,7 +273,12 @@ class ChatApiService {
         throw new Error('No auth token found');
       }
 
-      const response = await fetch('http://localhost:5000/api/vendors/admin/mark-read', {
+      // Choose the correct endpoint based on chat type
+      const endpoint = data.chatType === 'vendor' 
+        ? 'http://localhost:5000/api/vendors/admin/mark-read'
+        : 'http://localhost:5000/api/users/admin/mark-read';
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

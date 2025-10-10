@@ -109,7 +109,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const loadChatList = async () => {
     try {
       setIsLoading(true);
-      const response = await chatApiService.getChatList({ page: 1, limit: 50 });
+      const response = await chatApiService.getChatList({ 
+        page: 1, 
+        limit: 50,
+        chatType: chatType === 'users' ? 'user' : 'vendor'
+      });
       setChatList(response.chats);
       
       // Update unread counts
@@ -200,7 +204,51 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       // Show notification if chat not open
       if (selectedUserId !== data.message.sender._id) {
-        showNotification(`New message from ${data.message.sender.name}`, data.message.message);
+        const senderName = data.message.sender.name || data.message.sender.businessName || 'Unknown';
+        showNotification(`New message from ${senderName}`, data.message.message);
+      }
+
+      // Refresh chat list
+      loadChatList();
+    });
+
+    // Listen for user-admin messages
+    socketService.onUserAdminMessageReceived((data) => {
+      console.log('📩 User-admin message received:', data);
+      
+      if (!data.message.sender) {
+        console.warn('⚠️ Received user-admin message without sender info');
+        return;
+      }
+      
+      const newMessage: Message = {
+        _id: data.message._id,
+        senderId: data.message.sender._id,
+        senderType: data.message.senderType,
+        receiverId: 'admin',
+        receiverType: 'admin',
+        message: data.message.message,
+        messageType: data.message.messageType,
+        isRead: false,
+        createdAt: data.message.createdAt,
+        sender: data.message.sender,
+      };
+
+      // Add message to list if current chat is open
+      if (selectedUserId === data.message.sender._id) {
+        setMessages((prev) => [...prev, newMessage]);
+      }
+
+      // Update unread count
+      setUnreadCounts(prev => ({
+        ...prev,
+        [data.message.sender!._id]: data.unreadCount || 0
+      }));
+
+      // Show notification if chat not open
+      if (selectedUserId !== data.message.sender._id) {
+        const senderName = data.message.sender.name || 'Unknown User';
+        showNotification(`New message from ${senderName}`, data.message.message);
       }
 
       // Refresh chat list
@@ -379,7 +427,10 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     if (!currentChatId) return;
     
     try {
-      await chatApiService.markAsRead({ chatId: currentChatId });
+      await chatApiService.markAsRead({ 
+        chatId: currentChatId,
+        chatType: chatType === 'users' ? 'user' : 'vendor'
+      });
       
       // Update local state
       setMessages(prev => prev.map(msg => ({
