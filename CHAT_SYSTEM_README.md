@@ -26,7 +26,7 @@ This document describes the real-time chat system implementation for the Homezy 
 - Unread count tracking
 - User/vendor management
 
-### 3. Chat Context (`src/context/ChatContext.tsx`)
+<!-- ### 3. Chat Context (`src/context/ChatContext.tsx`) -->
 - Global state management for chat functionality
 - Integration with authentication system
 - Real-time message handling
