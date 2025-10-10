@@ -3,6 +3,7 @@ import socketService from '../services/socketService';
 import chatApiService, { ChatListItem } from '../services/chatApi';
 import notificationService, { User, Vendor } from '../services/notification';
 import { useAuth } from './AuthContext';
+import Swal from 'sweetalert2';
 
 // Types
 type ChatType = 'users' | 'vendors';
@@ -156,7 +157,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
       // Show notification if chat not open
       if (selectedUserId !== data.senderId) {
-        showNotification(`New message from ${data.senderType}`, data.message);
+        const senderName = data.sender?.name || data.senderType;
+        showNotification(`New message from ${senderName}`, data.message);
       }
 
       // Refresh chat list
@@ -261,8 +263,28 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     });
   }, [selectedUserId, currentChatId]);
 
-  // Show browser notification
+  // Show SweetAlert notification
   const showNotification = (title: string, body: string) => {
+    // Show SweetAlert notification
+    Swal.fire({
+      title: title,
+      text: body,
+      icon: 'info',
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 4000,
+      timerProgressBar: true,
+      background: '#f8f9fa',
+      color: '#333',
+      customClass: {
+        popup: 'swal-notification-popup',
+        title: 'swal-notification-title',
+        content: 'swal-notification-content'
+      }
+    });
+
+    // Also show browser notification if permission is granted
     if ('Notification' in window && Notification.permission === 'granted') {
       new Notification(title, { body });
     }

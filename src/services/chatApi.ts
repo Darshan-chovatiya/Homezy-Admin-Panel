@@ -97,24 +97,37 @@ class ChatApiService {
         throw new Error('No auth token found');
       }
 
-      const response = await fetch('http://localhost:5000/api/vendors/admin/send-message', {
+      // Choose the correct endpoint based on receiver type
+      const endpoint = data.receiverType === 'vendor' 
+        ? 'http://localhost:5000/api/vendors/admin/send-message'
+        : 'http://localhost:5000/api/vendors/admin/send-message';
+
+      const requestBody: any = {
+        message: data.message,
+        messageType: data.messageType || 'text',
+        mediaUrl: data.mediaUrl,
+        fileName: data.fileName,
+        fileSize: data.fileSize,
+        fileMimeType: data.fileMimeType,
+        thumbnailUrl: data.thumbnailUrl,
+        orderId: data.orderId,
+        orderUpdate: data.orderUpdate,
+      };
+
+      // Add the correct ID field based on receiver type
+      if (data.receiverType === 'vendor') {
+        requestBody.vendorId = data.receiverId;
+      } else {
+        requestBody.userId = data.receiverId;
+      }
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          message: data.message,
-          messageType: data.messageType || 'text',
-          mediaUrl: data.mediaUrl,
-          fileName: data.fileName,
-          fileSize: data.fileSize,
-          fileMimeType: data.fileMimeType,
-          thumbnailUrl: data.thumbnailUrl,
-          orderId: data.orderId,
-          orderUpdate: data.orderUpdate,
-          vendorId: data.receiverType === 'vendor' ? data.receiverId : undefined,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();
@@ -166,17 +179,31 @@ class ChatApiService {
         throw new Error('No auth token found');
       }
 
-      const response = await fetch('http://localhost:5000/api/vendors/admin/chat-history', {
+      // Choose the correct endpoint based on chat type
+      const endpoint = data.chatType === 'vendor' 
+        ? 'http://localhost:5000/api/vendors/admin/chat-history'
+        : 'http://localhost:5000/api/vendors/admin/chat-history';
+
+      const requestBody: any = {
+        page: data.page || 1,
+        limit: data.limit || 50,
+        orderId: data.orderId,
+      };
+
+      // Add the correct ID field based on chat type
+      if (data.chatType === 'vendor' && data.userId) {
+        requestBody.vendorId = data.userId;
+      } else if (data.chatType === 'user' && data.userId) {
+        requestBody.userId = data.userId;
+      }
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          page: data.page || 1,
-          limit: data.limit || 50,
-          orderId: data.orderId,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       const result = await response.json();

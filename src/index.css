@@ -3,6 +3,40 @@ layer(base);
 
 @import "tailwindcss";
 
+/* SweetAlert Notification Styles */
+.swal-notification-popup {
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.swal-notification-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin-bottom: 8px !important;
+}
+
+.swal-notification-content {
+  font-size: 14px !important;
+  color: #6b7280 !important;
+  line-height: 1.4 !important;
+}
+
+/* Dark mode support for notifications */
+.dark .swal-notification-popup {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+.dark .swal-notification-title {
+  color: #f9fafb !important;
+}
+
+.dark .swal-notification-content {
+  color: #d1d5db !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
