@@ -69,7 +69,7 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PieChartIcon />,
-    name: "Orders Booking",
+    name: "Orders",
     path: "/admin/bookings",
   },
   {
