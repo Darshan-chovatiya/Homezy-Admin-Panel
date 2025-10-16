@@ -35,8 +35,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		const savedToken = localStorage.getItem("authToken");
 		const savedUser = localStorage.getItem("user");
-		if (savedToken) setToken(savedToken);
-		if (savedUser) setUser(JSON.parse(savedUser));
+		if (savedToken) {
+			setToken(savedToken);
+		}
+		if (savedUser) {
+			try {
+				setUser(JSON.parse(savedUser));
+			} catch (error) {
+				console.error("Error parsing saved user:", error);
+				localStorage.removeItem("user");
+			}
+		}
 		setIsLoading(false);
 	}, []);
 
@@ -45,13 +54,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 		try {
 			const res = await api.login(email, password);
 			if (res.data) {
-				setToken(String(res.data));
+				const tokenString = String(res.data);
+				
+				// Save token to both state and localStorage
+				setToken(tokenString);
+				localStorage.setItem('authToken', tokenString);
+				
 				// Create a basic user object since backend only returns token
 				const userObj: Admin = {
+					_id: email.split('@')[0] + '_' + Date.now(), // Generate a unique ID
 					emailId: email,
 					email: email,
 					name: email.split('@')[0], // Use email prefix as name
 				};
+				
 				setUser(userObj);
 				localStorage.setItem('user', JSON.stringify(userObj));
 			}
@@ -80,14 +96,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 			setUser(null);
 			setToken(null);
 			localStorage.removeItem('user');
+			localStorage.removeItem('authToken'); // Also remove token from localStorage
 		} finally {
 			setIsLoading(false);
 		}
 	}, []);
 
-	const value = useMemo<AuthContextType>(() => ({ user, token, isLoading, login, register, logout }), [user, token, isLoading, login, register, logout]);
+	const value = useMemo<AuthContextType>(
+		() => ({ user, token, isLoading, login, register, logout }), 
+		[user, token, isLoading, login, register, logout]
+	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-
