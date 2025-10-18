@@ -1,6 +1,6 @@
 import Swal from 'sweetalert2';
 
-const API_BASE_URL =  import.meta.env.VITE_API_BASE_URL as string;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string;
 
 // Types & Interfaces
 export interface ApiResponse<T = any> {
@@ -9,48 +9,32 @@ export interface ApiResponse<T = any> {
   data: T;
 }
 
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-}
-
-export interface User {
+export interface FAQ {
   _id: string;
-  name: string;
-  emailId: string;
-  mobileNo: string;
+  question: string;
+  answer: string;
+  type: 'user' | 'vendor';
   isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface Vendor {
-  _id: string;
-  name: string;
-  email: string;
-  phone: string;
-  businessName: string;
-  isActive: boolean;
+export interface CreateFAQData {
+  question: string;
+  answer: string;
+  type: 'user' | 'vendor';
 }
 
-export interface NotificationData {
-  title: string;
-  message: string;
-  recipientType: 'users' | 'vendors' | 'specific_users' | 'specific_vendors';
-  specificUsers?: string[];
-  specificVendors?: string[];
+export interface UpdateFAQData {
+  faqId: string;
+  question?: string;
+  answer?: string;
+  type?: 'user' | 'vendor';
+  isActive?: boolean;
 }
 
-export interface PaginatedResponse<T> {
-  docs: T[];
-  totalDocs: number;
-  limit: number;
-  page: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-}
-
-class NotificationService {
+// FAQ Service Class
+class FAQService {
   private token: string | null = null;
 
   constructor() {
@@ -64,7 +48,7 @@ class NotificationService {
       text: message,
       confirmButtonColor: '#3b82f6',
       timer: 3000,
-      timerProgressBar: true,
+      timerProgressBar: true
     });
   }
 
@@ -119,16 +103,31 @@ class NotificationService {
     }
   }
 
-  // Get Users or Vendors
-  async getUsersOrVendors(type: 'users' | 'vendors', params: PaginationParams = {}): Promise<ApiResponse<PaginatedResponse<User | Vendor>>> {
-    return this.request(`/getUsersOrVendors`, { type, ...params }, 'POST', false, true);
+  // Create FAQ
+  async createFAQ(faqData: CreateFAQData): Promise<ApiResponse<FAQ>> {
+    return this.request('/faqs/create', faqData, 'POST', true, true);
   }
 
-  // Send Notification
-  async sendNotification(notificationData: NotificationData): Promise<ApiResponse<any>> {
-    return this.request('/notifications/create', notificationData, 'POST', true, true);
+  // Get All FAQs
+  async getAllFAQs(): Promise<ApiResponse<FAQ[]>> {
+    return this.request('/faqs/list', {}, 'POST', false, true);
+  }
+
+  // Get FAQ by ID
+  async getFAQById(faqId: string): Promise<ApiResponse<FAQ>> {
+    return this.request('/faqs/get', { faqId }, 'POST', false, true);
+  }
+
+  // Update FAQ
+  async updateFAQ(updateData: UpdateFAQData): Promise<ApiResponse<FAQ>> {
+    return this.request('/faqs/update', updateData, 'POST', true, true);
+  }
+
+  // Delete FAQ
+  async deleteFAQ(faqId: string): Promise<ApiResponse> {
+    return this.request('/faqs/delete', { faqId }, 'POST', true, true);
   }
 }
 
-export const notificationService = new NotificationService();
-export default notificationService;
+export const faqService = new FAQService();
+export default faqService;

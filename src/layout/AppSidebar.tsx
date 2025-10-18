@@ -10,6 +10,7 @@ import {
   PieChartIcon,
   ChatIcon,
   DollarLineIcon,
+  DocsIcon,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
@@ -30,19 +31,28 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "Service Partners",
-    path: "/admin/vendors",
+    name: "Masters",
+    subItems: [
+      { name: "Service Partners", path: "/admin/vendors" },
+      { name: "Users", path: "/admin/customers" },
+      { name: "Admins", path: "/admin/admins" },
+    ],
   },
-  {
-    icon: <UserCircleIcon />,
-    name: "User",
-    path: "/admin/customers",
-  },
-  {
-    icon: <UserCircleIcon />,
-    name: "Admin",
-    path: "/admin/admins",
-  },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "Service Partners",
+  //   path: "/admin/vendors",
+  // },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "Users",
+  //   path: "/admin/customers",
+  // },
+  // {
+  //   icon: <UserCircleIcon />,
+  //   name: "Admins",
+  //   path: "/admin/admins",
+  // },
   {
     icon: <ChatIcon />,
     name: "Chat",
@@ -50,22 +60,27 @@ const navItems: NavItem[] = [
   },
   {
     icon: <TableIcon />,
-    name: "Service",
+    name: "Services",
     subItems: [
-      { name: "Services", path: "/admin/services" },
-      { name: "Subcategories", path: "/admin/subcategories" },
-      { name: "Slots", path: "/admin/services/slots" },
+      { name: "Service Categories", path: "/admin/services" },
+      { name: "Service Subcategories", path: "/admin/subcategories" },
+      // { name: "Slots", path: "/admin/services/slots" },
     ],
   },
   {
     icon: <PieChartIcon />,
-    name: "Booking Oversight",
+    name: "Orders",
     path: "/admin/bookings",
   },
   {
     icon: <ChatIcon />,
     name: "Support & Moderation",
     path: "/admin/support",
+  },
+  {
+    icon: <DocsIcon />,
+    name: "FAQ Management",
+    path: "/admin/faqs",
   },
   {
     icon: <DollarLineIcon />,

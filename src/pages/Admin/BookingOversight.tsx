@@ -2,6 +2,84 @@ import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
 import { UserIcon } from "../../icons";
 import { Eye, BarChart3, CheckCircle, Clock, DollarSign } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+
+// Custom styles for react-datepicker to match dark theme
+const datePickerStyles = `
+  .react-datepicker {
+    background-color: white;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-family: inherit;
+  }
+  
+  .dark .react-datepicker {
+    background-color: #1f2937;
+    border-color: #374151;
+    color: white;
+  }
+  
+  .react-datepicker__header {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #d1d5db;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  .dark .react-datepicker__header {
+    background-color: #374151;
+    border-bottom-color: #4b5563;
+  }
+  
+  .react-datepicker__day {
+    color: #374151;
+  }
+  
+  .dark .react-datepicker__day {
+    color: #d1d5db;
+  }
+  
+  .react-datepicker__day:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .dark .react-datepicker__day:hover {
+    background-color: #4b5563;
+  }
+  
+  .react-datepicker__day--selected {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .react-datepicker__day--in-range {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .dark .react-datepicker__day--in-range {
+    background-color: #1e3a8a;
+    color: #93c5fd;
+  }
+  
+  .react-datepicker__day--in-selecting-range {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  .dark .react-datepicker__day--in-selecting-range {
+    background-color: #1e3a8a;
+    color: #93c5fd;
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.type = "text/css";
+  styleSheet.innerText = datePickerStyles;
+  document.head.appendChild(styleSheet);
+}
 
 interface Order {
   _id: string;
@@ -52,7 +130,7 @@ export default function BookingOversight() {
   const [filterPaymentStatus, setFilterPaymentStatus] = useState<"all" | "pending" | "completed" | "failed" | "refunded">("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [dateRange, setDateRange] = useState({ start: null as Date | null, end: null as Date | null });
   const [assignModal, setAssignModal] = useState(false);
   const [selectedOrderForAssign, setSelectedOrderForAssign] = useState<Order | null>(null);
   const [availableVendors, setAvailableVendors] = useState<Array<{
@@ -81,8 +159,8 @@ export default function BookingOversight() {
       } = {};
       if (filterStatus !== "all") filters.status = filterStatus;
       if (filterPaymentStatus !== "all") filters.paymentStatus = filterPaymentStatus;
-      if (dateRange.start) filters.startDate = dateRange.start;
-      if (dateRange.end) filters.endDate = dateRange.end;
+      if (dateRange.start) filters.startDate = dateRange.start.toISOString().split('T')[0];
+      if (dateRange.end) filters.endDate = dateRange.end.toISOString().split('T')[0];
 
       const response = await apiService.getOrders(filters);
       if (response.data) {
@@ -320,19 +398,34 @@ export default function BookingOversight() {
               />
             </div>
             <div className="flex gap-2">
-              <input
-                type="date"
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                value={dateRange.start}
-                onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                placeholder="Start Date"
+              <DatePicker
+                selected={dateRange.start}
+                onChange={(date: Date | null) => setDateRange({ ...dateRange, start: date })}
+                selectsStart
+                startDate={dateRange.start || undefined}
+                endDate={dateRange.end || undefined}
+                placeholderText="Start Date"
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white w-full"
+                dateFormat="dd/MM/yyyy"
+                isClearable
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
               />
-              <input
-                type="date"
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                value={dateRange.end}
-                onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                placeholder="End Date"
+              <DatePicker
+                selected={dateRange.end}
+                onChange={(date: Date | null) => setDateRange({ ...dateRange, end: date })}
+                selectsEnd
+                startDate={dateRange.start || undefined}
+                endDate={dateRange.end || undefined}
+                minDate={dateRange.start || undefined}
+                placeholderText="End Date"
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white w-full"
+                dateFormat="dd/MM/yyyy"
+                isClearable
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
               />
               <select
                 className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-800 dark:text-white"
@@ -423,10 +516,10 @@ export default function BookingOversight() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-white">
-                        {formatDate(order.slot.startTime)}
+                        {formatDate(order.createdAt)}
                       </div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(order.slot.startTime).toLocaleTimeString()} - {new Date(order.slot.endTime).toLocaleTimeString()}
+                        {(order.slot.startTime)} - {(order.slot.endTime)}
                       </div>
                     </td>
                     <td className="px-6 py-4">
