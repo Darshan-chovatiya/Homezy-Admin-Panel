@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import { useChatContext } from '../../context/ChatContext';
-import chatApiService from '../../services/chatApi';
 import { User, Vendor } from '../../services/notification';
 
 interface UsersListProps {
@@ -84,9 +83,9 @@ function UsersList({ chatType, selectedUserId, onSelectUser }: UsersListProps) {
                 {/* Avatar with Online Status */}
                 <div className="relative">
                   <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                    {entity.userImage || (entity as Vendor).image ? (
+                    {entity.userImage || (entity as Vendor).userImage ? (
                       <img
-                        src={entity.userImage || (entity as Vendor).image}
+                        src={entity.userImage || (entity as Vendor).userImage}
                         alt={name}
                         className="h-12 w-12 rounded-full object-cover"
                       />

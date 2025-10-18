@@ -324,11 +324,9 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       timer: 4000,
       timerProgressBar: true,
       background: '#f8f9fa',
-      color: '#333',
       customClass: {
         popup: 'swal-notification-popup',
-        title: 'swal-notification-title',
-        content: 'swal-notification-content'
+        title: 'swal-notification-title'
       }
     });
 

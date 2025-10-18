@@ -21,6 +21,7 @@ export interface User {
   emailId: string;
   mobileNo: string;
   isActive: boolean;
+  userImage?: string;
 }
 
 export interface Vendor {
@@ -30,6 +31,7 @@ export interface Vendor {
   phone: string;
   businessName: string;
   isActive: boolean;
+  userImage?: string;
 }
 
 export interface NotificationData {

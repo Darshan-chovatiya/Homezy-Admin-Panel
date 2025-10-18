@@ -12,7 +12,7 @@
 
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, Image, Smile } from 'lucide-react';
+import { Send, Paperclip, Image } from 'lucide-react';
 import { useChatContext } from '../../context/ChatContext';
 
 interface ChatWindowProps {
@@ -35,7 +35,7 @@ function ChatWindow({ chatType, selectedUserId }: ChatWindowProps) {
   const [messageText, setMessageText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

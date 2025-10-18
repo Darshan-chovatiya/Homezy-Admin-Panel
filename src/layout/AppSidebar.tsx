@@ -7,7 +7,7 @@ import {
   HorizontaLDots,
   UserCircleIcon,
   TableIcon,
-  PieChartIcon,
+  // PieChartIcon,
   ChatIcon,
   DollarLineIcon,
   DocsIcon,

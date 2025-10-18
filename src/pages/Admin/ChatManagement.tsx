@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import UsersList from '../../components/chat/UsersList';
 import ChatWindow from '../../components/chat/ChatWindow';
 import { useChatContext } from '../../context/ChatContext';
