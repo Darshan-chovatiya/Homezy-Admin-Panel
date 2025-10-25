@@ -185,14 +185,17 @@ export default function FAQManagement() {
     }
   };
 
-  const getStatusBadge = (isActive: boolean) => {
+  const getStatusBadge = (faq: FAQ) => {
     return (
-      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-        isActive 
-          ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300"
-          : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300"
-      }`}>
-        {isActive ? "Active" : "Inactive"}
+      <span
+        onClick={() => handleToggle(faq)}
+        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+          faq.isActive
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+        }`}
+      >
+        {faq.isActive ? "Active" : "Inactive"}
       </span>
     );
   };
@@ -294,18 +297,7 @@ export default function FAQManagement() {
                       {getTypeBadge(faq.type)}
                     </td>
                     <td className="px-6 py-4">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={faq.isActive}
-                          onChange={() => handleToggle(faq)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
-                          {faq.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </label>
+                      {getStatusBadge(faq)}
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 dark:text-white">
@@ -507,7 +499,7 @@ export default function FAQManagement() {
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">FAQ Information</h4>
                     <div className="mt-1 flex gap-2">
-                      {getStatusBadge(selectedFAQ.isActive)}
+                      {getStatusBadge(selectedFAQ)}
                       {getTypeBadge(selectedFAQ.type)}
                     </div>
                   </div>

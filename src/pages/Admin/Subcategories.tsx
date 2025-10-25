@@ -191,15 +191,17 @@ export default function Subcategories() {
     }
   };
 
-  const getStatusBadge = (status: Status) => {
-    const statusClasses = {
-      active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      inactive: "bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-300",
-    };
-
+  const getStatusBadge = (subcategory: SubcategoryUI) => {
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusClasses[status]}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <span
+        onClick={() => handleStatusChange(subcategory.id, subcategory.status === 'active' ? 'inactive' : 'active')}
+        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+          subcategory.status === 'active'
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+        }`}
+      >
+        {subcategory.status === 'active' ? "Active" : "Inactive"}
       </span>
     );
   };
@@ -330,12 +332,7 @@ export default function Subcategories() {
                       ₹{subcategory.price}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
-                      <button
-                        onClick={() => handleStatusChange(subcategory.id, subcategory.status === 'active' ? 'inactive' : 'active')}
-                        className="cursor-pointer"
-                      >
-                        {getStatusBadge(subcategory.status)}
-                      </button>
+                      {getStatusBadge(subcategory)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                       <div className="flex gap-3 justify-end">
@@ -404,7 +401,7 @@ export default function Subcategories() {
                   <div className="flex-1">
                     <h4 className="text-xl font-semibold text-gray-900 dark:text-white">{selectedSubcategory.name}</h4>
                     <div className="mt-2 flex items-center gap-2">
-                      {getStatusBadge(selectedSubcategory.status)}
+                      {getStatusBadge(selectedSubcategory)}
                     </div>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{selectedSubcategory.description}</p>
                     <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">

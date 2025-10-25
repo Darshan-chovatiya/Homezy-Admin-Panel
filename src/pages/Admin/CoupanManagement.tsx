@@ -282,16 +282,44 @@ export default function CouponManagement() {
     }
   }, [usageHistoryPage]);
 
+  // Handle status toggle
+  const handleToggleStatus = async (coupon: Coupon) => {
+    try {
+      const nextStatus = !coupon.isActive;
+      await couponService.updateCoupon({
+        couponId: coupon._id,
+        isActive: nextStatus
+      });
+      
+      // Update local state
+      setCoupons(prev =>
+        prev.map(c =>
+          c._id === coupon._id ? { ...c, isActive: nextStatus } : c
+        )
+      );
+      
+      // Update stats
+      const statsResponse = await couponService.getCouponStats();
+      setStats(statsResponse.data);
+      
+      Swal.fire('Success', `Coupon ${nextStatus ? 'activated' : 'deactivated'} successfully`, 'success');
+    } catch (error) {
+      console.error('Error updating coupon status:', error);
+      Swal.fire('Error', 'Failed to update coupon status', 'error');
+    }
+  };
+
   // Get status badge
-  const getStatusBadge = (isActive: boolean) => (
+  const getStatusBadge = (coupon: Coupon) => (
     <span
-      className={`px-3 py-1 text-xs font-semibold rounded-full ${
-        isActive
-          ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300"
-          : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+      onClick={() => handleToggleStatus(coupon)}
+      className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+        coupon.isActive
+          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
       }`}
     >
-      {isActive ? "Active" : "Inactive"}
+      {coupon.isActive ? "Active" : "Inactive"}
     </span>
   );
 
@@ -468,7 +496,7 @@ export default function CouponManagement() {
                         {coupon.assignedUsers?.length || 0} users
                       </div>
                     </td>
-                    <td className="px-6 py-4">{getStatusBadge(coupon.isActive)}</td>
+                    <td className="px-6 py-4">{getStatusBadge(coupon)}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
@@ -1014,7 +1042,7 @@ export default function CouponManagement() {
                 {/* Status Badge */}
                 <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg dark:bg-gray-800">
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Status</span>
-                  {getStatusBadge(selectedCoupon.isActive)}
+                  {getStatusBadge(selectedCoupon)}
                 </div>
 
                 {/* Description */}
@@ -1255,11 +1283,11 @@ export default function CouponManagement() {
                         )}
                       </div>
                       {user.isActive ? (
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300">
+                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600 dark:bg-gray-900/20 dark:text-gray-400">
+                        <span className="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
                           Inactive
                         </span>
                       )}

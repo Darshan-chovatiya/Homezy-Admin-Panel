@@ -49,6 +49,21 @@ export default function AdminManagement() {
     }
   };
 
+  const handleRefresh = async () => {
+    setSearch(""); // Clear the search
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await api.getAdmins({ page: 1, limit: 100, search: "" }); // Fetch without search
+      const list = (res.data.docs || []).map(toUI);
+      setAdmins(list);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load admins");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filtered = useMemo(() => {
     const t = search.toLowerCase();
     return admins.filter(a => a.name.toLowerCase().includes(t) || a.emailId.toLowerCase().includes(t));
@@ -110,7 +125,7 @@ export default function AdminManagement() {
             <input value={search} onChange={(e) => setSearch(e.target.value)} type="text" placeholder="Search admins by name or email..." className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-800 dark:text-white" />
           </div>
           <div>
-            <button onClick={loadAdmins} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Refresh</button>
+            <button onClick={handleRefresh} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Clear</button>
           </div>
         </div>
 
@@ -143,11 +158,16 @@ export default function AdminManagement() {
                     </td>
                     <td className="px-6 py-4">{a.emailId}</td>
                     <td className="px-6 py-4">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" checked={a.status === 'active'} onChange={() => onToggle(a)} className="sr-only peer" />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">{a.status === 'active' ? 'Active' : 'Inactive'}</span>
-                      </label>
+                      <span
+                        onClick={() => onToggle(a)}
+                        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+                          a.status === 'active'
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        }`}
+                      >
+                        {a.status === 'active' ? "Active" : "Inactive"}
+                      </span>
                     </td>
                     <td className="px-6 py-4">{a.createdAt ? new Date(a.createdAt).toLocaleDateString() : '-'}</td>
                     <td className="px-6 py-4">

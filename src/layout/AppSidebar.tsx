@@ -406,7 +406,7 @@ const AppSidebar: React.FC = () => {
                   </svg>
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className="menu-item-text">Logout</span>
+                  <span className="menu-item-text text-gray-700 dark:text-gray-300">Logout</span>
                 )}
               </button>
             </div>

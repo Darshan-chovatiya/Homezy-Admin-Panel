@@ -11,7 +11,6 @@ interface Customer {
   emailId?: string;
   walletBalance?: number;
   isActive: boolean;
-  isVerified: boolean;
   gender?: string;
   createdAt: string;
   addressComponent?: {
@@ -194,24 +193,12 @@ export default function CustomerManagement() {
 
   const getStatusBadge = (isActive: boolean) => {
     return (
-      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+      <span className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
         isActive 
-          ? "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300"
-          : "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
       }`}>
         {isActive ? "Active" : "Inactive"}
-      </span>
-    );
-  };
-
-  const getVerifiedBadge = (isVerified: boolean) => {
-    return (
-      <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
-        isVerified 
-          ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
-          : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
-      }`}>
-        {isVerified ? "Verified" : "Not Verified"}
       </span>
     );
   };
@@ -288,7 +275,6 @@ export default function CustomerManagement() {
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">{customer.name}</div>
                           <div className="text-xs text-gray-500 dark:text-gray-400">{customer.emailId || 'No email'}</div>
-                          <div className="mt-1">{getVerifiedBadge(customer.isVerified)}</div>
                         </div>
                       </div>
                     </td>
@@ -298,18 +284,11 @@ export default function CustomerManagement() {
                       {customer.addressComponent?.state && `, ${customer.addressComponent.state}`}
                     </td>
                     <td className="px-6 py-4">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={customer.isActive}
-                          onChange={() => handleToggle(customer)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
-                          {customer.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </label>
+                      <span
+                        onClick={() => handleToggle(customer)}
+                      >
+                        {getStatusBadge(customer.isActive)}
+                      </span>
                     </td>
                     <td className="px-6 py-4">₹{customer.walletBalance || 0}</td>
                     <td className="px-6 py-4">
@@ -539,7 +518,6 @@ export default function CustomerManagement() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">{selectedCustomer.emailId || 'No email'}</p>
                     <div className="mt-1 flex gap-2">
                       {getStatusBadge(selectedCustomer.isActive)}
-                      {getVerifiedBadge(selectedCustomer.isVerified)}
                     </div>
                   </div>
                 </div>

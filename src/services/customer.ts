@@ -40,7 +40,6 @@ export interface Customer {
   userImage: string;
   isActive: boolean;
   deviceId: string;
-  isVerified: boolean;
   gender: 'male' | 'female' | 'other' | '';
   fcm: string;
   isDeleted: boolean;
@@ -69,7 +68,6 @@ export interface UpdateCustomerData {
   emailId?: string;
   userImage?: string;
   isActive?: boolean;
-  isVerified?: boolean;
   gender?: 'male' | 'female' | 'other';
   latitude?: number | null;
   longitude?: number | null;

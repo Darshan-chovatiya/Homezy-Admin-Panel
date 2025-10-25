@@ -176,15 +176,48 @@ export default function ServiceManagement() {
     }
   };
 
-  const getStatusBadge = (status: Status) => {
-    const statusClasses = {
-      active: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
-      inactive: "bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-300",
-    };
+  const handleSubcategoryStatusChange = async (subcategoryId: string, newStatus: 'active' | 'inactive') => {
+    try {
+      await apiService.updateSubcategoryStatus(subcategoryId, newStatus);
+      // Update the subcategory in the selected service's subcategories
+      if (selectedService) {
+        const updatedSubcategories = selectedService.subCategories.map(sub => 
+          sub.id === subcategoryId ? { ...sub, status: newStatus } : sub
+        );
+        setSelectedService({ ...selectedService, subCategories: updatedSubcategories });
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update subcategory status');
+      console.error('Error updating subcategory status:', err);
+    }
+  };
 
+  const getStatusBadge = (service: ServiceUI) => {
     return (
-      <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusClasses[status]}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <span
+        onClick={() => handleStatusChange(service.id, service.status === 'active' ? 'inactive' : 'active')}
+        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+          service.status === 'active'
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+        }`}
+      >
+        {service.status === 'active' ? "Active" : "Inactive"}
+      </span>
+    );
+  };
+
+  const getSubcategoryStatusBadge = (subcategory: any) => {
+    return (
+      <span
+        onClick={() => handleSubcategoryStatusChange(subcategory.id, subcategory.status === 'active' ? 'inactive' : 'active')}
+        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+          subcategory.status === 'active'
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+        }`}
+      >
+        {subcategory.status === 'active' ? "Active" : "Inactive"}
       </span>
     );
   };
@@ -289,16 +322,8 @@ export default function ServiceManagement() {
                     </div>
                     <div className="ml-4 flex-shrink-0">
                       <div className="text-right mb-3" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleStatusChange(service.id, service.status === 'active' ? 'inactive' : 'active');
-                        }}
-                        className="cursor-pointer"
-                      >
-                        {getStatusBadge(service.status)}
-                      </button>
-                    </div>
+                        {getStatusBadge(service)}
+                      </div>
                       <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
                         {service.image && !imageErrors[service.id] ? (
                           <img
@@ -368,7 +393,7 @@ export default function ServiceManagement() {
                       ).join(' ')}
                     </h4>
                     <div className="mt-2 flex items-center gap-2">
-                      {getStatusBadge(selectedService.status)}
+                      {getStatusBadge(selectedService)}
                     </div>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{selectedService.description}</p>
                   </div>
@@ -428,7 +453,7 @@ export default function ServiceManagement() {
                                 )}
                               </td>
                               <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{s.duration}</td>
-                              <td className="whitespace-nowrap px-4 py-2">{getStatusBadge(s.status)}</td>
+                              <td className="whitespace-nowrap px-4 py-2">{getSubcategoryStatusBadge(s)}</td>
                               <td className="px-4 py-2">
                                 {s.images && s.images.length > 0 ? (
                                   <div className="flex gap-1">

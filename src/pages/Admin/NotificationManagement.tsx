@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import notificationService, { User, Vendor, NotificationData, PaginationParams } from '../../services/notification';
+import customerService from '../../services/customer';
+import vendorService from '../../services/vendor';
 import Swal from 'sweetalert2';
 
 export default function NotificationManagement() {
@@ -71,6 +73,37 @@ export default function NotificationManagement() {
       setSelectedEntities([...selectedEntities, id]);
     }
     setSelectAll(false);
+  };
+
+  // Handle Status Toggle
+  const handleToggleStatus = async (entity: User | Vendor) => {
+    try {
+      const nextStatus = !entity.isActive;
+      
+      if (type === 'users') {
+        await customerService.updateCustomer({
+          customerId: entity._id,
+          isActive: nextStatus
+        });
+      } else {
+        await vendorService.updateVendor({
+          vendorId: entity._id,
+          isActive: nextStatus
+        });
+      }
+      
+      // Update local state
+      setEntities(prev =>
+        prev.map(e =>
+          e._id === entity._id ? { ...e, isActive: nextStatus } : e
+        )
+      );
+      
+      Swal.fire('Success', `${type === 'users' ? 'Customer' : 'Vendor'} ${nextStatus ? 'activated' : 'deactivated'} successfully`, 'success');
+    } catch (error) {
+      console.error(`Error updating ${type} status:`, error);
+      Swal.fire('Error', `Failed to update ${type} status`, 'error');
+    }
   };
 
   // Handle Send Notification
@@ -213,13 +246,14 @@ export default function NotificationManagement() {
                     <td className="px-6 py-4">{type === 'users' ? (entity as User).mobileNo : (entity as Vendor).phone}</td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                        onClick={() => handleToggleStatus(entity)}
+                        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
                           entity.isActive
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300'
-                            : 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                         }`}
                       >
-                        {entity.isActive ? 'Active' : 'Inactive'}
+                        {entity.isActive ? "Active" : "Inactive"}
                       </span>
                     </td>
                   </tr>
