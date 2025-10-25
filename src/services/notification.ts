@@ -53,7 +53,7 @@ export interface PaginatedResponse<T> {
 }
 
 class NotificationService {
-  private token: string | null = null;
+  token: string | null = null;
 
   constructor() {
     this.token = localStorage.getItem('authToken');
@@ -88,11 +88,14 @@ class NotificationService {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    // Get fresh token from localStorage for each request
+    const currentToken = localStorage.getItem('authToken');
+
     const config: RequestInit = {
       method,
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
       },
       body: method !== 'GET' ? JSON.stringify(body) : undefined,
     };

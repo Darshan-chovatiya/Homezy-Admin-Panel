@@ -123,10 +123,10 @@ export interface DisputeStats {
 
 // API Service Class
 class ApiService {
-  private token: string | null = null;
+  // private token: string | null = null;
 
   constructor() {
-    this.token = localStorage.getItem('authToken');
+    // this.token = localStorage.getItem('authToken');
   }
 
   private async request<T>(
@@ -135,11 +135,14 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     
+    // Get fresh token from localStorage for each request
+    const currentToken = localStorage.getItem('authToken');
+    
     const config: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
         ...options.headers,
       },
       ...options,
@@ -162,8 +165,13 @@ class ApiService {
 
   private async requestForm<T>(endpoint: string, form: FormData): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
+    
+    // Get fresh token from localStorage for each request
+    const currentToken = localStorage.getItem('authToken');
+    
     const headers: Record<string, string> = {};
-    if (this.token) headers['Authorization'] = `Bearer ${this.token}`;
+    if (currentToken) headers['Authorization'] = `Bearer ${currentToken}`;
+    
     const config: RequestInit = { method: 'POST', body: form, headers };
     const response = await fetch(url, config);
     const data = await response.json();
@@ -187,8 +195,8 @@ class ApiService {
   });
 
   if (response.data) {
-    this.token = String(response.data);
-    localStorage.setItem('authToken', this.token);
+    // this.token = String(response.data);
+    localStorage.setItem('authToken', String(response.data));
   }
 
   return response;
@@ -208,7 +216,7 @@ class ApiService {
 
   async logout(): Promise<ApiResponse> {
     // Backend does not have logout route; clear locally for now
-    this.token = null;
+    // this.token = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     return { status: 200, message: 'Logged out', data: null } as unknown as ApiResponse;

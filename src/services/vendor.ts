@@ -257,16 +257,10 @@ export interface PaginatedResponse<T> {
 // ============================================
 
 class VendorService {
-  private token: string | null = null;
+  // private token: string | null = null;
 
   constructor() {
-    this.token = localStorage.getItem('authToken');
-  }
-
-  // Update token dynamically
-  setToken(token: string) {
-    this.token = token;
-    localStorage.setItem('authToken', token);
+    // this.token = localStorage.getItem('authToken');
   }
 
   // Success Alert Helper
@@ -301,11 +295,14 @@ class VendorService {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    // Get fresh token from localStorage for each request
+    const currentToken = localStorage.getItem('authToken');
+
     const config: RequestInit = {
       method: method,
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
       },
       body: method !== 'GET' ? JSON.stringify(body) : undefined,
     };
@@ -343,10 +340,13 @@ class VendorService {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
 
+    // Get fresh token from localStorage for each request
+    const currentToken = localStorage.getItem('authToken');
+
     const config: RequestInit = {
       method: 'POST',
       headers: {
-        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
         // Don't set Content-Type for FormData - browser will set it automatically with boundary
       },
       body: formData,

@@ -345,8 +345,11 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   // Fetch users/vendors when chatType changes
   useEffect(() => {
-    fetchUsers();
-  }, [chatType]);
+    // Only fetch users/vendors if user is authenticated and not on login page
+    if (user && token && !window.location.pathname.includes('/signin')) {
+      fetchUsers();
+    }
+  }, [chatType, user, token]);
 
   // Fetch users or vendors
   const fetchUsers = async () => {
