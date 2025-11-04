@@ -341,80 +341,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Top Services & Service Partners */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Top Services */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-                Top Services
-              </h3>
-            <div className="space-y-4">
-              {analytics?.topServices?.map((service, index) => (
-                <div key={service.name} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      {index + 1}
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {service.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {formatNumber(service.bookings)} bookings
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {formatCurrency(service.revenue)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Top Service Partners */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-              Top Service Partners
-            </h3>
-            <div className="space-y-4">
-              {analytics?.topServicePartners?.map((partner, index) => (
-                <div key={partner.name} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      {index + 1}
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
-                        {partner.name}
-                      </p>
-                      <div className="flex items-center gap-1">
-                        <span className="text-yellow-400">⭐</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {partner.rating} ({formatNumber(partner.bookings)} jobs)
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900 dark:text-white">
-                      {formatCurrency(partner.earnings)}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Earnings
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Revenue Chart */}
-        
-
         {/* Growth Analytics & Revenue Donut Chart */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Growth Analytics Chart */}
@@ -450,7 +376,7 @@ export default function Home() {
               <div className="w-full">
                 <Chart
                   options={{
-                    colors: ["#9CB9FF", "#465fff"], // Light blue for customers, dark blue for service partners
+                    colors: ["#1976D2", "#42A5F5"], // Deeper blue for customers, Brighter blue for service partners
                     chart: {
                       fontFamily: "Outfit, sans-serif",
                       type: "bar",
@@ -584,7 +510,7 @@ export default function Home() {
                   className="flex items-center gap-2 cursor-pointer"
                   style={{ opacity: revenueMode === 'online' ? 1 : 0.5 }}
                 >
-                  <div className="w-3 h-3 rounded-sm bg-[#9CB9FF]" />
+                  <div className="w-3 h-3 rounded-sm bg-[#93C5FD]" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-400">Online</span>
                 </button>
                 <button
@@ -592,7 +518,7 @@ export default function Home() {
                   className="flex items-center gap-2 cursor-pointer"
                   style={{ opacity: revenueMode === 'cash' ? 1 : 0.5 }}
                 >
-                  <div className="w-3 h-3 rounded-sm bg-[#7B8FFF]" />
+                  <div className="w-3 h-3 rounded-sm bg-[#86EFAC]" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-400">Cash</span>
                 </button>
               </div>
@@ -606,7 +532,7 @@ export default function Home() {
               <div className="w-full">
                 <Chart
                   options={{
-                    colors: revenueMode === 'all' ? ["#9CB9FF", "#465fff"] : ["#465fff", "#9CB9FF", "#7B8FFF", "#A5B5FF", "#C5D2FF", "#E5EAFF"],
+                    colors: revenueMode === 'all' ? ["#93C5FD", "#86EFAC"] : revenueMode === 'cash' ? ["#86EFAC"] : ["#93C5FD"],
                     chart: {
                       fontFamily: "Outfit, sans-serif",
                       type: "donut",
@@ -665,6 +591,18 @@ export default function Home() {
                             },
                           },
                         },
+                      },
+                    },
+                    fill: {
+                      type: 'gradient',
+                      gradient: {
+                        shade: 'light',
+                        shadeIntensity: 0.4,
+                        gradientToColors: revenueMode === 'all' ? ['#60A5FA', '#4ADE80'] : revenueMode === 'cash' ? ['#4ADE80'] : ['#60A5FA'], // Darker blue and green for gradient end
+                        inverseColors: false,
+                        opacityFrom: 1,
+                        opacityTo: 0.9,
+                        stops: [0, 50, 100],
                       },
                     },
                     states: {
@@ -755,6 +693,77 @@ export default function Home() {
           </div>
         </div>
 
+        {/* Top Services & Service Partners */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Top Services */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+                Top Services
+              </h3>
+            <div className="space-y-4">
+              {analytics?.topServices?.map((service, index) => (
+                <div key={service.name} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      {index + 1}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {service.name}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        {formatNumber(service.bookings)} bookings
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {formatCurrency(service.revenue)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Top Service Partners */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+              Top Service Partners
+            </h3>
+            <div className="space-y-4">
+              {analytics?.topServicePartners?.map((partner, index) => (
+                <div key={partner.name} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
+                      {index + 1}
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        {partner.name}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        <span className="text-yellow-400">⭐</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {partner.rating} ({formatNumber(partner.bookings)} jobs)
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      {formatCurrency(partner.earnings)}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Earnings
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Top Customers and Top Performers */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Top Customers */}
@@ -810,12 +819,12 @@ export default function Home() {
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {partner.businessName}
                       </p>
-                      <div className="flex items-center gap-1 mt-1">
+                      {/* <div className="flex items-center gap-1 mt-1">
                         <span className="text-yellow-400">⭐</span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">
                           {partner.averageRating} ({partner.totalReviews} reviews)
                         </span>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                   <div className="text-right">
