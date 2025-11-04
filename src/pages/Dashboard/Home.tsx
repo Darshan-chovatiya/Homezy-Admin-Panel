@@ -84,6 +84,24 @@ interface RevenueChartData {
   categories: string[];
   revenue: number[];
   totalRevenue: number;
+  modeBreakdown?: {
+    online: number;
+    cash: number;
+    total: number;
+  };
+  mode?: 'all' | 'online' | 'cash';
+}
+
+interface CustomersChartData {
+  categories: string[];
+  customers: number[];
+  totalCustomers: number;
+}
+
+interface ServicePartnersChartData {
+  categories: string[];
+  servicePartners: number[];
+  totalServicePartners: number;
 }
 
 export default function Home() {
@@ -92,8 +110,14 @@ export default function Home() {
   const [servicePartnerPerformance, setServicePartnerPerformance] = useState<ServicePartnerPerformanceData | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState("6months");
   const [revenueChartData, setRevenueChartData] = useState<RevenueChartData | null>(null);
-  const [revenueFilter, setRevenueFilter] = useState<'week' | 'month' | 'year'>('month');
+  const [customersChartData, setCustomersChartData] = useState<CustomersChartData | null>(null);
+  const [servicePartnersChartData, setServicePartnersChartData] = useState<ServicePartnersChartData | null>(null);
+  const [combinedFilter, setCombinedFilter] = useState<'week' | 'month' | 'year'>('week');
+  const [combinedPeriod, setCombinedPeriod] = useState<string>('month');
   const [revenuePeriod, setRevenuePeriod] = useState<string>('month');
+  const [revenueFilter, setRevenueFilter] = useState<'week' | 'month' | 'year'>('week');
+  const [revenueMode, setRevenueMode] = useState<'all' | 'online' | 'cash'>('all');
+  const [revenueLoading, setRevenueLoading] = useState<boolean>(false);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -151,15 +175,68 @@ export default function Home() {
   };
 
   // Fetch revenue chart data
-  const fetchRevenueChartData = async (period: string, filter: 'week' | 'month' | 'year') => {
+  const fetchRevenueChartData = async (period: string, filter: 'week' | 'month' | 'year', mode: 'all' | 'online' | 'cash' = 'all') => {
     try {
-      const response = await apiService.getRevenueChartData(period, filter);
+      setRevenueLoading(true);
+      const response = await apiService.getRevenueChartData(period, filter, mode);
       if (response.data) {
-        setRevenueChartData(response.data);
+        // Handle nested data structure if exists
+        const chartData = response.data.data || response.data;
+        // Ensure revenue array contains numbers
+        if (chartData.revenue && Array.isArray(chartData.revenue)) {
+          chartData.revenue = chartData.revenue.map((val: any) => Number(val) || 0);
+        }
+        if (chartData.totalRevenue) {
+          chartData.totalRevenue = Number(chartData.totalRevenue) || 0;
+        }
+        
+        // Debug: Log the chart data
+        console.log('Revenue Chart Data:', chartData);
+        
+        setRevenueChartData(chartData);
       }
     } catch (err) {
       console.error('Error fetching revenue chart data:', err);
+      setRevenueChartData(null);
+    } finally {
+      setRevenueLoading(false);
     }
+  };
+
+  // Fetch customers chart data
+  const fetchCustomersChartData = async (period: string, filter: 'week' | 'month' | 'year') => {
+    try {
+      const response = await apiService.getCustomersChartData(period, filter);
+      if (response.data) {
+        // Handle nested data structure if exists
+        const chartData = response.data.data || response.data;
+        setCustomersChartData(chartData);
+      }
+    } catch (err) {
+      console.error('Error fetching customers chart data:', err);
+    }
+  };
+
+  // Fetch service partners chart data
+  const fetchServicePartnersChartData = async (period: string, filter: 'week' | 'month' | 'year') => {
+    try {
+      const response = await apiService.getServicePartnersChartData(period, filter);
+      if (response.data) {
+        // Handle nested data structure if exists
+        const chartData = response.data.data || response.data;
+        setServicePartnersChartData(chartData);
+      }
+    } catch (err) {
+      console.error('Error fetching service partners chart data:', err);
+    }
+  };
+
+  // Fetch combined chart data - fetch both customers and service partners (for bar chart)
+  const fetchCombinedChartData = async (period: string, filter: 'week' | 'month' | 'year') => {
+    await Promise.all([
+      fetchCustomersChartData(period, filter),
+      fetchServicePartnersChartData(period, filter)
+    ]);
   };
 
   // Fetch data on component mount and period change
@@ -167,10 +244,15 @@ export default function Home() {
     fetchAllAnalytics(selectedPeriod);
   }, [selectedPeriod]);
 
-  // Fetch revenue chart data when filter or period changes
+  // Fetch bar chart data (customers and service partners) when their filters change
   useEffect(() => {
-    fetchRevenueChartData(revenuePeriod, revenueFilter);
-  }, [revenuePeriod, revenueFilter]);
+    fetchCombinedChartData(combinedPeriod, combinedFilter);
+  }, [combinedPeriod, combinedFilter]);
+
+  // Fetch revenue chart data when its filters or mode changes
+  useEffect(() => {
+    fetchRevenueChartData(revenuePeriod, revenueFilter, revenueMode);
+  }, [revenuePeriod, revenueFilter, revenueMode]);
 
   return (
     <>
@@ -331,114 +413,346 @@ export default function Home() {
         </div>
 
         {/* Revenue Chart */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-          <div className="mb-6 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Total Revenue Chart
-            </h3>
-            <div className="flex items-center gap-3">
-              <select
-                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                value={revenuePeriod}
-                onChange={(e) => setRevenuePeriod(e.target.value)}
-              >
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="3months">Last 3 Months</option>
-                <option value="6months">Last 6 Months</option>
-                <option value="year">Last Year</option>
-              </select>
-              <select
-                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                value={revenueFilter}
-                onChange={(e) => setRevenueFilter(e.target.value as 'week' | 'month' | 'year')}
-              >
-                <option value="week">Group by Week</option>
-                <option value="month">Group by Month</option>
-                <option value="year">Group by Year</option>
-              </select>
+        
+
+        {/* Growth Analytics & Revenue Donut Chart */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Growth Analytics Chart */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Growth Analytics
+              </h3>
+              <div className="flex items-center gap-3">
+                <select
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  value={combinedPeriod}
+                  onChange={(e) => setCombinedPeriod(e.target.value)}
+                >
+                  <option value="week">Last Week</option>
+                  <option value="month">Last Month</option>
+                  <option value="3months">Last 3 Months</option>
+                  <option value="6months">Last 6 Months</option>
+                  <option value="year">Last Year</option>
+                </select>
+                <select
+                  className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  value={combinedFilter}
+                  onChange={(e) => setCombinedFilter(e.target.value as 'week' | 'month' | 'year')}
+                >
+                  <option value="week">Group by Week</option>
+                  <option value="month">Group by Month</option>
+                  <option value="year">Group by Year</option>
+                </select>
+              </div>
             </div>
-          </div>
-          {revenueChartData && (
-            <div className="w-full">
-              <Chart
-                options={{
-                  colors: ["#465fff"],
-                  chart: {
-                    fontFamily: "Outfit, sans-serif",
-                    type: "bar",
-                    height: 350,
-                    toolbar: {
-                      show: false,
-                    },
-                  },
-                  plotOptions: {
-                    bar: {
-                      horizontal: false,
-                      columnWidth: "55%",
-                      borderRadius: 5,
-                      borderRadiusApplication: "end",
-                    },
-                  },
-                  dataLabels: {
-                    enabled: false,
-                  },
-                  stroke: {
-                    show: true,
-                    width: 2,
-                    colors: ["transparent"],
-                  },
-                  xaxis: {
-                    categories: revenueChartData.categories,
-                    axisBorder: {
-                      show: false,
-                    },
-                    axisTicks: {
-                      show: false,
-                    },
-                  },
-                  yaxis: {
-                    labels: {
-                      formatter: (val: number) => formatCurrency(val),
-                    },
-                  },
-                  grid: {
-                    yaxis: {
-                      lines: {
-                        show: true,
-                      },
-                    },
-                    xaxis: {
-                      lines: {
+            {customersChartData && servicePartnersChartData && (
+              <div className="w-full">
+                <Chart
+                  options={{
+                    colors: ["#9CB9FF", "#465fff"], // Light blue for customers, dark blue for service partners
+                    chart: {
+                      fontFamily: "Outfit, sans-serif",
+                      type: "bar",
+                      height: 350,
+                      toolbar: {
                         show: false,
                       },
                     },
-                  },
-                  fill: {
-                    opacity: 1,
-                  },
-                  tooltip: {
-                    y: {
-                      formatter: (val: number) => formatCurrency(val),
+                    plotOptions: {
+                      bar: {
+                        horizontal: false,
+                        columnWidth: "55%",
+                        borderRadius: 5,
+                        borderRadiusApplication: "end",
+                      },
                     },
-                  },
-                } as ApexOptions}
-                series={[
-                  {
-                    name: "Revenue",
-                    data: revenueChartData.revenue,
-                  },
-                ]}
-                type="bar"
-                height={350}
-              />
+                    dataLabels: {
+                      enabled: false,
+                    },
+                    stroke: {
+                      show: true,
+                      width: 2,
+                      colors: ["transparent"],
+                    },
+                    xaxis: {
+                      categories: customersChartData.categories.length >= servicePartnersChartData.categories.length
+                        ? customersChartData.categories
+                        : servicePartnersChartData.categories,
+                      axisBorder: {
+                        show: false,
+                      },
+                      axisTicks: {
+                        show: false,
+                      },
+                    },
+                    yaxis: {
+                      labels: {
+                        formatter: (val: number) => formatNumber(val),
+                      },
+                    },
+                    grid: {
+                      yaxis: {
+                        lines: {
+                          show: true,
+                        },
+                      },
+                      xaxis: {
+                        lines: {
+                          show: false,
+                        },
+                      },
+                    },
+                    fill: {
+                      opacity: 1,
+                    },
+                    tooltip: {
+                      y: {
+                        formatter: (val: number) => formatNumber(val),
+                      },
+                    },
+                    legend: {
+                      show: true,
+                      position: "top",
+                      horizontalAlign: "right",
+                    },
+                  } as ApexOptions}
+                  series={[
+                    {
+                      name: "Customers",
+                      data: customersChartData.customers,
+                    },
+                    {
+                      name: "Service Partners",
+                      data: servicePartnersChartData.servicePartners,
+                    },
+                  ]}
+                  type="bar"
+                  height={350}
+                />
+              </div>
+            )}
+            {(!customersChartData || !servicePartnersChartData) && (
+              <div className="flex h-[350px] items-center justify-center">
+                <p className="text-gray-500 dark:text-gray-400">Loading chart data...</p>
+              </div>
+            )}
+          </div>
+
+          {/* Revenue Donut Chart */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+            <div className="mb-6">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Revenue Distribution
+                </h3>
+                <div className="flex items-center gap-3">
+                  <select
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    value={revenuePeriod}
+                    onChange={(e) => setRevenuePeriod(e.target.value)}
+                  >
+                    <option value="week">Last Week</option>
+                    <option value="month">Last Month</option>
+                    <option value="3months">Last 3 Months</option>
+                    <option value="6months">Last 6 Months</option>
+                    <option value="year">Last Year</option>
+                  </select>
+                  <select
+                    className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    value={revenueFilter}
+                    onChange={(e) => setRevenueFilter(e.target.value as 'week' | 'month' | 'year')}
+                  >
+                    <option value="week">Group by Week</option>
+                    <option value="month">Group by Month</option>
+                    <option value="year">Group by Year</option>
+                  </select>
+                </div>
+              </div>
+              {/* Payment Mode Filter - Legend Style (matching Growth Analytics) */}
+              <div className="flex items-center justify-end gap-4">
+                <button
+                  onClick={() => setRevenueMode('all')}
+                  className="flex items-center gap-2 cursor-pointer"
+                  style={{ opacity: revenueMode === 'all' ? 1 : 0.5 }}
+                >
+                  <div className="w-3 h-3 rounded-sm bg-[#465fff]" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-400">All</span>
+                </button>
+                <button
+                  onClick={() => setRevenueMode('online')}
+                  className="flex items-center gap-2 cursor-pointer"
+                  style={{ opacity: revenueMode === 'online' ? 1 : 0.5 }}
+                >
+                  <div className="w-3 h-3 rounded-sm bg-[#9CB9FF]" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-400">Online</span>
+                </button>
+                <button
+                  onClick={() => setRevenueMode('cash')}
+                  className="flex items-center gap-2 cursor-pointer"
+                  style={{ opacity: revenueMode === 'cash' ? 1 : 0.5 }}
+                >
+                  <div className="w-3 h-3 rounded-sm bg-[#7B8FFF]" />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-400">Cash</span>
+                </button>
+              </div>
             </div>
-          )}
-          {!revenueChartData && (
-            <div className="flex h-[350px] items-center justify-center">
-              <p className="text-gray-500 dark:text-gray-400">Loading chart data...</p>
-            </div>
-          )}
+            {revenueLoading && (
+              <div className="flex h-[350px] items-center justify-center">
+                <p className="text-gray-500 dark:text-gray-400">Loading chart data...</p>
+              </div>
+            )}
+            {!revenueLoading && revenueChartData && revenueChartData.revenue && revenueChartData.revenue.length > 0 && (
+              <div className="w-full">
+                <Chart
+                  options={{
+                    colors: revenueMode === 'all' ? ["#9CB9FF", "#465fff"] : ["#465fff", "#9CB9FF", "#7B8FFF", "#A5B5FF", "#C5D2FF", "#E5EAFF"],
+                    chart: {
+                      fontFamily: "Outfit, sans-serif",
+                      type: "donut",
+                      height: 350,
+                    },
+                    labels: revenueChartData.categories,
+                    legend: {
+                      show: false,
+                    },
+                    plotOptions: {
+                      pie: {
+                        donut: {
+                          size: "65%",
+                          labels: {
+                            show: true,
+                            name: {
+                              show: true,
+                              fontSize: "11px",
+                              fontFamily: "Outfit, sans-serif",
+                              fontWeight: 600,
+                              color: "#6B7280",
+                              offsetY: -10,
+                              formatter: () => {
+                                return "TOTAL REVENUE";
+                              },
+                            },
+                            value: {
+                              show: true,
+                              fontSize: "24px",
+                              fontFamily: "Outfit, sans-serif",
+                              fontWeight: 700,
+                              color: "#111827",
+                              offsetY: 10,
+                              formatter: () => {
+                                if (!revenueChartData || !revenueChartData.revenue) {
+                                  return formatCurrency(0);
+                                }
+                                const total = revenueChartData.totalRevenue || revenueChartData.revenue.reduce((sum: number, val: number) => sum + (val || 0), 0);
+                                return formatCurrency(total);
+                              },
+                            },
+                            total: {
+                              show: true,
+                              label: "TOTAL REVENUE",
+                              formatter: () => {
+                                if (!revenueChartData || !revenueChartData.revenue) {
+                                  return formatCurrency(0);
+                                }
+                                const total = revenueChartData.totalRevenue || revenueChartData.revenue.reduce((sum: number, val: number) => sum + (val || 0), 0);
+                                return formatCurrency(total);
+                              },
+                              fontSize: "16px",
+                              fontFamily: "Outfit, sans-serif",
+                              fontWeight: 700,
+                              color: "#111827",
+                            },
+                          },
+                        },
+                      },
+                    },
+                    states: {
+                      hover: {
+                        filter: {
+                          type: 'none',
+                        },
+                      },
+                      active: {
+                        filter: {
+                          type: 'none',
+                        },
+                      },
+                    },
+                    dataLabels: {
+                      enabled: false,
+                    },
+                     tooltip: {
+                       enabled: true,
+                       custom: function({seriesIndex, w, y}: any) {
+                         // For donut charts, get value from multiple possible sources
+                         let value: number = 0;
+                         
+                         // Try y parameter first (if available)
+                         if (y !== undefined && y !== null && !isNaN(Number(y))) {
+                           value = Number(y);
+                         } else if (w.globals && w.globals.series) {
+                           // Try different data structures
+                           if (w.globals.series[0] && Array.isArray(w.globals.series[0]) && w.globals.series[0][seriesIndex] !== undefined) {
+                             value = Number(w.globals.series[0][seriesIndex]) || 0;
+                           } else if (w.globals.series[seriesIndex] !== undefined && typeof w.globals.series[seriesIndex] === 'number') {
+                             value = Number(w.globals.series[seriesIndex]) || 0;
+                           }
+                         }
+                         
+                         // Get label from chart's labels configuration
+                         let label = '';
+                         if (w.config && w.config.labels && Array.isArray(w.config.labels) && w.config.labels[seriesIndex]) {
+                           label = w.config.labels[seriesIndex];
+                         } else if (w.globals && w.globals.labels && Array.isArray(w.globals.labels) && w.globals.labels[seriesIndex]) {
+                           label = w.globals.labels[seriesIndex];
+                         } else {
+                           label = 'Unknown';
+                         }
+                         
+                         // Get color for this segment
+                         const color = (w.globals && w.globals.colors && w.globals.colors[seriesIndex]) 
+                           ? w.globals.colors[seriesIndex] 
+                           : '#465fff';
+                         
+                         // Format currency
+                         const formattedValue = new Intl.NumberFormat('en-IN', {
+                           style: 'currency',
+                           currency: 'INR'
+                         }).format(value);
+                         
+                         return `
+                           <div style="background: white; border-radius: 8px; padding: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); border: 1px solid #e5e7eb;">
+                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                               <div style="width: 12px; height: 12px; border-radius: 50%; background-color: ${color};"></div>
+                               <span style="font-size: 16px; font-weight: 600; color: #111827;">${formattedValue}</span>
+                             </div>
+                             <div style="font-size: 14px; font-weight: 500; color: #6B7280;">${label}</div>
+                           </div>
+                         `;
+                       },
+                     },
+                  } as ApexOptions}
+                  series={(() => {
+                    // Ensure we always have both segments for 'all' mode, even if one is 0
+                    const revenueArray = revenueChartData.revenue.map((val: any) => Number(val) || 0);
+                    if (revenueMode === 'all' && revenueArray.length === 2) {
+                      // Ensure both values are numbers
+                      return [revenueArray[0] || 0, revenueArray[1] || 0];
+                    }
+                    return revenueArray;
+                  })()}
+                  type="donut"
+                  height={350}
+                />
+              </div>
+            )}
+            {!revenueLoading && (!revenueChartData || !revenueChartData.revenue || revenueChartData.revenue.length === 0 || (revenueChartData.revenue.length > 0 && !revenueChartData.revenue.some((val: number) => val > 0))) && (
+              <div className="flex h-[350px] items-center justify-center">
+                <p className="text-gray-500 dark:text-gray-400">No data available</p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Top Customers and Top Performers */}

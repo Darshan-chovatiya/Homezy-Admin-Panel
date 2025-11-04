@@ -539,8 +539,20 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
-  async getRevenueChartData(period: string = 'month', filter: 'week' | 'month' | 'year' = 'month'): Promise<ApiResponse<any>> {
+  async getRevenueChartData(period: string = 'month', filter: 'week' | 'month' | 'year' = 'month', mode: 'all' | 'online' | 'cash' = 'all'): Promise<ApiResponse<any>> {
     return this.request('/analytics/revenue-chart', {
+      body: JSON.stringify({ period, filter, mode })
+    });
+  }
+
+  async getCustomersChartData(period: string = 'month', filter: 'week' | 'month' | 'year' = 'month'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/customers-chart', {
+      body: JSON.stringify({ period, filter })
+    });
+  }
+
+  async getServicePartnersChartData(period: string = 'month', filter: 'week' | 'month' | 'year' = 'month'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/service-partners-chart', {
       body: JSON.stringify({ period, filter })
     });
   }
