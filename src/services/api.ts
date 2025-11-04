@@ -539,6 +539,12 @@ async getProfile(id?: string): Promise<ApiResponse<{ admin: Admin }>> {
     });
   }
 
+  async getRevenueChartData(period: string = 'month', filter: 'week' | 'month' | 'year' = 'month'): Promise<ApiResponse<any>> {
+    return this.request('/analytics/revenue-chart', {
+      body: JSON.stringify({ period, filter })
+    });
+  }
+
   // Order Management APIs
   async getOrders(filters?: {
     status?: string;

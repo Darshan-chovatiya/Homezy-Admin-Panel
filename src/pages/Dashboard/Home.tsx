@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
-import { Users, Wrench, Calendar, DollarSign, User, CreditCard, Star, AlertTriangle, BarChart3 } from "lucide-react";
+import { Users, Wrench, Calendar, DollarSign } from "lucide-react";
+import Chart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
 
 interface AnalyticsData {
   totalUsers: number;
@@ -24,22 +26,11 @@ interface AnalyticsData {
     rating: number;
     earnings: number;
   }[];
-  recentActivity: {
-    type: string;
-    description: string;
-    timestamp: string;
-    status: string;
-  }[];
   bookingTrends: {
     month: string;
     bookings: number;
     revenue: number;
   }[];
-  userSatisfaction: {
-    averageRating: number;
-    totalReviews: number;
-    satisfactionRate: number;
-  };
 }
 
 interface CustomerRetentionData {
@@ -89,11 +80,20 @@ interface ServicePartnerPerformanceData {
   }>;
 }
 
+interface RevenueChartData {
+  categories: string[];
+  revenue: number[];
+  totalRevenue: number;
+}
+
 export default function Home() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [customerRetention, setCustomerRetention] = useState<CustomerRetentionData | null>(null);
   const [servicePartnerPerformance, setServicePartnerPerformance] = useState<ServicePartnerPerformanceData | null>(null);
   const [selectedPeriod, setSelectedPeriod] = useState("6months");
+  const [revenueChartData, setRevenueChartData] = useState<RevenueChartData | null>(null);
+  const [revenueFilter, setRevenueFilter] = useState<'week' | 'month' | 'year'>('month');
+  const [revenuePeriod, setRevenuePeriod] = useState<string>('month');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -104,27 +104,6 @@ export default function Home() {
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('en-US').format(num);
-  };
-
-  const getActivityIcon = (type: string) => {
-    const icons = {
-      booking: Calendar,
-      user: User,
-      payment: CreditCard,
-      review: Star,
-      dispute: AlertTriangle
-    };
-    const IconComponent = icons[type as keyof typeof icons] || BarChart3;
-    return <IconComponent className="h-4 w-4" />;
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors = {
-      completed: "text-green-600 dark:text-green-400",
-      pending: "text-yellow-600 dark:text-yellow-400",
-      failed: "text-red-600 dark:text-red-400"
-    };
-    return colors[status as keyof typeof colors] || "text-gray-600 dark:text-gray-400";
   };
 
   // Fetch all analytics data
@@ -142,9 +121,7 @@ export default function Home() {
           monthlyGrowth,
           topServices,
           topServicePartners,
-          recentActivity,
-          bookingTrends,
-          userSatisfaction
+          bookingTrends
         } = analyticsResponse.data;
         
         setAnalytics({
@@ -155,9 +132,7 @@ export default function Home() {
           monthlyGrowth,
           topServices,
           topServicePartners,
-          recentActivity,
-          bookingTrends,
-          userSatisfaction
+          bookingTrends
         });
         
         // Extract customer retention data
@@ -175,10 +150,27 @@ export default function Home() {
     }
   };
 
+  // Fetch revenue chart data
+  const fetchRevenueChartData = async (period: string, filter: 'week' | 'month' | 'year') => {
+    try {
+      const response = await apiService.getRevenueChartData(period, filter);
+      if (response.data) {
+        setRevenueChartData(response.data);
+      }
+    } catch (err) {
+      console.error('Error fetching revenue chart data:', err);
+    }
+  };
+
   // Fetch data on component mount and period change
   useEffect(() => {
     fetchAllAnalytics(selectedPeriod);
   }, [selectedPeriod]);
+
+  // Fetch revenue chart data when filter or period changes
+  useEffect(() => {
+    fetchRevenueChartData(revenuePeriod, revenueFilter);
+  }, [revenuePeriod, revenueFilter]);
 
   return (
     <>
@@ -338,67 +330,115 @@ export default function Home() {
           </div>
         </div>
 
-        {/* User Satisfaction and Recent Activity */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* User Satisfaction */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-              User Satisfaction
+        {/* Revenue Chart */}
+        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+          <div className="mb-6 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Total Revenue Chart
             </h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Average Rating</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-yellow-400">⭐</span>
-                  <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {analytics?.userSatisfaction?.averageRating || 0}
-                  </span>
-                  <span className="text-sm text-gray-500 dark:text-gray-400">/5</span>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Total Reviews</span>
-                <span className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {formatNumber(analytics?.userSatisfaction?.totalReviews || 0)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 dark:text-gray-400">Satisfaction Rate</span>
-                <span className="text-lg font-semibold text-green-600 dark:text-green-400">
-                  {analytics?.userSatisfaction?.satisfactionRate || 0}%
-                </span>
-              </div>
+            <div className="flex items-center gap-3">
+              <select
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                value={revenuePeriod}
+                onChange={(e) => setRevenuePeriod(e.target.value)}
+              >
+                <option value="week">Last Week</option>
+                <option value="month">Last Month</option>
+                <option value="3months">Last 3 Months</option>
+                <option value="6months">Last 6 Months</option>
+                <option value="year">Last Year</option>
+              </select>
+              <select
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                value={revenueFilter}
+                onChange={(e) => setRevenueFilter(e.target.value as 'week' | 'month' | 'year')}
+              >
+                <option value="week">Group by Week</option>
+                <option value="month">Group by Month</option>
+                <option value="year">Group by Year</option>
+              </select>
             </div>
           </div>
-
-          {/* Recent Activity */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
-              Recent Activity
-            </h3>
-            <div className="space-y-3">
-              {analytics?.recentActivity?.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
-                    {getActivityIcon(activity.type)}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900 dark:text-white">
-                      {activity.description}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                        {new Date(activity.timestamp).toLocaleString()}
-                      </span>
-                      <span className={`text-xs font-medium ${getStatusColor(activity.status)}`}>
-                        {activity.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+          {revenueChartData && (
+            <div className="w-full">
+              <Chart
+                options={{
+                  colors: ["#465fff"],
+                  chart: {
+                    fontFamily: "Outfit, sans-serif",
+                    type: "bar",
+                    height: 350,
+                    toolbar: {
+                      show: false,
+                    },
+                  },
+                  plotOptions: {
+                    bar: {
+                      horizontal: false,
+                      columnWidth: "55%",
+                      borderRadius: 5,
+                      borderRadiusApplication: "end",
+                    },
+                  },
+                  dataLabels: {
+                    enabled: false,
+                  },
+                  stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ["transparent"],
+                  },
+                  xaxis: {
+                    categories: revenueChartData.categories,
+                    axisBorder: {
+                      show: false,
+                    },
+                    axisTicks: {
+                      show: false,
+                    },
+                  },
+                  yaxis: {
+                    labels: {
+                      formatter: (val: number) => formatCurrency(val),
+                    },
+                  },
+                  grid: {
+                    yaxis: {
+                      lines: {
+                        show: true,
+                      },
+                    },
+                    xaxis: {
+                      lines: {
+                        show: false,
+                      },
+                    },
+                  },
+                  fill: {
+                    opacity: 1,
+                  },
+                  tooltip: {
+                    y: {
+                      formatter: (val: number) => formatCurrency(val),
+                    },
+                  },
+                } as ApexOptions}
+                series={[
+                  {
+                    name: "Revenue",
+                    data: revenueChartData.revenue,
+                  },
+                ]}
+                type="bar"
+                height={350}
+              />
             </div>
-          </div>
+          )}
+          {!revenueChartData && (
+            <div className="flex h-[350px] items-center justify-center">
+              <p className="text-gray-500 dark:text-gray-400">Loading chart data...</p>
+            </div>
+          )}
         </div>
 
         {/* Top Customers and Top Performers */}
