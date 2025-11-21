@@ -750,7 +750,7 @@ export default function BookingOversight() {
                 <button
                   onClick={handleAssignOrder}
                   disabled={!selectedVendorId}
-                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:cursor-not-allowed"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:cursor-not-allowed"
                 >
                   Assign Order
                 </button>

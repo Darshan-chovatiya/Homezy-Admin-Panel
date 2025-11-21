@@ -222,7 +222,7 @@ export default function Slot() {
                         <div className="text-sm font-medium text-gray-900 dark:text-white">{v.name}</div>
                         <div className="text-xs text-gray-500 dark:text-gray-400">{v.email}</div>
                       </div>
-                      <button onClick={() => assignToVendor(v.id)} className="inline-flex items-center rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90">Assign</button>
+                      <button onClick={() => assignToVendor(v.id)} className="inline-flex items-center rounded-lg bg-[#013365] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#013365]/90">Assign</button>
                     </li>
                   ))}
                   {vendors.length === 0 && (

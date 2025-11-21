@@ -337,7 +337,7 @@ export default function CouponManagement() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-[#013365]/90 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all dark:bg-[#013365] dark:hover:bg-blue-600"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-[#013365]/90 focus:outline-none focus:ring-4 focus:ring-[#013365]/30 transition-all dark:bg-[#013365] dark:hover:bg-[#013365]/90"
         >
           <Plus className="h-5 w-5" />
           Add Coupon
@@ -352,7 +352,7 @@ export default function CouponManagement() {
           <input
             type="text"
             placeholder="Search coupons by code or name..."
-            className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-3 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:ring-blue-900"
+            className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-3 text-sm shadow-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:ring-[#013365]/30"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -369,7 +369,7 @@ export default function CouponManagement() {
           </div>
           
           <select
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
             value={filterDiscountType}
             onChange={(e) => {
               setFilterDiscountType(e.target.value as any);
@@ -382,7 +382,7 @@ export default function CouponManagement() {
           </select>
 
           <select
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
             value={filterStatus}
             onChange={(e) => {
               setFilterStatus(e.target.value as any);
@@ -401,7 +401,7 @@ export default function CouponManagement() {
               setCurrentPage(1);
             }}
             placeholderText="Start date"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
             dateFormat="yyyy-MM-dd"
           />
 
@@ -412,7 +412,7 @@ export default function CouponManagement() {
               setCurrentPage(1);
             }}
             placeholderText="End date"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm shadow-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
             dateFormat="yyyy-MM-dd"
           />
 
@@ -593,9 +593,9 @@ export default function CouponManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl bg-white shadow-2xl dark:bg-gray-900">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-[#013365]/10 to-[#013365]/20 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-blue-600 p-2">
+                <div className="rounded-lg bg-[#013365] p-2">
                   <Plus className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Create New Coupon</h3>
@@ -609,7 +609,7 @@ export default function CouponManagement() {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleAddCoupon} className="flex-1 overflow-y-auto p-6">
+            <form id="addCouponForm" onSubmit={handleAddCoupon} className="flex-1 overflow-y-auto p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Coupon Name */}
                 <div className="md:col-span-2">
@@ -621,7 +621,7 @@ export default function CouponManagement() {
                     required
                     value={formData.couponName}
                     onChange={(e) => setFormData({ ...formData, couponName: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="e.g., Summer Sale 2025"
                   />
                   {errors.couponName && <p className="mt-1 text-xs text-red-500">{errors.couponName}</p>}
@@ -636,7 +636,7 @@ export default function CouponManagement() {
                     type="text"
                     value={formData.couponCode}
                     onChange={(e) => setFormData({ ...formData, couponCode: e.target.value.toUpperCase() })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-mono uppercase focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-mono uppercase focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="SUMMER2025"
                   />
                 </div>
@@ -647,7 +647,7 @@ export default function CouponManagement() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="Describe your coupon offer..."
                     rows={3}
                   />
@@ -662,7 +662,7 @@ export default function CouponManagement() {
                     required
                     value={formData.discountType}
                     onChange={(e) => setFormData({ ...formData, discountType: e.target.value as "percentage" | "fixed" })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed Amount (₹)</option>
@@ -681,7 +681,7 @@ export default function CouponManagement() {
                     step="0.01"
                     value={formData.discountValue}
                     onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder={formData.discountType === "percentage" ? "10" : "100"}
                   />
                   {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
@@ -698,7 +698,7 @@ export default function CouponManagement() {
                     step="0.01"
                     value={formData.maxDiscountAmount || ""}
                     onChange={(e) => setFormData({ ...formData, maxDiscountAmount: parseFloat(e.target.value) || undefined })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="500"
                   />
                 </div>
@@ -712,7 +712,7 @@ export default function CouponManagement() {
                     step="0.01"
                     value={formData.minOrderAmount || ""}
                     onChange={(e) => setFormData({ ...formData, minOrderAmount: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="0"
                   />
                 </div>
@@ -725,7 +725,7 @@ export default function CouponManagement() {
                   <DatePicker
                     selected={formData.startDate ? new Date(formData.startDate) : null}
                     onChange={(date: Date | null) => setFormData({ ...formData, startDate: date ? date.toISOString().split('T')[0] : "" })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     dateFormat="yyyy-MM-dd"
                     placeholderText="Select start date"
                     required
@@ -741,7 +741,7 @@ export default function CouponManagement() {
                   <DatePicker
                     selected={formData.endDate ? new Date(formData.endDate) : null}
                     onChange={(date: Date | null) => setFormData({ ...formData, endDate: date ? date.toISOString().split('T')[0] : "" })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     dateFormat="yyyy-MM-dd"
                     placeholderText="Select end date"
                     required
@@ -757,7 +757,7 @@ export default function CouponManagement() {
                     min="1"
                     value={formData.usageLimitPerUser}
                     onChange={(e) => setFormData({ ...formData, usageLimitPerUser: parseInt(e.target.value) || 1 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="1"
                   />
                 </div>
@@ -772,7 +772,7 @@ export default function CouponManagement() {
                     min="0"
                     value={formData.totalUsageLimit || ""}
                     onChange={(e) => setFormData({ ...formData, totalUsageLimit: parseInt(e.target.value) || undefined })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="Unlimited"
                   />
                 </div>
@@ -784,32 +784,33 @@ export default function CouponManagement() {
                     id="isActive"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="h-5 w-5 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                   />
                   <label htmlFor="isActive" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Active (Coupon will be available immediately)
                   </label>
                 </div>
               </div>
-
-              {/* Modal Footer */}
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-[#013365] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                >
-                  {formLoading ? "Creating..." : "Create Coupon"}
-                </button>
-              </div>
             </form>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                type="button"
+                onClick={() => setShowAddModal(false)}
+                className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="addCouponForm"
+                disabled={formLoading}
+                className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+              >
+                {formLoading ? "Creating..." : "Create Coupon"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -819,9 +820,9 @@ export default function CouponManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl bg-white shadow-2xl dark:bg-gray-900">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-amber-50 to-amber-100 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-[#013365]/10 to-[#013365]/20 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-amber-600 p-2">
+                <div className="rounded-lg bg-[#013365] p-2">
                   <Edit className="h-5 w-5 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">Edit Coupon</h3>
@@ -835,7 +836,7 @@ export default function CouponManagement() {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleEditCoupon} className="flex-1 overflow-y-auto p-6">
+            <form id="editCouponForm" onSubmit={handleEditCoupon} className="flex-1 overflow-y-auto p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Coupon Name */}
                 <div className="md:col-span-2">
@@ -847,7 +848,7 @@ export default function CouponManagement() {
                     required
                     value={editFormData.couponName}
                     onChange={(e) => setEditFormData({ ...editFormData, couponName: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                   {errors.couponName && <p className="mt-1 text-xs text-red-500">{errors.couponName}</p>}
                 </div>
@@ -858,7 +859,7 @@ export default function CouponManagement() {
                   <textarea
                     value={editFormData.description}
                     onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     rows={3}
                   />
                 </div>
@@ -872,7 +873,7 @@ export default function CouponManagement() {
                     required
                     value={editFormData.discountType}
                     onChange={(e) => setEditFormData({ ...editFormData, discountType: e.target.value as "percentage" | "fixed" })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="percentage">Percentage (%)</option>
                     <option value="fixed">Fixed Amount (₹)</option>
@@ -891,7 +892,7 @@ export default function CouponManagement() {
                     step="0.01"
                     value={editFormData.discountValue}
                     onChange={(e) => setEditFormData({ ...editFormData, discountValue: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                   {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
                 </div>
@@ -905,7 +906,7 @@ export default function CouponManagement() {
                     step="0.01"
                     value={editFormData.maxDiscountAmount || ""}
                     onChange={(e) => setEditFormData({ ...editFormData, maxDiscountAmount: parseFloat(e.target.value) || undefined })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
 
@@ -918,7 +919,7 @@ export default function CouponManagement() {
                     step="0.01"
                     value={editFormData.minOrderAmount || ""}
                     onChange={(e) => setEditFormData({ ...editFormData, minOrderAmount: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
 
@@ -930,7 +931,7 @@ export default function CouponManagement() {
                   <DatePicker
                     selected={editFormData.startDate ? new Date(editFormData.startDate) : null}
                     onChange={(date: Date | null) => setEditFormData({ ...editFormData, startDate: date ? date.toISOString().split('T')[0] : "" })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     dateFormat="yyyy-MM-dd"
                     required
                   />
@@ -945,7 +946,7 @@ export default function CouponManagement() {
                   <DatePicker
                     selected={editFormData.endDate ? new Date(editFormData.endDate) : null}
                     onChange={(date: Date | null) => setEditFormData({ ...editFormData, endDate: date ? date.toISOString().split('T')[0] : "" })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     dateFormat="yyyy-MM-dd"
                     required
                   />
@@ -960,7 +961,7 @@ export default function CouponManagement() {
                     min="1"
                     value={editFormData.usageLimitPerUser}
                     onChange={(e) => setEditFormData({ ...editFormData, usageLimitPerUser: parseInt(e.target.value) || 1 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
 
@@ -972,7 +973,7 @@ export default function CouponManagement() {
                     min="0"
                     value={editFormData.totalUsageLimit || ""}
                     onChange={(e) => setEditFormData({ ...editFormData, totalUsageLimit: parseInt(e.target.value) || undefined })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
 
@@ -983,32 +984,33 @@ export default function CouponManagement() {
                     id="editIsActive"
                     checked={editFormData.isActive}
                     onChange={(e) => setEditFormData({ ...editFormData, isActive: e.target.checked })}
-                    className="h-5 w-5 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                   />
                   <label htmlFor="editIsActive" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Active
                   </label>
                 </div>
               </div>
-
-              {/* Modal Footer */}
-              <div className="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="rounded-lg border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={formLoading}
-                  className="rounded-lg bg-amber-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-                >
-                  {formLoading ? "Updating..." : "Update Coupon"}
-                </button>
-              </div>
             </form>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                type="button"
+                onClick={() => setShowEditModal(false)}
+                className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="editCouponForm"
+                disabled={formLoading}
+                className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+              >
+                {formLoading ? "Updating..." : "Update Coupon"}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -1018,9 +1020,9 @@ export default function CouponManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-xl bg-white shadow-2xl dark:bg-gray-900">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-[#013365]/10 to-[#013365]/20 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 p-2">
+                <div className="rounded-lg bg-[#013365] p-2">
                   <Gift className="h-5 w-5 text-white" />
                 </div>
                 <div>
@@ -1216,7 +1218,7 @@ export default function CouponManagement() {
                   <input
                     type="text"
                     placeholder="Search users..."
-                    className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                    className="w-full rounded-lg border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-[#013365] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     value={userSearchTerm}
                     onChange={(e) => {
                       setUserSearchTerm(e.target.value);
@@ -1270,7 +1272,7 @@ export default function CouponManagement() {
                         type="checkbox"
                         checked={selectedUserIds.includes(user._id)}
                         onChange={() => toggleUserSelection(user._id)}
-                        className="h-4 w-4 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                       />
                       <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-[#013365] font-semibold text-sm dark:bg-blue-900/30 dark:text-blue-400">
                         {user.name.charAt(0).toUpperCase()}
@@ -1310,7 +1312,7 @@ export default function CouponManagement() {
                 type="button"
                 onClick={handleAssignUsers}
                 disabled={formLoading || selectedUserIds.length === 0}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-[#013365] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {formLoading ? "Assigning..." : `Assign to ${selectedUserIds.length} Users`}
               </button>
@@ -1324,9 +1326,9 @@ export default function CouponManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-xl bg-white shadow-2xl dark:bg-gray-900">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-green-50 to-teal-50 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
+            <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-[#013365]/10 to-[#013365]/20 px-6 py-4 rounded-t-xl dark:from-gray-800 dark:to-gray-800 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <div className="rounded-lg bg-green-600 p-2">
+                <div className="rounded-lg bg-[#013365] p-2">
                   <History className="h-5 w-5 text-white" />
                 </div>
                 <div>

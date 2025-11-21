@@ -259,7 +259,7 @@ export default function ServiceManagement() {
             </button> */}
             <button 
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Service
@@ -518,7 +518,7 @@ export default function ServiceManagement() {
                 >
                   Close
                 </button>
-              <button onClick={() => { setShowModal(false); setShowEditModal(true); }} className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Edit Service</button>
+              <button onClick={() => { setShowModal(false); setShowEditModal(true); }} className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">Edit Service</button>
             </div>
           </div>
         </div>
@@ -567,7 +567,7 @@ export default function ServiceManagement() {
             {/* Sticky Footer */}
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
               <button onClick={() => setShowAddModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="add-service-form" type="submit" className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Save</button>
+              <button form="add-service-form" type="submit" className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">Save</button>
             </div>
           </div>
         </div>
@@ -615,7 +615,7 @@ export default function ServiceManagement() {
             {/* Sticky Footer */}
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
               <button onClick={() => setShowEditModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="edit-service-form" type="submit" className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90">Save</button>
+              <button form="edit-service-form" type="submit" className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">Save</button>
             </div>
           </div>
         </div>

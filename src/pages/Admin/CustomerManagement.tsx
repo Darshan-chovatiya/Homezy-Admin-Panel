@@ -226,7 +226,7 @@ export default function CustomerManagement() {
           </div>
 <button 
   onClick={() => setShowAddModal(true)}
-  className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"
+  className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"
 >
   <Plus className="h-4 w-4 mr-2" />
   Add Customer
@@ -429,7 +429,7 @@ export default function CustomerManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50"
                 >
                   {formLoading ? "Creating..." : "Create Customer"}
                 </button>
@@ -506,7 +506,7 @@ export default function CustomerManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50"
                 >
                   {formLoading ? "Updating..." : "Update Customer"}
                 </button>

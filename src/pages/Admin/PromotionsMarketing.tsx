@@ -373,7 +373,7 @@ export default function PromotionsMarketing() {
               Promotions & Marketing
             </h3>
             <div className="flex gap-2">
-              <button className="inline-flex items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
+              <button className="inline-flex items-center justify-center rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">
                 Export Data
               </button>
               <button 
@@ -494,7 +494,7 @@ export default function PromotionsMarketing() {
                         setSelectedPromotion(promotion);
                         setShowModal(true);
                       }}
-                      className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                      className="flex-1 rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90"
                     >
                       View Details
                     </button>
@@ -734,7 +734,7 @@ export default function PromotionsMarketing() {
                 >
                   Close
                 </button>
-                <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90">
+                <button className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">
                   {selectedPromotion ? "Edit Promotion" : "Edit Campaign"}
                 </button>
               </div>
@@ -891,7 +891,7 @@ export default function PromotionsMarketing() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90"
                 >
                   Create {activeTab === "promotions" ? "Promotion" : "Campaign"}
                 </button>
