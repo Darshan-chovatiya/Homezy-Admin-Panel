@@ -98,12 +98,12 @@ export default function SignInForm() {
               Keep me logged in
             </span>
           </div>
-          <Link
+          {/* <Link
             to="/reset-password"
             className="text-sm text-[#013365] hover:text-[#013365] dark:text-blue-400 dark:hover:text-blue-300"
           >
             Forgot password?
-          </Link>
+          </Link> */}
         </div>
         {error && (
           <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/30 rounded-md">
@@ -113,7 +113,7 @@ export default function SignInForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-[#013365] text-white text-sm font-medium py-2.5 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          className="w-full bg-[#013365] hover:bg-[#485a6ddd] text-white text-sm font-medium py-2.5 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
         >
           {isLoading ? "Signing in..." : "Sign In"}
         </button>

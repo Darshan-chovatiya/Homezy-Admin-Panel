@@ -15,7 +15,7 @@ export default function AuthLayout({
             <img
               width={150}
               height={30}
-              src="/images/logo/homezy.png"
+              src="/images/logo/Homenest-logo.png"
               alt="Logo"
               className="dark:filter dark:brightness-200"
             />
