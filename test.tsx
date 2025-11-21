@@ -1204,7 +1204,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.verification?.isVerified || false}
                   onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, isVerified: e.target.checked } })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Verified
@@ -1314,7 +1314,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.availability?.isOnline || false}
                   onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, isOnline: e.target.checked } })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Is Online
@@ -1388,7 +1388,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.isActive || false}
                   onChange={(e) => setEditFormData({ ...editFormData, isActive: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Active Status
@@ -1399,7 +1399,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.isApproved || false}
                   onChange={(e) => setEditFormData({ ...editFormData, isApproved: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Approved
@@ -1443,7 +1443,7 @@ export default function VendorManagement() {
               </select>
               <button
                 onClick={() => { setMode('add'); resetAddForm(); }}
-                className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-[#013365] transition-colors"
               >
                 Add New Vendor
               </button>
@@ -1507,7 +1507,7 @@ export default function VendorManagement() {
                         <div className="flex gap-2">
                           <button
                             onClick={() => { setSelectedVendor(vendor); setShowModal(true); }}
-                            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                            className="text-[#013365] hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                             title="View Details"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1580,7 +1580,7 @@ export default function VendorManagement() {
                 <div
                   key={step}
                   className={`flex-1 text-center text-sm font-medium ${
-                    index <= addFormStep ? 'text-blue-600' : 'text-gray-400'
+                    index <= addFormStep ? 'text-[#013365]' : 'text-gray-400'
                   }`}
                 >
                   {step}
@@ -1610,7 +1610,7 @@ export default function VendorManagement() {
                 <button
                   type="button"
                   onClick={handleAddNextStep}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-[#013365]"
                 >
                   Next
                 </button>
@@ -1618,7 +1618,7 @@ export default function VendorManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-[#013365] disabled:opacity-50"
                 >
                   {formLoading ? 'Creating...' : 'Create Vendor'}
                 </button>
@@ -1646,7 +1646,7 @@ export default function VendorManagement() {
                 <div
                   key={step}
                   className={`flex-1 text-center text-sm font-medium ${
-                    index <= editFormStep ? 'text-blue-600' : 'text-gray-400'
+                    index <= editFormStep ? 'text-[#013365]' : 'text-gray-400'
                   }`}
                 >
                   {step}
@@ -1676,7 +1676,7 @@ export default function VendorManagement() {
                 <button
                   type="button"
                   onClick={handleEditNextStep}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-[#013365]"
                 >
                   Next
                 </button>
@@ -1684,7 +1684,7 @@ export default function VendorManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-[#013365] disabled:opacity-50"
                 >
                   {formLoading ? 'Updating...' : 'Update Vendor'}
                 </button>

@@ -403,7 +403,7 @@ export default function VendorManagement() {
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter Service Partner name"
                 />
                 {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
@@ -417,7 +417,7 @@ export default function VendorManagement() {
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter email address"
                 />
                 {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
@@ -431,7 +431,7 @@ export default function VendorManagement() {
                   required
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter phone number"
                 />
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
@@ -444,7 +444,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "image")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {imagePreview && (
                   <img src={imagePreview} alt="Profile Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
@@ -467,7 +467,7 @@ export default function VendorManagement() {
                   required
                   value={formData.businessName}
                   onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter business name"
                 />
                 {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
@@ -480,7 +480,7 @@ export default function VendorManagement() {
                   rows={3}
                   value={formData.businessDescription}
                   onChange={(e) => setFormData({ ...formData, businessDescription: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter business description (optional)"
                 />
               </div>
@@ -492,7 +492,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "businessLogo")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {businessLogoPreview && (
                   <img src={businessLogoPreview} alt="Logo Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
@@ -506,7 +506,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "businessBanner")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {businessBannerPreview && (
                   <img src={businessBannerPreview} alt="Banner Preview" className="mt-2 h-24 w-48 object-cover rounded-lg" />
@@ -529,7 +529,7 @@ export default function VendorManagement() {
                   min={0}
                   value={formData.professionalInfo.experience}
                   onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, experience: Number(e.target.value) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter experience"
                 />
               </div>
@@ -541,7 +541,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.professionalInfo.skills.join(', ')}
                   onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, skills: e.target.value.split(',').map(s => s.trim()) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter skills"
                 />
               </div>
@@ -553,7 +553,7 @@ export default function VendorManagement() {
                   rows={3}
                   value={formData.professionalInfo.bio}
                   onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, bio: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter bio"
                 />
               </div>
@@ -573,7 +573,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.businessAddress.address}
                   onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, address: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter address"
                 />
               </div>
@@ -585,7 +585,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.businessAddress.pincode}
                   onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, pincode: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter pincode"
                 />
                 {errors.pincode && <p className="mt-1 text-xs text-red-500">{errors.pincode}</p>}
@@ -598,7 +598,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.businessAddress.city}
                   onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, city: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter city"
                 />
               </div>
@@ -610,7 +610,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.businessAddress.state}
                   onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, state: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter state"
                 />
               </div>
@@ -623,7 +623,7 @@ export default function VendorManagement() {
                   step="any"
                   value={formData.businessAddress.latitude || ""}
                   onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, latitude: Number(e.target.value) || undefined } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter latitude"
                 />
               </div>
@@ -636,7 +636,7 @@ export default function VendorManagement() {
                   step="any"
                   value={formData.businessAddress.longitude || ""}
                   onChange={(e) => setFormData({ ...formData, businessAddress: { ...formData.businessAddress, longitude: Number(e.target.value) || undefined } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter longitude"
                 />
               </div>
@@ -656,7 +656,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.verification.aadhaarNumber}
                   onChange={(e) => setFormData({ ...formData, verification: { ...formData.verification, aadhaarNumber: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter Aadhaar number"
                 />
                 {errors.aadhaarNumber && <p className="mt-1 text-xs text-red-500">{errors.aadhaarNumber}</p>}
@@ -669,7 +669,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.verification.panNumber}
                   onChange={(e) => setFormData({ ...formData, verification: { ...formData.verification, panNumber: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter PAN number"
                 />
                 {errors.panNumber && <p className="mt-1 text-xs text-red-500">{errors.panNumber}</p>}
@@ -682,7 +682,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "aadhaarFront")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {aadhaarFrontPreview && (
                   <img src={aadhaarFrontPreview} alt="Aadhaar Front Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -696,7 +696,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "aadhaarBack")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {aadhaarBackPreview && (
                   <img src={aadhaarBackPreview} alt="Aadhaar Back Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -710,7 +710,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "panImage")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {panImagePreview && (
                   <img src={panImagePreview} alt="PAN Image Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -724,7 +724,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "policeVerification")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {policeVerificationPreview && (
                   <img src={policeVerificationPreview} alt="Police Verification Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -746,7 +746,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.bankDetails.accountNumber}
                   onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, accountNumber: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter account number"
                 />
               </div>
@@ -758,7 +758,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.bankDetails.accountHolderName}
                   onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, accountHolderName: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter account holder name"
                 />
               </div>
@@ -770,7 +770,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.bankDetails.ifscCode}
                   onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, ifscCode: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter IFSC code"
                 />
                 {errors.ifscCode && <p className="mt-1 text-xs text-red-500">{errors.ifscCode}</p>}
@@ -783,7 +783,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.bankDetails.bankName}
                   onChange={(e) => setFormData({ ...formData, bankDetails: { ...formData.bankDetails, bankName: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter bank name"
                 />
               </div>
@@ -803,7 +803,7 @@ export default function VendorManagement() {
                   type="text"
                   value={formData.availability.workingDays.join(', ')}
                   onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="e.g., monday, tuesday"
                 />
               </div>
@@ -815,7 +815,7 @@ export default function VendorManagement() {
                   type="time"
                   value={formData.availability.workingHours.start}
                   onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingHours: { ...formData.availability.workingHours, start: e.target.value } } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
               <div>
@@ -826,7 +826,7 @@ export default function VendorManagement() {
                   type="time"
                   value={formData.availability.workingHours.end}
                   onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingHours: { ...formData.availability.workingHours, end: e.target.value } } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
             </div>
@@ -853,7 +853,7 @@ export default function VendorManagement() {
                   required
                   value={editFormData.name || ""}
                   onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter vendor name"
                 />
                 {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
@@ -867,7 +867,7 @@ export default function VendorManagement() {
                   required
                   value={editFormData.email || ""}
                   onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter email address"
                 />
                 {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
@@ -881,7 +881,7 @@ export default function VendorManagement() {
                   required
                   value={editFormData.phone || ""}
                   onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter phone number"
                 />
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
@@ -894,7 +894,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "image")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editImagePreview && (
                   <img src={editImagePreview} alt="Profile Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
@@ -917,7 +917,7 @@ export default function VendorManagement() {
                   required
                   value={editFormData.businessName || ""}
                   onChange={(e) => setEditFormData({ ...editFormData, businessName: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter business name"
                 />
                 {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
@@ -930,7 +930,7 @@ export default function VendorManagement() {
                   rows={3}
                   value={editFormData.businessDescription || ""}
                   onChange={(e) => setEditFormData({ ...editFormData, businessDescription: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter business description (optional)"
                 />
               </div>
@@ -942,7 +942,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "businessLogo")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editBusinessLogoPreview && (
                   <img src={editBusinessLogoPreview} alt="Logo Preview" className="mt-2 h-24 w-24 object-cover rounded-lg" />
@@ -956,7 +956,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "businessBanner")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editBusinessBannerPreview && (
                   <img src={editBusinessBannerPreview} alt="Banner Preview" className="mt-2 h-24 w-48 object-cover rounded-lg" />
@@ -979,7 +979,7 @@ export default function VendorManagement() {
                   min={0}
                   value={editFormData.professionalInfo?.experience || 0}
                   onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, experience: Number(e.target.value) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter experience"
                 />
               </div>
@@ -991,7 +991,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.professionalInfo?.skills.join(', ') || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, skills: e.target.value.split(',').map(s => s.trim()) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter skills"
                 />
               </div>
@@ -1003,7 +1003,7 @@ export default function VendorManagement() {
                   rows={3}
                   value={editFormData.professionalInfo?.bio || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, bio: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter bio"
                 />
               </div>
@@ -1023,7 +1023,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.businessAddress?.address || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, address: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter address"
                 />
               </div>
@@ -1035,7 +1035,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.businessAddress?.pincode || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, pincode: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter pincode"
                 />
                 {errors.pincode && <p className="mt-1 text-xs text-red-500">{errors.pincode}</p>}
@@ -1048,7 +1048,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.businessAddress?.city || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, city: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter city"
                 />
               </div>
@@ -1060,7 +1060,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.businessAddress?.state || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, state: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter state"
                 />
               </div>
@@ -1073,7 +1073,7 @@ export default function VendorManagement() {
                   step="any"
                   value={editFormData.businessAddress?.latitude || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, latitude: Number(e.target.value) || undefined } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter latitude"
                 />
               </div>
@@ -1086,7 +1086,7 @@ export default function VendorManagement() {
                   step="any"
                   value={editFormData.businessAddress?.longitude || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, businessAddress: { ...editFormData.businessAddress, longitude: Number(e.target.value) || undefined } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter longitude"
                 />
               </div>
@@ -1106,7 +1106,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.verification?.aadhaarNumber || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, aadhaarNumber: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter Aadhaar number"
                 />
                 {errors.aadhaarNumber && <p className="mt-1 text-xs text-red-500">{errors.aadhaarNumber}</p>}
@@ -1119,7 +1119,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.verification?.panNumber || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, panNumber: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter PAN number"
                 />
                 {errors.panNumber && <p className="mt-1 text-xs text-red-500">{errors.panNumber}</p>}
@@ -1132,7 +1132,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "aadhaarFront")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editAadhaarFrontPreview && (
                   <img src={editAadhaarFrontPreview} alt="Aadhaar Front Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -1146,7 +1146,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "aadhaarBack")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editAadhaarBackPreview && (
                   <img src={editAadhaarBackPreview} alt="Aadhaar Back Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -1160,7 +1160,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "panImage")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editPanImagePreview && (
                   <img src={editPanImagePreview} alt="PAN Image Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -1174,7 +1174,7 @@ export default function VendorManagement() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleEditFileChange(e, "policeVerification")}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 {editPoliceVerificationPreview && (
                   <img src={editPoliceVerificationPreview} alt="Police Verification Preview" className="mt-2 h-24 w-36 object-cover rounded-lg" />
@@ -1185,7 +1185,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.verification?.isVerified || false}
                   onChange={(e) => setEditFormData({ ...editFormData, verification: { ...editFormData.verification, isVerified: e.target.checked } })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Verified
@@ -1207,7 +1207,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.accountNumber || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountNumber: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter account number"
                 />
               </div>
@@ -1219,7 +1219,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.accountHolderName || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountHolderName: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter account holder name"
                 />
               </div>
@@ -1231,7 +1231,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.ifscCode || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, ifscCode: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter IFSC code"
                 />
                 {errors.ifscCode && <p className="mt-1 text-xs text-red-500">{errors.ifscCode}</p>}
@@ -1244,7 +1244,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.bankName || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, bankName: e.target.value } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter bank name"
                 />
               </div>
@@ -1264,7 +1264,7 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.availability?.workingDays.join(', ') || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="e.g., monday, tuesday"
                 />
               </div>
@@ -1276,7 +1276,7 @@ export default function VendorManagement() {
                   type="time"
                   value={editFormData.availability?.workingHours.start || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingHours: { ...editFormData.availability.workingHours, start: e.target.value } } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
               <div>
@@ -1287,7 +1287,7 @@ export default function VendorManagement() {
                   type="time"
                   value={editFormData.availability?.workingHours.end || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingHours: { ...editFormData.availability.workingHours, end: e.target.value } } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -1295,7 +1295,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.availability?.isOnline || false}
                   onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, isOnline: e.target.checked } })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Is Online
@@ -1306,7 +1306,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.isActive || false}
                   onChange={(e) => setEditFormData({ ...editFormData, isActive: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Active Status
@@ -1317,7 +1317,7 @@ export default function VendorManagement() {
                   type="checkbox"
                   checked={editFormData.isApproved || false}
                   onChange={(e) => setEditFormData({ ...editFormData, isApproved: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
                 />
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                   Approved
@@ -1350,7 +1350,7 @@ export default function VendorManagement() {
                   resetAddForm();
                   setMode('add');
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 transition-all hover:shadow-xl hover:shadow-blue-500/40 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#013365]/30 transition-all hover:shadow-xl hover:shadow-[#013365]/40 hover:-translate-y-0.5"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -1367,7 +1367,7 @@ export default function VendorManagement() {
                 <input
                   type="text"
                   placeholder="Search Service Partner by name, email, or phone..."
-                  className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400"
+                  className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-[#013365]"
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value);
@@ -1376,7 +1376,7 @@ export default function VendorManagement() {
                 />
               </div>
               <select
-                className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium transition-all focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 value={filterStatus}
                 onChange={(e) => {
                   setFilterStatus(e.target.value as any);
@@ -1391,7 +1391,7 @@ export default function VendorManagement() {
             {/* Loading State */}
             {loading ? (
               <div className="py-16 text-center">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+                <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#013365] border-r-transparent"></div>
                 <p className="mt-4 text-gray-600 dark:text-gray-400">Loading Service Partner...</p>
               </div>
             ) : (
@@ -1406,7 +1406,7 @@ export default function VendorManagement() {
                         <th scope="col" className="px-6 py-4">Contact</th>
                         <th scope="col" className="px-6 py-4">Status</th>
                         <th scope="col" className="px-6 py-4">Performance</th>
-                        <th scope="col" className="px-6 py-4 text-center">Actions</th>
+                        <th scope="col" className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1414,10 +1414,8 @@ export default function VendorManagement() {
                         <tr key={vendor._id} className="bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-750">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
-                                <span className="text-lg font-bold text-white">
-                                  {vendor.name.charAt(0).toUpperCase()}
-                                </span>
+                              <div className="h-12 w-12 flex-shrink-0 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 dark:bg-white/10 dark:text-white/80">
+                                <span className="text-xs font-semibold">{vendor.name.charAt(0).toUpperCase()}</span>
                               </div>
                               <div>
                                 <div className="font-semibold text-gray-900 dark:text-white">
@@ -1458,36 +1456,36 @@ export default function VendorManagement() {
                               {vendor.completedJobs || 0} jobs completed
                             </div>
                           </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-center gap-3">
+                          <td className="px-6 py-4 text-right">
+                            <div className="flex items-center justify-end gap-2">
                               <button
                                 onClick={() => {
                                   setSelectedVendor(vendor);
                                   setShowModal(true);
                                 }}
-                                className="p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white rounded-lg transition-colors"
+                                className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                                 title="View Details"
                               >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                               </button>
                               <button
                                 onClick={() => loadEditVendor(vendor)}
-                                className="p-2 text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                                 title="Edit Service Partner"
                               >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                               </button>
                               <button
                                 onClick={() => handleDelete(vendor._id)}
-                                className="p-2 text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-700 transition-colors duration-200"
                                 title="Delete"
                               >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                               </button>
@@ -1497,7 +1495,8 @@ export default function VendorManagement() {
                       ))}
                     </tbody>
                   </table>
-                </div>
+                  </div>
+                {/* </div> */}
                 {/* Empty State */}
                 {vendors.length === 0 && (
                   <div className="py-16 text-center">
@@ -1561,13 +1560,13 @@ export default function VendorManagement() {
                     <div
                       key={step}
                       className={`flex-1 text-center text-sm font-medium ${
-                        index <= addFormStep ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+                        index <= addFormStep ? 'text-[#013365] dark:text-[#013365]' : 'text-gray-400 dark:text-gray-500'
                       }`}
                     >
                       <div className="flex items-center justify-center mb-2">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                           index <= addFormStep 
-                            ? 'bg-blue-600 text-white' 
+                            ? 'bg-[#013365] text-white' 
                             : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
                         }`}>
                           {index + 1}
@@ -1576,7 +1575,7 @@ export default function VendorManagement() {
                       {step}
                       {index < addFormSteps.length - 1 && (
                         <div className={`h-1 mt-2 mx-2 ${
-                          index < addFormStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                          index < addFormStep ? 'bg-[#013365]' : 'bg-gray-200 dark:bg-gray-700'
                         }`}></div>
                       )}
                     </div>
@@ -1609,7 +1608,7 @@ export default function VendorManagement() {
                     <button
                       type="button"
                       onClick={handleAddNextStep}
-                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+                      className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
                     >
                       Next
                     </button>
@@ -1617,7 +1616,7 @@ export default function VendorManagement() {
                     <button
                       type="submit"
                       disabled={formLoading}
-                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {formLoading ? "Creating..." : "Create Service Partner"}
                     </button>
@@ -1650,13 +1649,13 @@ export default function VendorManagement() {
                     <div
                       key={step}
                       className={`flex-1 text-center text-sm font-medium ${
-                        index <= editFormStep ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-500'
+                        index <= editFormStep ? 'text-[#013365] dark:text-[#013365]' : 'text-gray-400 dark:text-gray-500'
                       }`}
                     >
                       <div className="flex items-center justify-center mb-2">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
                           index <= editFormStep 
-                            ? 'bg-blue-600 text-white' 
+                            ? 'bg-[#013365] text-white' 
                             : 'bg-gray-200 text-gray-400 dark:bg-gray-700 dark:text-gray-500'
                         }`}>
                           {index + 1}
@@ -1665,7 +1664,7 @@ export default function VendorManagement() {
                       {step}
                       {index < editFormSteps.length - 1 && (
                         <div className={`h-1 mt-2 mx-2 ${
-                          index < editFormStep ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
+                          index < editFormStep ? 'bg-[#013365]' : 'bg-gray-200 dark:bg-gray-700'
                         }`}></div>
                       )}
                     </div>
@@ -1698,7 +1697,7 @@ export default function VendorManagement() {
                     <button
                       type="button"
                       onClick={handleEditNextStep}
-                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
+                      className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
                     >
                       Next
                     </button>
@@ -1706,7 +1705,7 @@ export default function VendorManagement() {
                     <button
                       type="submit"
                       disabled={formLoading}
-                      className="rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {formLoading ? "Updating..." : "Update Service Partner"}
                     </button>
@@ -1740,8 +1739,8 @@ export default function VendorManagement() {
                 </button>
               </div>
               <div className="space-y-6">
-                <div className="flex items-center gap-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-100 p-6 dark:from-blue-900/20 dark:to-blue-800/20">
-                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                <div className="flex items-center gap-4 rounded-xl bg-[#013365]/10 p-6 dark:bg-[#013365]/20">
+                  <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-[#013365] shadow-lg">
                     <span className="text-3xl font-bold text-white">
                       {selectedVendor.name.charAt(0).toUpperCase()}
                     </span>

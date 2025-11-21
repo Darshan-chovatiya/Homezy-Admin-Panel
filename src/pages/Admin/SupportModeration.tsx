@@ -390,7 +390,7 @@ export default function SupportModeration() {
                     <th scope="col" className="px-6 py-3">Description</th>
                     <th scope="col" className="px-6 py-3">Status</th>
                     <th scope="col" className="px-6 py-3">Created</th>
-                    <th scope="col" className="px-6 py-3">Actions</th>
+                    <th scope="col" className="px-6 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -435,14 +435,14 @@ export default function SupportModeration() {
                           {new Date(dispute.createdAt).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => {
                               setSelectedDispute(dispute);
                               setShowModal(true);
                             }}
-                            className="border rounded-lg p-2 text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-900/20 dark:hover:text-blue-300"
+                            className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                             title="View Details"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -452,7 +452,7 @@ export default function SupportModeration() {
                           </button>
                           <button
                             onClick={() => handleDeleteDispute(formatId(dispute._id))}
-                            className="border rounded-lg p-2 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20 dark:hover:text-red-300"
+                            className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-700 transition-colors duration-200"
                             title="Delete Dispute"
                           >
                             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -601,7 +601,7 @@ export default function SupportModeration() {
                 {selectedDispute.servicePartnerEvidence.map((evidence, index) => (
                   <span
                     key={index}
-                    className="inline-flex items-center rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 dark:border-blue-700 dark:bg-blue-900 dark:text-blue-200"
+                    className="inline-flex items-center rounded-full border border-blue-300 bg-blue-50 px-3 py-1 text-xs font-medium text-[#013365] dark:border-blue-700 dark:bg-blue-900 dark:text-blue-200"
                   >
                     {evidence}
                   </span>
@@ -622,7 +622,7 @@ export default function SupportModeration() {
               {selectedDispute.refundAmount && (
                 <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-700">
                   <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Refund Amount: </span>
-                  <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                  <span className="text-sm font-bold text-[#013365] dark:text-blue-400">
                     ${selectedDispute.refundAmount}
                   </span>
                 </div>

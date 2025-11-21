@@ -337,7 +337,7 @@ export default function CouponManagement() {
         </div>
         <button
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all dark:bg-blue-700 dark:hover:bg-blue-600"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-[#013365]/90 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all dark:bg-[#013365] dark:hover:bg-blue-600"
         >
           <Plus className="h-5 w-5" />
           Add Coupon
@@ -426,7 +426,7 @@ export default function CouponManagement() {
                 setSearchTerm("");
                 setCurrentPage(1);
               }}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400"
+              className="text-sm text-[#013365] hover:text-[#013365] font-medium dark:text-blue-400"
             >
               Clear Filters
             </button>
@@ -452,7 +452,7 @@ export default function CouponManagement() {
                   <th scope="col" className="px-6 py-4">Validity</th>
                   <th scope="col" className="px-6 py-4">Usage</th>
                   <th scope="col" className="px-6 py-4">Status</th>
-                  <th scope="col" className="px-6 py-4 text-center">Actions</th>
+                  <th scope="col" className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -464,7 +464,7 @@ export default function CouponManagement() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-800/30">
-                          <Gift className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                          <Gift className="h-6 w-6 text-[#013365] dark:text-blue-400" />
                         </div>
                         <div>
                           <div className="font-medium text-gray-900 dark:text-white">{coupon.couponName}</div>
@@ -497,42 +497,42 @@ export default function CouponManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4">{getStatusBadge(coupon)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
                             setSelectedCoupon(coupon);
                             setShowModal(true);
                           }}
-                          className="rounded-lg bg-blue-50 p-2 text-blue-600 hover:bg-blue-100 transition-colors dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/40"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="View Details"
                         >
                           <Eye className="h-4 w-4" />
-                          </button>
+                        </button>
                         <button
                           onClick={() => openEditModal(coupon)}
-                          className="rounded-lg bg-amber-50 p-2 text-amber-600 hover:bg-amber-100 transition-colors dark:bg-amber-900/20 dark:text-amber-400 dark:hover:bg-amber-900/40"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="Edit Coupon"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => openAssignUsersModal(coupon)}
-                          className="rounded-lg bg-purple-50 p-2 text-purple-600 hover:bg-purple-100 transition-colors dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/40"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="Assign Users"
                         >
                           <Users className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => openUsageHistoryModal(coupon)}
-                          className="rounded-lg bg-green-50 p-2 text-green-600 hover:bg-green-100 transition-colors dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/40"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="Usage History"
                         >
                           <History className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(coupon._id)}
-                          className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100 transition-colors dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 dark:bg-red-900 dark:text-red-400 dark:hover:bg-red-800 dark:hover:text-red-300 border border-red-300 dark:border-red-700 transition-colors duration-200"
                           title="Delete Coupon"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -552,7 +552,7 @@ export default function CouponManagement() {
               <p className="mt-4 text-gray-500 dark:text-gray-400">No coupons found.</p>
               <button
                 onClick={() => setShowAddModal(true)}
-                className="mt-4 inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400"
+                className="mt-4 inline-flex items-center gap-2 text-sm text-[#013365] hover:text-[#013365] font-medium dark:text-blue-400"
               >
                 <Plus className="h-4 w-4" />
                 Create your first coupon
@@ -784,7 +784,7 @@ export default function CouponManagement() {
                     id="isActive"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="isActive" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Active (Coupon will be available immediately)
@@ -804,7 +804,7 @@ export default function CouponManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-[#013365] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
                 >
                   {formLoading ? "Creating..." : "Create Coupon"}
                 </button>
@@ -983,7 +983,7 @@ export default function CouponManagement() {
                     id="editIsActive"
                     checked={editFormData.isActive}
                     onChange={(e) => setEditFormData({ ...editFormData, isActive: e.target.checked })}
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-5 w-5 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="editIsActive" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Active
@@ -1058,7 +1058,7 @@ export default function CouponManagement() {
                 {/* Discount Details */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-blue-50 rounded-lg dark:bg-blue-900/20">
-                    <label className="block text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">Discount Type</label>
+                    <label className="block text-xs font-medium text-[#013365] dark:text-blue-300 mb-1">Discount Type</label>
                     <p className="text-lg font-semibold text-blue-900 dark:text-blue-100">
                       {selectedCoupon.discountType === "percentage" ? "Percentage" : "Fixed Amount"}
                     </p>
@@ -1139,7 +1139,7 @@ export default function CouponManagement() {
                     <div className="max-h-40 overflow-y-auto space-y-2 p-4 bg-gray-50 rounded-lg dark:bg-gray-800">
                       {selectedCoupon.assignedUsers.map(user => (
                         <div key={user._id} className="flex items-center gap-3 p-2 bg-white rounded dark:bg-gray-700">
-                          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-xs dark:bg-blue-900/30 dark:text-blue-400">
+                          <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-[#013365] font-semibold text-xs dark:bg-blue-900/30 dark:text-blue-400">
                             {user.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1193,7 +1193,7 @@ export default function CouponManagement() {
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
               <div className="flex items-center gap-3">
-                <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <Users className="h-5 w-5 text-[#013365] dark:text-blue-400" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Assign Users</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{selectedCoupon.couponCode}</p>
@@ -1227,14 +1227,14 @@ export default function CouponManagement() {
 
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">{selectedUserIds.length}</span> of{" "}
+                    <span className="font-semibold text-[#013365] dark:text-blue-400">{selectedUserIds.length}</span> of{" "}
                     <span className="font-semibold">{users.length}</span> users selected
                   </div>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={selectAllUsers}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400"
+                      className="text-sm text-[#013365] hover:text-[#013365] font-medium dark:text-blue-400"
                     >
                       Select All
                     </button>
@@ -1242,7 +1242,7 @@ export default function CouponManagement() {
                     <button
                       type="button"
                       onClick={deselectAllUsers}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium dark:text-blue-400"
+                      className="text-sm text-[#013365] hover:text-[#013365] font-medium dark:text-blue-400"
                     >
                       Deselect All
                     </button>
@@ -1270,9 +1270,9 @@ export default function CouponManagement() {
                         type="checkbox"
                         checked={selectedUserIds.includes(user._id)}
                         onChange={() => toggleUserSelection(user._id)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-[#013365] focus:ring-blue-500 border-gray-300 rounded"
                       />
-                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm dark:bg-blue-900/30 dark:text-blue-400">
+                      <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-[#013365] font-semibold text-sm dark:bg-blue-900/30 dark:text-blue-400">
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1310,7 +1310,7 @@ export default function CouponManagement() {
                 type="button"
                 onClick={handleAssignUsers}
                 disabled={formLoading || selectedUserIds.length === 0}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-[#013365] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {formLoading ? "Assigning..." : `Assign to ${selectedUserIds.length} Users`}
               </button>

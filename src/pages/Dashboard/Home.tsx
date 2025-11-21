@@ -280,7 +280,7 @@ export default function Home() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-300" />
+                  <Users className="h-5 w-5 text-[#013365] dark:text-blue-300" />
                 </div>
               </div>
               <div className="ml-4">
@@ -502,7 +502,7 @@ export default function Home() {
                   className="flex items-center gap-2 cursor-pointer"
                   style={{ opacity: revenueMode === 'all' ? 1 : 0.5 }}
                 >
-                  <div className="w-3 h-3 rounded-sm bg-[#465fff]" />
+                  <div className="w-3 h-3 rounded-sm bg-[#013365]" />
                   <span className="text-sm font-medium text-gray-700 dark:text-gray-400">All</span>
                 </button>
                 <button
@@ -651,7 +651,7 @@ export default function Home() {
                          // Get color for this segment
                          const color = (w.globals && w.globals.colors && w.globals.colors[seriesIndex]) 
                            ? w.globals.colors[seriesIndex] 
-                           : '#465fff';
+                           : '#013365';
                          
                          // Format currency
                          const formattedValue = new Intl.NumberFormat('en-IN', {

@@ -327,7 +327,7 @@ export default function PromotionsMarketing() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                  <span className="text-blue-600 dark:text-blue-300">📊</span>
+                  <span className="text-[#013365] dark:text-blue-300">📊</span>
                 </div>
               </div>
               <div className="ml-4">
@@ -523,7 +523,7 @@ export default function PromotionsMarketing() {
                     <th scope="col" className="px-6 py-3">Recipients</th>
                     <th scope="col" className="px-6 py-3">Performance</th>
                     <th scope="col" className="px-6 py-3">Scheduled</th>
-                    <th scope="col" className="px-6 py-3">Actions</th>
+                    <th scope="col" className="px-6 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -574,8 +574,8 @@ export default function PromotionsMarketing() {
                           {campaign.scheduledAt ? new Date(campaign.scheduledAt).toLocaleTimeString() : ""}
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => {
                               setSelectedCampaign(campaign);

@@ -221,7 +221,7 @@ function ChatWindow({ chatType, selectedUserId }: ChatWindowProps) {
                     
                     {/* Time and Read Status */}
                     <div className={`flex items-center gap-1 mt-1 text-xs ${
-                      isAdmin ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
+                      isAdmin ? 'text-[#013365] dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
                     }`}>
                       <span>
                         {isToday 
@@ -290,7 +290,7 @@ function ChatWindow({ chatType, selectedUserId }: ChatWindowProps) {
           <button
             type="submit"
             disabled={!messageText.trim()}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-[#013365] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Send className="h-5 w-5" />
           </button>

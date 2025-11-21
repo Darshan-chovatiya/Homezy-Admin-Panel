@@ -204,7 +204,7 @@ export default function FAQManagement() {
     return (
       <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
         type === 'user'
-          ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+          ? "bg-blue-100 text-[#013365] dark:bg-blue-900/20 dark:text-blue-300"
           : "bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300"
       }`}>
         {type === 'user' ? 'Customer' : 'Service Partner'}
@@ -216,19 +216,16 @@ export default function FAQManagement() {
     <>
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">FAQ Management</h3>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              Total FAQs: <span className="font-semibold">{filteredFAQs.length}</span>
-            </p>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">FAQ Management</h3>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add FAQ
+            </button>
           </div>
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add FAQ
-          </button>
         </div>
 
         <div className="mb-6 flex flex-col gap-4 sm:flex-row">
@@ -261,16 +258,16 @@ export default function FAQManagement() {
           </select>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[calc(100vh-300px)] overflow-y-auto">
           <table className="w-full text-left text-sm text-gray-500 dark:text-gray-400">
-            <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
+            <thead className="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400 sticky top-0 z-10">
               <tr>
-                <th scope="col" className="px-6 py-3">Question</th>
-                <th scope="col" className="px-6 py-3">Answer</th>
-                <th scope="col" className="px-6 py-3">Type</th>
-                <th scope="col" className="px-6 py-3">Status</th>
-                <th scope="col" className="px-6 py-3">Created</th>
-                <th scope="col" className="px-6 py-3">Actions</th>
+                <th className="px-6 py-3">Question</th>
+                <th className="px-6 py-3">Answer</th>
+                <th className="px-6 py-3">Type</th>
+                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Created</th>
+                <th className="px-6 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -280,17 +277,13 @@ export default function FAQManagement() {
                 filteredFAQs.map((faq) => (
                   <tr key={faq._id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
                     <td className="px-6 py-4">
-                      <div className="max-w-xs">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                          {faq.question}
-                        </div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        {faq.question.length > 20 ? `${faq.question.substring(0, 20)}...` : faq.question}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="max-w-xs">
-                        <div className="text-sm text-gray-900 dark:text-white truncate">
-                          {faq.answer}
-                        </div>
+                      <div className="text-sm text-gray-900 dark:text-white">
+                        {faq.answer.length > 20 ? `${faq.answer.substring(0, 20)}...` : faq.answer}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -308,21 +301,21 @@ export default function FAQManagement() {
                         })}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => {
                             setSelectedFAQ(faq);
                             setShowModal(true);
                           }}
-                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="View Details"
                         >
                           <Eye className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => openEditModal(faq)}
-                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-primary hover:bg-blue-200 hover:text-primary/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
+                          className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="Edit FAQ"
                         >
                           <Edit className="h-4 w-4" />
@@ -406,7 +399,7 @@ export default function FAQManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50"
                 >
                   {formLoading ? "Creating..." : "Create FAQ"}
                 </button>
@@ -472,7 +465,7 @@ export default function FAQManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50"
                 >
                   {formLoading ? "Updating..." : "Update FAQ"}
                 </button>

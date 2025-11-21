@@ -94,7 +94,7 @@ export default function UserDropdown() {
         onClick={toggleDropdown}
         className="flex items-center text-gray-700 dropdown-toggle dark:text-gray-400"
       >
-        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 flex items-center justify-center bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+        <span className="mr-3 overflow-hidden rounded-full h-11 w-11 flex items-center justify-center bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
           {adminProfile?.profileImage && !imageError ? (
             <img 
               src={apiService.resolveImageUrl(adminProfile.profileImage)} 

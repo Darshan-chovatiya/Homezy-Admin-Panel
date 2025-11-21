@@ -259,7 +259,7 @@ export default function ServiceManagement() {
             </button> */}
             <button 
               onClick={() => setShowAddModal(true)}
-              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <Plus className="h-4 w-4 mr-2" />
               Add Service
@@ -324,7 +324,7 @@ export default function ServiceManagement() {
                       <div className="text-right mb-3" onClick={(e) => e.stopPropagation()}>
                         {getStatusBadge(service)}
                       </div>
-                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
                         {service.image && !imageErrors[service.id] ? (
                           <img
                             src={service.image}
@@ -347,7 +347,7 @@ export default function ServiceManagement() {
                     e.stopPropagation();
                     handleModalOpen(service);
                   }}
-                  className="flex items-center justify-center gap-2 flex-1 rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 hover:bg-blue-300"
+                  className="flex items-center justify-center gap-2 flex-1 rounded-lg bg-blue-100 px-4 py-2 text-sm font-medium text-[#013365] hover:bg-blue-300"
                 >
                    View Details
                 </button>
@@ -398,7 +398,7 @@ export default function ServiceManagement() {
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{selectedService.description}</p>
                   </div>
                   <div className="flex-shrink-0">
-                    <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                    <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
                       {selectedService.image && !modalImageError ? (
                         <img
                           src={selectedService.image}
@@ -446,7 +446,7 @@ export default function ServiceManagement() {
                                   <button
                                     type="button"
                                     onClick={() => setExpandedDescriptions(prev => ({ ...prev, [s.id]: !prev[s.id] }))}
-                                    className="ml-2 text-xs text-blue-600 hover:underline dark:text-blue-400"
+                                    className="ml-2 text-xs text-[#013365] hover:underline dark:text-blue-400"
                                   >
                                     {expandedDescriptions[s.id] ? "Show less" : "Show more"}
                                   </button>
@@ -458,7 +458,7 @@ export default function ServiceManagement() {
                                 {s.images && s.images.length > 0 ? (
                                   <div className="flex gap-1">
                                     {s.images.slice(0, 3).map((img, idx) => (
-                                      <div key={idx} className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                      <div key={idx} className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
                                         {!subcategoryImageErrors[`${s.id}-${idx}`] ? (
                                           <img 
                                             src={img} 
@@ -480,7 +480,7 @@ export default function ServiceManagement() {
                                     )}
                                   </div>
                                 ) : (
-                                  <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                                  <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
                                     <span className="text-xs font-bold">
                                       {getInitials(s.name)}
                                     </span>
@@ -518,7 +518,7 @@ export default function ServiceManagement() {
                 >
                   Close
                 </button>
-              <button onClick={() => { setShowModal(false); setShowEditModal(true); }} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Edit Service</button>
+              <button onClick={() => { setShowModal(false); setShowEditModal(true); }} className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Edit Service</button>
             </div>
           </div>
         </div>
@@ -567,7 +567,7 @@ export default function ServiceManagement() {
             {/* Sticky Footer */}
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
               <button onClick={() => setShowAddModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="add-service-form" type="submit" className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Save</button>
+              <button form="add-service-form" type="submit" className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600">Save</button>
             </div>
           </div>
         </div>
@@ -701,7 +701,7 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI
           <div className="mt-1">
             {(initial?.image && !serviceImage) || serviceImage ? (
               <div className="mb-2">
-                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
                   {serviceImage ? (
                     <img 
                       src={URL.createObjectURL(serviceImage)} 
@@ -725,7 +725,7 @@ function AddEditServiceForm({ initial, onSubmit, formId }: { initial?: ServiceUI
               </div>
             ) : (
               <div className="mb-2">
-                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
+                <div className="flex h-20 w-20 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
                   <span className="text-xl font-bold">
                     {getInitials(name || initial?.name || "Service")}
                   </span>

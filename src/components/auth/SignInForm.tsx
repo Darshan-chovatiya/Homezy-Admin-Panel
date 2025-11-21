@@ -100,7 +100,7 @@ export default function SignInForm() {
           </div>
           <Link
             to="/reset-password"
-            className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="text-sm text-[#013365] hover:text-[#013365] dark:text-blue-400 dark:hover:text-blue-300"
           >
             Forgot password?
           </Link>
@@ -113,7 +113,7 @@ export default function SignInForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2.5 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+          className="w-full bg-blue-600 hover:bg-[#013365] text-white text-sm font-medium py-2.5 px-4 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
         >
           {isLoading ? "Signing in..." : "Sign In"}
         </button>
@@ -124,7 +124,7 @@ export default function SignInForm() {
           Don&apos;t have an account?{" "}
           <Link
             to="/signup"
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="text-[#013365] hover:text-[#013365] dark:text-blue-400 dark:hover:text-blue-300"
           >
             Sign Up
           </Link>

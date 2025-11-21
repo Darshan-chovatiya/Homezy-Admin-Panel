@@ -95,7 +95,6 @@ export default function CustomerManagement() {
           c._id === customer._id ? { ...c, isActive: nextStatus } : c
         )
       );
-      Swal.fire('Success', `Customer ${nextStatus ? 'activated' : 'deactivated'} successfully`, 'success');
     } catch (error) {
       console.error("Error updating customer status:", error);
       Swal.fire('Error', 'Failed to update customer status', 'error');
@@ -207,7 +206,7 @@ export default function CustomerManagement() {
   //   return (
   //     <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
   //       isVerified 
-  //         ? "bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300"
+  //         ? "bg-blue-100 text-[#013365] dark:bg-blue-900/20 dark:text-blue-300"
   //         : "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400"
   //     }`}>
   //       {isVerified ? "Verified" : "Not Verified"}
@@ -227,7 +226,7 @@ export default function CustomerManagement() {
           </div>
 <button 
   onClick={() => setShowAddModal(true)}
-  className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"
+  className="inline-flex items-center justify-center rounded-lg border border-blue-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 hover:text-white dark:border-blue-700 dark:bg-blue-900 dark:text-blue-300 dark:hover:bg-blue-800 dark:hover:text-blue-200 transition-colors duration-200"
 >
   <Plus className="h-4 w-4 mr-2" />
   Add Customer
@@ -270,7 +269,7 @@ export default function CustomerManagement() {
                 <th scope="col" className="px-6 py-3">Location</th>
                 <th scope="col" className="px-6 py-3">Status</th>
                 <th scope="col" className="px-6 py-3">Wallet</th>
-                <th scope="col" className="px-6 py-3">Actions</th>
+                <th scope="col" className="px-6 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -297,35 +296,33 @@ export default function CustomerManagement() {
                       {customer.addressComponent?.state && `, ${customer.addressComponent.state}`}
                     </td>
                     <td className="px-6 py-4">
-                      <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={customer.isActive}
-                          onChange={() => handleToggle(customer)}
-                          className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        <span className="ml-2 text-xs text-gray-600 dark:text-gray-400">
-                          {customer.isActive ? 'Active' : 'Inactive'}
-                        </span>
-                      </label>
+                      <span
+                        onClick={() => handleToggle(customer)}
+                        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
+                          customer.isActive
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        }`}
+                      >
+                        {customer.isActive ? "Active" : "Inactive"}
+                      </span>
                     </td>
                     <td className="px-6 py-4">₹{customer.walletBalance || 0}</td>
-                    <td className="px-6 py-4">
-  <div className="flex items-center gap-2">
+                    <td className="px-6 py-4 text-right">
+  <div className="flex items-center justify-end gap-2">
     <button
       onClick={() => {
         setSelectedCustomer(customer);
         setShowModal(true);
       }}
-      className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-blue-600 hover:bg-blue-200 hover:text-blue-700 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
+      className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365] dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
       title="View Details"
     >
       <Eye className="h-4 w-4" />
     </button>
     <button
       onClick={() => openEditModal(customer)}
-      className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-primary hover:bg-blue-200 hover:text-primary/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
+      className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
       title="Edit Customer"
     >
       <Edit className="h-4 w-4" />
@@ -432,7 +429,7 @@ export default function CustomerManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
                 >
                   {formLoading ? "Creating..." : "Create Customer"}
                 </button>
@@ -509,7 +506,7 @@ export default function CustomerManagement() {
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                  className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 disabled:opacity-50"
                 >
                   {formLoading ? "Updating..." : "Update Customer"}
                 </button>

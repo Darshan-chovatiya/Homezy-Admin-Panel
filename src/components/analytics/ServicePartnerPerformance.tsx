@@ -91,7 +91,7 @@ export default function ServicePartnerPerformance({ period }: ServicePartnerPerf
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900">
-                <span className="text-blue-600 dark:text-blue-300">👥</span>
+                <span className="text-[#013365] dark:text-blue-300">👥</span>
               </div>
             </div>
             <div className="ml-3">
