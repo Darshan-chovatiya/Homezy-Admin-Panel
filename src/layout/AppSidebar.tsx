@@ -88,6 +88,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Coupon", path: "/admin/coupans" },
       { name: "Notification", path: "/admin/notifications" },
+      { name: "Banner", path: "/admin/banners" },
     ],
   },
   {

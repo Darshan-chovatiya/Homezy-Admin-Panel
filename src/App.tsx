@@ -22,6 +22,7 @@ import CoupanManagement from "./pages/Admin/CoupanManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
 import FAQManagement from "./pages/Admin/FAQManagement";
 import ChatManagement from "./pages/Admin/ChatManagement";
+import BannerManagement from "./pages/Admin/BannerManagement";
 
 export default function App() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
                 <Route path="/admin/notifications" element={<NotificationManagement />} />
                 <Route path="/admin/faqs" element={<FAQManagement />} />
                 <Route path="/admin/chats" element={<ChatManagement />} />
+                <Route path="/admin/banners" element={<BannerManagement />} />
                 <Route path="/profile" element={<UserProfiles />} />
               </Route>
             </Route>
