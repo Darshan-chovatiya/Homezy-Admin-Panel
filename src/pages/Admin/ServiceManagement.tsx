@@ -228,59 +228,6 @@ export default function ServiceManagement() {
     }
   };
 
-  const handleSubcategoryStatusChange = async (subcategoryId: string, newStatus: 'active' | 'inactive') => {
-    try {
-      const Swal = (await import('sweetalert2')).default;
-      const result = await Swal.fire({
-        title: `Are you sure?`,
-        text: `Do you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} this subcategory?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#013365',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
-      });
-
-      if (result.isConfirmed) {
-        await apiService.updateSubcategoryStatus(subcategoryId, newStatus);
-        // Update the subcategory in the selected service's subcategories
-        if (selectedService) {
-          const updatedSubcategories = selectedService.subCategories.map(sub => 
-            sub.id === subcategoryId ? { ...sub, status: newStatus } : sub
-          );
-          setSelectedService({ ...selectedService, subCategories: updatedSubcategories });
-        }
-        // Also update in services list
-        setServices(services.map(service => {
-          if (service.id === selectedService?.id) {
-            return {
-              ...service,
-              subCategories: service.subCategories.map(sub =>
-                sub.id === subcategoryId ? { ...sub, status: newStatus } : sub
-              )
-            };
-          }
-          return service;
-        }));
-        await Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: `Subcategory ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
-          timer: 1500,
-          showConfirmButton: false
-        });
-      }
-    } catch (err) {
-      const Swal = (await import('sweetalert2')).default;
-      await Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: err instanceof Error ? err.message : 'Failed to update subcategory status'
-      });
-      console.error('Error updating subcategory status:', err);
-    }
-  };
 
   const getStatusBadge = (service: ServiceUI) => {
     return (

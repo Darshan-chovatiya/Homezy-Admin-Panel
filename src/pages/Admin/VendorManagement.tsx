@@ -143,7 +143,6 @@ export default function VendorManagement() {
   useEffect(() => {
     const fetchServicesData = async () => {
       try {
-        setLoadingServices(true);
         const response = await apiService.getServices({ page: 1, limit: 100 });
         if (response.data) {
           setServices(response.data.docs);
@@ -163,8 +162,6 @@ export default function VendorManagement() {
         }
       } catch (error) {
         console.error("Error fetching services:", error);
-      } finally {
-        setLoadingServices(false);
       }
     };
     if (mode === 'add' || mode === 'edit') {
@@ -569,9 +566,6 @@ export default function VendorManagement() {
           })
           .catch((error) => {
             console.error("Error fetching services:", error);
-          })
-          .finally(() => {
-            setLoadingServices(false);
           });
       }
       
