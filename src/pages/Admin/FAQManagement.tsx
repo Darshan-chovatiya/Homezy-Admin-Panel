@@ -200,6 +200,21 @@ export default function FAQManagement() {
     );
   };
 
+  // Status badge for details modal (non-clickable, view-only)
+  const getStatusBadgeViewOnly = (isActive: boolean) => {
+    return (
+      <span
+        className={`px-3 py-1 text-xs font-semibold rounded-full ${
+          isActive
+            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+        }`}
+      >
+        {isActive ? "Active" : "Inactive"}
+      </span>
+    );
+  };
+
   const getTypeBadge = (type: 'user' | 'vendor') => {
     return (
       <span className={`px-2 py-0.5 text-xs font-semibold rounded ${
@@ -475,7 +490,7 @@ export default function FAQManagement() {
         </div>
       )}
 
-      {/* FAQ Detail Modal */}
+      {/* FAQ Detail Modal - View Only (No Update/Edit option) */}
       {showModal && selectedFAQ && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
           <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-800 shadow-2xl">
@@ -492,7 +507,7 @@ export default function FAQManagement() {
                   <div>
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white">FAQ Information</h4>
                     <div className="mt-1 flex gap-2">
-                      {getStatusBadge(selectedFAQ)}
+                      {getStatusBadgeViewOnly(selectedFAQ.isActive)}
                       {getTypeBadge(selectedFAQ.type)}
                     </div>
                   </div>
