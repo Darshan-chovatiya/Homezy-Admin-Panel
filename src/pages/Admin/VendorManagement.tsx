@@ -881,8 +881,15 @@ export default function VendorManagement() {
                 <input
                   type="number"
                   min={0}
-                  value={formData.professionalInfo.experience}
-                  onChange={(e) => setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, experience: Number(e.target.value) } })}
+                  value={formData.professionalInfo.experience === 0 ? "" : formData.professionalInfo.experience}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, experience: 0 } });
+                    } else {
+                      setFormData({ ...formData, professionalInfo: { ...formData.professionalInfo, experience: Number(value) || 0 } });
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter experience"
                 />
@@ -1538,8 +1545,15 @@ export default function VendorManagement() {
                 <input
                   type="number"
                   min={0}
-                  value={editFormData.professionalInfo?.experience || 0}
-                  onChange={(e) => setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, experience: Number(e.target.value) } })}
+                  value={(editFormData.professionalInfo?.experience || 0) === 0 ? "" : (editFormData.professionalInfo?.experience || 0)}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, experience: 0 } });
+                    } else {
+                      setEditFormData({ ...editFormData, professionalInfo: { ...editFormData.professionalInfo, experience: Number(value) || 0 } });
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter experience"
                 />
