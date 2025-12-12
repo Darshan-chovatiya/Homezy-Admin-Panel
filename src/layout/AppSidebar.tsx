@@ -15,6 +15,7 @@ import {
 import { useSidebar } from "../context/SidebarContext";
 import { useAuth } from "../context/AuthContext";
 import Swal from "sweetalert2";
+import { PieChartIcon } from "lucide-react";
 
 type NavItem = {
   name: string;
@@ -67,11 +68,11 @@ const navItems: NavItem[] = [
       // { name: "Slots", path: "/admin/services/slots" },
     ],
   },
-  // {
-  //   icon: <PieChartIcon />,
-  //   name: "Orders",
-  //   path: "/admin/bookings",
-  // },
+  {
+    icon: <PieChartIcon />,
+    name: "Orders",
+    path: "/admin/bookings",
+  },
   // {
   //   icon: <ChatIcon />,
   //   name: "Support & Moderation",

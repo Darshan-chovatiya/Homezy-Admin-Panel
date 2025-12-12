@@ -265,7 +265,7 @@ export default function BookingOversight() {
     const pending = orders.filter(o => o.status === "pending").length;
     const assigned = orders.filter(o => o.status === "assigned").length;
     const totalRevenue = orders
-      .filter(o => o.payment?.status === "completed")
+      .filter(o => o.status === "completed")
       .reduce((sum, o) => sum + parseFloat(o.totalPrice), 0);
 
     return { total, completed, pending, assigned, totalRevenue };
@@ -552,7 +552,8 @@ export default function BookingOversight() {
                         >
                           <Eye className="h-4 w-4" />
                         </button>
-                        {order.status === "pending" && !order.vendorId && (
+                        {/* !! comment this code beause assign order module is not completd */}
+                        {/* {order.status === "pending" && !order.vendorId && (
                           <button
                             onClick={async () => {
                               setSelectedOrderForAssign(order);
@@ -564,7 +565,7 @@ export default function BookingOversight() {
                           >
                             <UserIcon className="h-4 w-4" />
                           </button>
-                        )}
+                        )} */}
                       </div>
                     </td>
                   </tr>
