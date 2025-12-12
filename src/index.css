@@ -37,6 +37,15 @@ layer(base);
   color: #d1d5db !important;
 }
 
+/* Ensure SweetAlert modals appear above other modals */
+.swal2-container {
+  z-index: 10000 !important;
+}
+
+.swal2-popup {
+  z-index: 10001 !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {

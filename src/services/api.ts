@@ -153,13 +153,21 @@ class ApiService {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.message || 'Request failed');
+        const errorMessage = data.message || `Request failed with status ${response.status}`;
+        const error = new Error(errorMessage);
+        (error as any).response = { data, status: response.status };
+        throw error;
       }
       
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('API Request failed:', error);
-      throw error;
+      // If it's already an Error with message, keep it
+      if (error instanceof Error) {
+        throw error;
+      }
+      // Otherwise wrap it
+      throw new Error(error?.message || 'Request failed');
     }
   }
 
@@ -175,7 +183,12 @@ class ApiService {
     const config: RequestInit = { method: 'POST', body: form, headers };
     const response = await fetch(url, config);
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Request failed');
+    if (!response.ok) {
+      const errorMessage = data.message || `Request failed with status ${response.status}`;
+      const error = new Error(errorMessage);
+      (error as any).response = { data, status: response.status };
+      throw error;
+    }
     return data;
   }
 

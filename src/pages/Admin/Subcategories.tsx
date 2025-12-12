@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PageMeta from "../../components/common/PageMeta";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, Loader2 } from "lucide-react";
 import apiService, { Service, Subcategory } from "../../services/api";
 import { Plus } from "lucide-react";
 
@@ -21,6 +21,8 @@ interface SubcategoryUI {
 // Helper function to convert API data to UI format
 const convertSubcategoryToUI = (subcategory: Subcategory, services: Service[]): SubcategoryUI => {
   const service = services.find(s => s._id === subcategory.category);
+  // Resolve image URLs with VITE_IMAGE_BASE_URL prefix
+  const resolvedImages = (subcategory.images || []).map(img => apiService.resolveImageUrl(img)).filter((img): img is string => img !== undefined);
   return {
     id: subcategory._id,
     name: subcategory.name,
@@ -28,7 +30,7 @@ const convertSubcategoryToUI = (subcategory: Subcategory, services: Service[]): 
     duration: `${Math.floor(subcategory.duration / 60)}h ${subcategory.duration % 60}m`,
     status: subcategory.isActive ? "active" : "inactive",
     price: subcategory.basePrice,
-    images: subcategory.images || [],
+    images: resolvedImages,
     serviceId: subcategory.category,
     serviceName: service?.name || 'Unknown Service'
   };
@@ -55,12 +57,20 @@ export default function Subcategories() {
   const [showModal, setShowModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // SweetAlert helpers (fallback to alert)
   const showSuccess = async (title: string, text?: string) => {
     try {
       const Swal = (await import('sweetalert2')).default;
-      await Swal.fire({ icon: 'success', title, text, timer: 1500, showConfirmButton: false });
+      await Swal.fire({ 
+        icon: 'success', 
+        title, 
+        text, 
+        timer: 1500, 
+        showConfirmButton: false,
+        zIndex: 10000 // Higher than modal z-index (9999)
+      });
     } catch {
       if (text) console.log(text);
       window.alert(title);
@@ -69,7 +79,16 @@ export default function Subcategories() {
   const showError = async (title: string, text?: string) => {
     try {
       const Swal = (await import('sweetalert2')).default;
-      await Swal.fire({ icon: 'error', title, text });
+      await Swal.fire({ 
+        icon: 'error', 
+        title, 
+        text,
+        customClass: {
+          container: 'swal2-container',
+          popup: 'swal2-popup'
+        },
+        zIndex: 10000 // Higher than modal z-index (9999)
+      });
     } catch {
       if (text) console.error(text);
       window.alert(title);
@@ -154,11 +173,44 @@ export default function Subcategories() {
 
   const handleStatusChange = async (subcategoryId: string, newStatus: Status) => {
     try {
+      const Swal = (await import('sweetalert2')).default;
+      const result = await Swal.fire({
+        title: 'Change Status?',
+        text: `Do you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} this subcategory?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#013365',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No'
+      });
+
+      if (!result.isConfirmed) return;
+
       await apiService.updateSubcategoryStatus(subcategoryId, newStatus);
       setSubcategories(subcategories.map(subcategory => 
         subcategory.id === subcategoryId ? { ...subcategory, status: newStatus } : subcategory
       ));
+      
+      // Update selected subcategory if it's the one being changed
+      if (selectedSubcategory && selectedSubcategory.id === subcategoryId) {
+        setSelectedSubcategory({ ...selectedSubcategory, status: newStatus });
+      }
+      
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: `Subcategory ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (err) {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err instanceof Error ? err.message : 'Failed to update subcategory status'
+      });
       setError(err instanceof Error ? err.message : 'Failed to update subcategory status');
       console.error('Error updating subcategory status:', err);
     }
@@ -240,7 +292,10 @@ export default function Subcategories() {
               Export
             </button> */}
             <button 
-              onClick={() => setShowAddModal(true)}
+              onClick={() => {
+                setShowAddModal(true);
+                setIsSubmitting(false);
+              }}
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-300 bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             >
               <Plus className="h-4 w-4" />
@@ -350,6 +405,7 @@ export default function Subcategories() {
                           onClick={() => {
                             setSelectedSubcategory(subcategory);
                             setShowEditModal(true);
+                            setIsSubmitting(false);
                           }}
                           className="flex items-center justify-center w-[30px] h-[30px] rounded-md bg-blue-100 text-[#013365] hover:bg-blue-200 hover:text-[#013365]/80 dark:bg-blue-900 dark:text-blue-400 dark:hover:bg-blue-800 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-700 transition-colors duration-200"
                           title="Edit"
@@ -400,9 +456,6 @@ export default function Subcategories() {
                 <div className="flex gap-6">
                   <div className="flex-1">
                     <h4 className="text-xl font-semibold text-gray-900 dark:text-white">{selectedSubcategory.name}</h4>
-                    <div className="mt-2 flex items-center gap-2">
-                      {getStatusBadge(selectedSubcategory)}
-                    </div>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{selectedSubcategory.description}</p>
                     <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                       <strong>Service:</strong> {selectedSubcategory.serviceName}
@@ -456,8 +509,14 @@ export default function Subcategories() {
                 Add New Subcategory
               </h3>
               <button
-                onClick={() => setShowAddModal(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl font-bold"
+                onClick={() => {
+                  if (!isSubmitting) {
+                    setShowAddModal(false);
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 ✕
               </button>
@@ -468,6 +527,8 @@ export default function Subcategories() {
                 formId="add-subcategory-form" 
                 services={services}
                 onSubmit={async (payload: any) => {
+                  if (isSubmitting) return;
+                  setIsSubmitting(true);
                   try {
                     const files: any[] = Array.isArray(payload.newImages) ? payload.newImages : [];
                     const combined: any[] = [...(payload.images || []), ...files];
@@ -482,19 +543,35 @@ export default function Subcategories() {
                     
                     await loadData();
                     setShowAddModal(false);
+                    setIsSubmitting(false);
                     await showSuccess('Subcategory created');
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : 'Failed to create subcategory');
+                  } catch (err: any) {
+                    setIsSubmitting(false);
+                    const errorMessage = err?.message || err?.response?.data?.message || 'Failed to create subcategory';
                     console.error('Error creating subcategory:', err);
-                    await showError('Failed to create subcategory');
+                    await showError('Error', errorMessage);
                   }
                 }} 
               />
             </div>
 
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
-              <button onClick={() => setShowAddModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="add-subcategory-form" type="submit" className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">Save</button>
+              <button 
+                onClick={() => setShowAddModal(false)} 
+                disabled={isSubmitting}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Close
+              </button>
+              <button 
+                form="add-subcategory-form" 
+                type="submit" 
+                disabled={isSubmitting}
+                className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Saving...' : 'Save'}
+              </button>
             </div>
           </div>
         </div>
@@ -506,7 +583,18 @@ export default function Subcategories() {
           <div className="w-full max-w-2xl max-h-[90vh] flex flex-col rounded-lg bg-white dark:bg-gray-800 shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-lg">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Edit Subcategory</h3>
-              <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl font-bold">✕</button>
+              <button 
+                onClick={() => {
+                  if (!isSubmitting) {
+                    setShowEditModal(false);
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                ✕
+              </button>
             </div>
             
             <div className="flex-1 overflow-y-auto">
@@ -515,7 +603,8 @@ export default function Subcategories() {
                 services={services}
                 initial={selectedSubcategory}
                 onSubmit={async (payload: any) => {
-                  if (!selectedSubcategory) return;
+                  if (!selectedSubcategory || isSubmitting) return;
+                  setIsSubmitting(true);
                   try {
                     const files: any[] = Array.isArray(payload.newImages) ? payload.newImages : [];
                     const combined: any[] = [...(payload.images || []), ...files];
@@ -530,19 +619,35 @@ export default function Subcategories() {
                     
                     await loadData();
                     setShowEditModal(false);
+                    setIsSubmitting(false);
                     await showSuccess('Subcategory updated');
-                  } catch (err) {
-                    setError(err instanceof Error ? err.message : 'Failed to update subcategory');
+                  } catch (err: any) {
+                    setIsSubmitting(false);
+                    const errorMessage = err?.message || err?.response?.data?.message || 'Failed to update subcategory';
                     console.error('Error updating subcategory:', err);
-                    await showError('Failed to update subcategory');
+                    await showError('Error', errorMessage);
                   }
                 }}
               />
             </div>
 
             <div className="flex justify-end gap-2 p-6 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 rounded-b-lg">
-              <button onClick={() => setShowEditModal(false)} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">Close</button>
-              <button form="edit-subcategory-form" type="submit" className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90">Save</button>
+              <button 
+                onClick={() => setShowEditModal(false)} 
+                disabled={isSubmitting}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Close
+              </button>
+              <button 
+                form="edit-subcategory-form" 
+                type="submit" 
+                disabled={isSubmitting}
+                className="rounded-lg bg-[#013365] px-4 py-2 text-sm font-medium text-white hover:bg-[#013365]/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isSubmitting ? 'Updating...' : 'Save'}
+              </button>
             </div>
           </div>
         </div>
@@ -595,11 +700,23 @@ function AddEditSubcategoryForm({
     setDuration(str);
   };
   const [status, setStatus] = useState<Status>(initial?.status || "active");
-  const [price, setPrice] = useState(initial?.price || 0);
+  const [price, setPrice] = useState<number>(initial?.price || 0);
+  const [priceInput, setPriceInput] = useState<string>(initial?.price?.toString() || '0');
   // Existing images persisted in DB (string paths)
   const [existingImages, setExistingImages] = useState<string[]>(initial?.images || []);
   // New images selected in the form (File objects)
   const [newImages, setNewImages] = useState<File[]>([]);
+
+  // Update priceInput when initial changes (when editing different subcategory)
+  useEffect(() => {
+    if (initial?.price !== undefined) {
+      setPrice(initial.price);
+      setPriceInput(initial.price.toString());
+    } else {
+      setPrice(0);
+      setPriceInput('0');
+    }
+  }, [initial?.price]);
 
   const addImage = (file: File) => {
     const totalCount = existingImages.length + newImages.length;
@@ -615,9 +732,44 @@ function AddEditSubcategoryForm({
     setNewImages(prev => prev.filter((_, idx) => idx !== imageIndex));
   };
 
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !description.trim() || !serviceId) return;
+    if (!name.trim() || !description.trim() || !serviceId) {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ 
+        icon: 'error', 
+        title: 'Validation Error',
+        text: 'Please fill in all required fields (Name, Description, Service)',
+        zIndex: 10000
+      });
+      return;
+    }
+    
+    // Validate duration - must be greater than 0
+    const durationInMinutes = parseDurationToMinutes(duration);
+    if (durationInMinutes <= 0) {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ 
+        icon: 'error', 
+        title: 'Validation Error',
+        text: 'Duration must be greater than 0. Please select a valid duration.',
+        zIndex: 10000
+      });
+      return;
+    }
+    
+    // Validate price is a safe number
+    const safePrice = Number(price);
+    if (isNaN(safePrice) || !isFinite(safePrice) || safePrice < 0) {
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({ 
+        icon: 'error', 
+        title: 'Validation Error',
+        text: 'Please enter a valid price (must be a number >= 0)',
+        zIndex: 10000
+      });
+      return;
+    }
     
     // We pass existingImages in payload so backend can merge it with uploaded new files
     const payload: any = {
@@ -626,7 +778,7 @@ function AddEditSubcategoryForm({
       description: description.trim(),
       duration,
       status,
-      price,
+      price: safePrice,
       images: existingImages,
     };
     // Attach files via caller; api.ts will detect File(s) and send multipart
@@ -756,10 +908,38 @@ function AddEditSubcategoryForm({
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Price (₹)</label>
             <input 
-              value={price} 
-              onChange={(e) => setPrice(Number(e.target.value))} 
-              type="number" 
+              value={priceInput} 
+              onChange={(e) => {
+                const value = e.target.value;
+                // Allow empty string for clearing
+                setPriceInput(value);
+                // Only update price if it's a valid number
+                if (value === '' || value === '-') {
+                  setPrice(0);
+                } else {
+                  const numValue = Number(value);
+                  // Safe number validation: must be a valid finite number >= 0
+                  if (!isNaN(numValue) && isFinite(numValue) && numValue >= 0) {
+                    setPrice(numValue);
+                  }
+                }
+              }}
+              onBlur={(e) => {
+                // On blur, ensure we have a valid number or set to 0
+                const value = e.target.value.trim();
+                if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                  setPriceInput('0');
+                  setPrice(0);
+                } else {
+                  const numValue = Number(value);
+                  setPriceInput(numValue.toString());
+                  setPrice(numValue);
+                }
+              }}
+              type="text" 
+              inputMode="decimal"
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white" 
+              placeholder="0"
             />
           </div>
         </div>
