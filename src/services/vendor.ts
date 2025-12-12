@@ -70,6 +70,15 @@ export interface Vendor {
     panImage: string;
     policeVerification: string;
     verifiedAt: Date | null;
+    verificationStatus?: string;
+    rejectionReason?: string;
+  };
+  weeklySlots?: {
+    [key: string]: Array<{
+      startTime: string;
+      endTime: string;
+      isAvailable: boolean;
+    }>;
   };
   overallRating: number;
   totalRatings: number;

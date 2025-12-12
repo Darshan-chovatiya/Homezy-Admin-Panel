@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { apiService } from "../../services/api";
-import { UserIcon } from "../../icons";
 import { Eye, BarChart3, CheckCircle, Clock, DollarSign } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -191,21 +190,21 @@ export default function BookingOversight() {
   });
 
   // Fetch available vendors for assignment
-  const fetchAvailableVendors = async (order: Order) => {
-    try {
-      const response = await apiService.getAvailableVendors(
-        order.subcategoryId._id,
-        order.slot.startTime,
-        order.slot.slotId
-      );
-      if (response.data) {
-        setAvailableVendors(response.data);
-      }
-    } catch (err) {
-      console.error('Error fetching available vendors:', err);
-      setAvailableVendors([]);
-    }
-  };
+  // const fetchAvailableVendors = async (order: Order) => {
+  //   try {
+  //     const response = await apiService.getAvailableVendors(
+  //       order.subcategoryId._id,
+  //       order.slot.startTime,
+  //       order.slot.slotId
+  //     );
+  //     if (response.data) {
+  //       setAvailableVendors(response.data);
+  //     }
+  //   } catch (err) {
+  //     console.error('Error fetching available vendors:', err);
+  //     setAvailableVendors([]);
+  //   }
+  // };
 
   // Handle order assignment
   const handleAssignOrder = async () => {

@@ -297,20 +297,6 @@ export default function ServiceManagement() {
     );
   };
 
-  const getSubcategoryStatusBadge = (subcategory: any) => {
-    return (
-      <span
-        onClick={() => handleSubcategoryStatusChange(subcategory.id, subcategory.status === 'active' ? 'inactive' : 'active')}
-        className={`px-3 py-1 text-xs font-semibold rounded-full cursor-pointer ${
-          subcategory.status === 'active'
-            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-        }`}
-      >
-        {subcategory.status === 'active' ? "Active" : "Inactive"}
-      </span>
-    );
-  };
 
   // Category badges removed in new structure
 

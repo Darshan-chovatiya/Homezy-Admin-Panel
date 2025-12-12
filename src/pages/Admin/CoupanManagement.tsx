@@ -1090,7 +1090,7 @@ export default function CouponManagement() {
                       type="text"
                       inputMode="decimal"
                       required
-                      value={editFormData.discountValueInput || editFormData.discountValue.toString()}
+                      value={editFormData.discountValueInput || (editFormData.discountValue !== undefined ? editFormData.discountValue.toString() : "0")}
                       onChange={(e) => {
                         const value = e.target.value;
                         setEditFormData({ 
@@ -1136,7 +1136,7 @@ export default function CouponManagement() {
                       type="text"
                       inputMode="decimal"
                       required
-                      value={editFormData.discountValueInput || editFormData.discountValue.toString()}
+                      value={editFormData.discountValueInput || (editFormData.discountValue !== undefined ? editFormData.discountValue.toString() : "0")}
                       onChange={(e) => {
                         const value = e.target.value;
                         const numValue = value === '' || value === '-' ? 0 : (parseFloat(value) || 0);

@@ -92,7 +92,6 @@ export default function VendorManagement() {
   // Services and Subcategories
   const [services, setServices] = useState<Service[]>([]);
   const [subcategories, setSubcategories] = useState<{ [serviceId: string]: Subcategory[] }>({});
-  const [loadingServices, setLoadingServices] = useState(false);
 
   // Steps for the multi-step forms
   const addFormSteps = [
@@ -2811,7 +2810,7 @@ export default function VendorManagement() {
                     <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Weekly Time Slots</h5>
                     <div className="space-y-2 max-h-60 overflow-y-auto">
                       {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map((day) => {
-                        const daySlots = (selectedVendor.weeklySlots as any)?.[day] || [];
+                        const daySlots = selectedVendor.weeklySlots?.[day] || [];
                         if (daySlots.length === 0) return null;
                         return (
                           <div key={day} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
@@ -2881,7 +2880,7 @@ export default function VendorManagement() {
                             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                             : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
                         }`}>
-                          {selectedVendor.verification.verificationStatus || 'Pending'}
+                          {selectedVendor.verification.verificationStatus || (selectedVendor.verification.isVerified ? 'Verified' : 'Pending')}
                         </span>
                       </div>
                       {selectedVendor.verification.rejectionReason && (

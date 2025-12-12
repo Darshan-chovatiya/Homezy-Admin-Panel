@@ -68,8 +68,7 @@ export default function Subcategories() {
         title, 
         text, 
         timer: 1500, 
-        showConfirmButton: false,
-        zIndex: 10000 // Higher than modal z-index (9999)
+        showConfirmButton: false
       });
     } catch {
       if (text) console.log(text);
@@ -86,8 +85,7 @@ export default function Subcategories() {
         customClass: {
           container: 'swal2-container',
           popup: 'swal2-popup'
-        },
-        zIndex: 10000 // Higher than modal z-index (9999)
+        }
       });
     } catch {
       if (text) console.error(text);
@@ -739,8 +737,7 @@ function AddEditSubcategoryForm({
       await Swal.fire({ 
         icon: 'error', 
         title: 'Validation Error',
-        text: 'Please fill in all required fields (Name, Description, Service)',
-        zIndex: 10000
+        text: 'Please fill in all required fields (Name, Description, Service)'
       });
       return;
     }
@@ -752,8 +749,7 @@ function AddEditSubcategoryForm({
       await Swal.fire({ 
         icon: 'error', 
         title: 'Validation Error',
-        text: 'Duration must be greater than 0. Please select a valid duration.',
-        zIndex: 10000
+        text: 'Duration must be greater than 0. Please select a valid duration.'
       });
       return;
     }
@@ -765,8 +761,7 @@ function AddEditSubcategoryForm({
       await Swal.fire({ 
         icon: 'error', 
         title: 'Validation Error',
-        text: 'Please enter a valid price (must be a number >= 0)',
-        zIndex: 10000
+        text: 'Please enter a valid price (must be a number >= 0)'
       });
       return;
     }
