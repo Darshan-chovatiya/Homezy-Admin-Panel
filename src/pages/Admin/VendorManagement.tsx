@@ -2,8 +2,18 @@ import { useState, useEffect } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PageMeta from "../../components/common/PageMeta";
 import vendorService, { Vendor, CreateVendorFormData, UpdateVendorFormData } from "../../services/vendor";
+import apiService, { Service, Subcategory } from "../../services/api";
+import { IMAGE_BASE_URL } from "../../services/api";
 import Swal from "sweetalert2";
 export default function VendorManagement() {
+  // Helper function to resolve image URLs with base URL
+  const getImageUrl = (path: string | null | undefined): string | null => {
+    if (!path) return null;
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:')) return path;
+    if (path.startsWith('/')) return `${IMAGE_BASE_URL}${path}`;
+    return `${IMAGE_BASE_URL}/${path}`;
+  };
+
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -78,12 +88,18 @@ export default function VendorManagement() {
   const [editPoliceVerificationPreview, setEditPoliceVerificationPreview] = useState<string | null>(null);
   // Validation errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  
+  // Services and Subcategories
+  const [services, setServices] = useState<Service[]>([]);
+  const [subcategories, setSubcategories] = useState<{ [serviceId: string]: Subcategory[] }>({});
+  const [loadingServices, setLoadingServices] = useState(false);
 
   // Steps for the multi-step forms
   const addFormSteps = [
     "Personal Info",
     "Business Details",
     "Professional Info",
+    "Services",
     "Business Address",
     "Verification Details",
     "Bank Details",
@@ -93,6 +109,7 @@ export default function VendorManagement() {
     "Personal Info",
     "Business Details",
     "Professional Info",
+    "Services",
     "Business Address",
     "Verification Details",
     "Bank Details",
@@ -122,6 +139,39 @@ export default function VendorManagement() {
   useEffect(() => {
     fetchVendors();
   }, [currentPage, searchTerm, filterStatus]);
+
+  // Fetch services and subcategories
+  useEffect(() => {
+    const fetchServicesData = async () => {
+      try {
+        setLoadingServices(true);
+        const response = await apiService.getServices({ page: 1, limit: 100 });
+        if (response.data) {
+          setServices(response.data.docs);
+          // Fetch subcategories for each service
+          const subcatsMap: { [serviceId: string]: Subcategory[] } = {};
+          for (const service of response.data.docs) {
+            try {
+              const serviceResponse = await apiService.getService(service._id);
+              if (serviceResponse.data && serviceResponse.data.subCategories) {
+                subcatsMap[service._id] = serviceResponse.data.subCategories;
+              }
+            } catch (err) {
+              console.error(`Error fetching subcategories for service ${service._id}:`, err);
+            }
+          }
+          setSubcategories(subcatsMap);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      } finally {
+        setLoadingServices(false);
+      }
+    };
+    if (mode === 'add' || mode === 'edit') {
+      fetchServicesData();
+    }
+  }, [mode]);
   // Handle status change
   const handleStatusChange = async (vendorId: string, isActive: boolean) => {
     try {
@@ -153,12 +203,35 @@ export default function VendorManagement() {
     }
   };
   // Validate form
-  const validateForm = (data: any) => {
+  const validateForm = (data: any, showAlert: boolean = false) => {
     const newErrors: { [key: string]: string } = {};
-    if (!data.name) newErrors.name = "Name is required";
-    if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) newErrors.email = "Valid email is required";
-    if (!data.phone || !/^\d{10}$/.test(data.phone)) newErrors.phone = "Phone number must be 10 digits";
-    if (!data.businessName) newErrors.businessName = "Business name is required";
+    const missingFields: string[] = [];
+    
+    if (!data.name) {
+      newErrors.name = "Name is required";
+      missingFields.push("Name");
+    }
+    if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+      newErrors.email = "Valid email is required";
+      if (!data.email) missingFields.push("Email");
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) missingFields.push("Valid Email");
+    }
+    if (!data.phone) {
+      newErrors.phone = "Phone number is required";
+      missingFields.push("Phone");
+    } else if (!/^\d{10}$/.test(data.phone)) {
+      if (data.phone.length > 10) {
+        newErrors.phone = "Phone number must be exactly 10 digits (not more than 10)";
+        missingFields.push("Valid Phone (max 10 digits)");
+      } else {
+        newErrors.phone = "Phone number must be exactly 10 digits";
+        missingFields.push("Valid Phone (10 digits)");
+      }
+    }
+    if (!data.businessName) {
+      newErrors.businessName = "Business name is required";
+      missingFields.push("Business Name");
+    }
     if (data.verification?.aadhaarNumber && !/^\d{12}$/.test(data.verification.aadhaarNumber)) {
       newErrors.aadhaarNumber = "Aadhaar number must be 12 digits";
     }
@@ -171,7 +244,51 @@ export default function VendorManagement() {
     if (data.bankDetails?.ifscCode && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(data.bankDetails.ifscCode)) {
       newErrors.ifscCode = "Invalid IFSC code format (e.g., SBIN0001234)";
     }
+    // Validate services - ensure category and subcategory are selected
+    if (data.services && Array.isArray(data.services) && data.services.length > 0) {
+      data.services.forEach((service: any, index: number) => {
+        if (!service.category || service.category === "") {
+          newErrors[`service_${index}_category`] = `Service ${index + 1}: Category is required`;
+          missingFields.push(`Service ${index + 1} - Category`);
+        } else {
+          // Check if category has subcategories
+          const categorySubcats = subcategories[service.category];
+          // Always require subcategory if category is selected (backend requirement)
+          if (!service.subcategory || service.subcategory === "") {
+            if (categorySubcats && categorySubcats.length > 0) {
+              newErrors[`service_${index}_subcategory`] = `Service ${index + 1}: Subcategory is required`;
+              missingFields.push(`Service ${index + 1} - Subcategory`);
+            } else {
+              // If category has no subcategories, we still need to handle it
+              // For now, we'll require subcategory anyway as backend requires it
+              newErrors[`service_${index}_subcategory`] = `Service ${index + 1}: Subcategory is required (This category may not have subcategories available)`;
+              missingFields.push(`Service ${index + 1} - Subcategory`);
+            }
+          }
+        }
+      });
+    }
+    
     setErrors(newErrors);
+    
+    // Show SweetAlert with missing required fields
+    if (showAlert && missingFields.length > 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Required Fields Missing',
+        html: `
+          <div class="text-left">
+            <p class="mb-3 font-semibold">Please fill in the following required fields:</p>
+            <ul class="list-disc list-inside space-y-1">
+              ${missingFields.map(field => `<li class="text-sm">${field}</li>`).join('')}
+            </ul>
+          </div>
+        `,
+        confirmButtonColor: '#013365',
+        confirmButtonText: 'OK'
+      });
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
   // Handle file change for add
@@ -257,15 +374,76 @@ export default function VendorManagement() {
   // Handle add vendor
   const handleAddVendor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm(formData)) return;
+    if (!validateForm(formData, true)) return;
+    
+    // Filter out services without category or subcategory before sending
+    // Backend requires subcategory, so we must have it
+    const validServices = formData.services
+      .filter((service: any) => 
+        service.category && 
+        service.category !== "" && 
+        service.subcategory && 
+        service.subcategory !== ""
+      )
+      .map((service: any) => ({
+        category: service.category,
+        subcategory: service.subcategory, // Ensure it's a string ID
+        basePrice: Number(service.basePrice) || 0,
+        priceType: service.priceType || 'fixed',
+        description: service.description || "",
+        duration: Number(service.duration) || 60,
+        isActive: service.isActive !== undefined ? service.isActive : true,
+      }));
+    
+    if (formData.services.length > 0 && validServices.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Services Validation Failed',
+        html: 'Please ensure all services have both <strong>Category</strong> and <strong>Subcategory</strong> selected before submitting.',
+        confirmButtonColor: '#013365'
+      });
+      // Go to services step
+      setAddFormStep(3);
+      return;
+    }
+    
+    const dataToSend = {
+      ...formData,
+      services: validServices
+    };
+    
     setFormLoading(true);
     try {
-      await vendorService.createVendor(formData);
+      await vendorService.createVendor(dataToSend);
       setMode('list');
       resetAddForm();
       fetchVendors();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error creating vendor:", error);
+      // Show error message if backend validation fails
+      const errorMessage = error?.message || 'An error occurred while creating the vendor';
+      if (errorMessage.includes('subcategory') || errorMessage.includes('validation failed')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          html: `
+            <div class="text-left">
+              <p class="mb-2">Please ensure all services have both <strong>Category</strong> and <strong>Subcategory</strong> selected.</p>
+              <p class="text-sm text-gray-600">Error: ${errorMessage}</p>
+            </div>
+          `,
+          confirmButtonColor: '#013365'
+        });
+        // Go to services step
+        setAddFormStep(3);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#013365'
+        });
+      }
     } finally {
       setFormLoading(false);
     }
@@ -299,48 +477,199 @@ export default function VendorManagement() {
     setAddFormStep(0); // Reset step
   };
   // Load Edit Data
-  const loadEditVendor = (vendor: any) => {
-    setEditFormData({
-      vendorId: vendor._id,
-      name: vendor.name,
-      email: vendor.email,
-      phone: vendor.phone,
-      businessName: vendor.businessName,
-      businessDescription: vendor.businessDescription || "",
-      professionalInfo: vendor.professionalInfo || { experience: 0, skills: [], certifications: [], bio: "" },
-      services: vendor.services || [],
-      businessAddress: vendor.businessAddress || { address: "", pincode: "", city: "", state: "", latitude: undefined, longitude: undefined },
-      verification: vendor.verification || { aadhaarNumber: "", panNumber: "", isVerified: false },
-      bankDetails: vendor.bankDetails || { accountNumber: "", accountHolderName: "", ifscCode: "", bankName: "" },
-      availability: vendor.availability || { isOnline: false, workingDays: [], workingHours: { start: "09:00", end: "18:00" } },
-      overallRating: vendor.overallRating,
-      totalRatings: vendor.totalRatings,
-      completedJobs: vendor.completedJobs,
-      responseRate: vendor.responseRate,
-      isActive: vendor.isActive,
-      isApproved: vendor.isApproved,
-    });
-    setEditImagePreview(vendor.image || null);
-    setEditBusinessLogoPreview(vendor.businessLogo || null);
-    setEditBusinessBannerPreview(vendor.businessBanner || null);
-    setEditAadhaarFrontPreview(vendor.verification?.aadhaarFront || null);
-    setEditAadhaarBackPreview(vendor.verification?.aadhaarBack || null);
-    setEditPanImagePreview(vendor.verification?.panImage || null);
-    setEditPoliceVerificationPreview(vendor.verification?.policeVerification || null);
-    setMode('edit');
-    setEditFormStep(0); // Reset step
+  const loadEditVendor = async (vendor: any) => {
+    try {
+      console.log("Loading vendor for edit:", vendor);
+      
+      // Map services to use IDs instead of objects
+      // Filter out services with null subcategory - they need to be re-selected
+      const mappedServices = (vendor.services || [])
+        .filter((service: any) => {
+          // Keep services that have a valid subcategory (not null)
+          const subcatId = typeof service.subcategory === 'object' ? service.subcategory?._id : service.subcategory;
+          return subcatId && subcatId !== null && subcatId !== "";
+        })
+        .map((service: any) => ({
+          category: typeof service.category === 'object' ? service.category._id : service.category,
+          subcategory: typeof service.subcategory === 'object' ? service.subcategory._id : service.subcategory,
+          basePrice: service.basePrice || 0,
+          priceType: service.priceType || 'fixed',
+          description: service.description || "",
+          duration: service.duration || 60,
+          isActive: service.isActive !== undefined ? service.isActive : true,
+        }));
+      
+      // If some services were filtered out (had null subcategory), show a warning
+      const filteredCount = (vendor.services || []).length - mappedServices.length;
+      if (filteredCount > 0) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Services Updated',
+          html: `${filteredCount} service(s) had missing subcategories and were removed. Please add them again with proper subcategory selection.`,
+          confirmButtonColor: '#013365'
+        });
+      }
+      
+      // Set form data first
+      setEditFormData({
+        vendorId: vendor._id,
+        name: vendor.name || "",
+        email: vendor.email || "",
+        phone: vendor.phone || "",
+        businessName: vendor.businessName || "",
+        businessDescription: vendor.businessDescription || "",
+        professionalInfo: vendor.professionalInfo || { experience: 0, skills: [], certifications: [], bio: "" },
+        services: mappedServices,
+        businessAddress: vendor.businessAddress || { address: "", pincode: "", city: "", state: "", latitude: undefined, longitude: undefined },
+        verification: vendor.verification || { aadhaarNumber: "", panNumber: "", isVerified: false },
+        bankDetails: vendor.bankDetails || { accountNumber: "", accountHolderName: "", ifscCode: "", bankName: "" },
+        availability: vendor.availability || { isOnline: false, workingDays: [], workingHours: { start: "09:00", end: "18:00" } },
+        overallRating: vendor.overallRating,
+        totalRatings: vendor.totalRatings,
+        completedJobs: vendor.completedJobs,
+        responseRate: vendor.responseRate,
+        isActive: vendor.isActive,
+        isApproved: vendor.isApproved,
+      });
+      
+      // Set image previews with base URL
+      setEditImagePreview(getImageUrl(vendor.image));
+      setEditBusinessLogoPreview(getImageUrl(vendor.businessLogo));
+      setEditBusinessBannerPreview(getImageUrl(vendor.businessBanner));
+      setEditAadhaarFrontPreview(getImageUrl(vendor.verification?.aadhaarFront));
+      setEditAadhaarBackPreview(getImageUrl(vendor.verification?.aadhaarBack));
+      setEditPanImagePreview(getImageUrl(vendor.verification?.panImage));
+      setEditPoliceVerificationPreview(getImageUrl(vendor.verification?.policeVerification));
+      
+      // Reset form step
+      setEditFormStep(0);
+      
+      // Fetch services and subcategories if not already loaded (don't await - do it in background)
+      if (services.length === 0) {
+        // Don't block modal opening - fetch in background
+        apiService.getServices({ page: 1, limit: 100 })
+          .then((response) => {
+            if (response.data) {
+              setServices(response.data.docs);
+              // Fetch subcategories for each service
+              const subcatsMap: { [serviceId: string]: Subcategory[] } = {};
+              const fetchPromises = response.data.docs.map(async (service: any) => {
+                try {
+                  const serviceResponse = await apiService.getService(service._id);
+                  if (serviceResponse.data && serviceResponse.data.subCategories) {
+                    subcatsMap[service._id] = serviceResponse.data.subCategories;
+                  }
+                } catch (err) {
+                  console.error(`Error fetching subcategories for service ${service._id}:`, err);
+                }
+              });
+              Promise.all(fetchPromises).then(() => {
+                setSubcategories(subcatsMap);
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching services:", error);
+          })
+          .finally(() => {
+            setLoadingServices(false);
+          });
+      }
+      
+      // Set mode to edit - this opens the modal (do this last)
+      console.log("Setting mode to edit");
+      setMode('edit');
+    } catch (error) {
+      console.error("Error loading vendor for edit:", error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load vendor data. Please try again.',
+        confirmButtonColor: '#013365'
+      });
+    }
   };
   // Handle Edit Vendor
   const handleEditVendor = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm(editFormData)) return;
+    e.stopPropagation();
+    
+    // Only submit if we're on the last step (step 7 - Availability)
+    if (editFormStep !== editFormSteps.length - 1) {
+      // If not on last step, prevent submission completely
+      console.log("Submission blocked - not on last step. Current:", editFormStep, "Required:", editFormSteps.length - 1);
+      return;
+    }
+    
+    if (!validateForm(editFormData, true)) return;
+    
+    // Filter out services without category or subcategory before sending
+    // Backend requires subcategory, so we must have it
+    const validServices = (editFormData.services || [])
+      .filter((service: any) => 
+        service.category && 
+        service.category !== "" && 
+        service.subcategory && 
+        service.subcategory !== ""
+      )
+      .map((service: any) => ({
+        category: typeof service.category === 'object' ? service.category._id : service.category,
+        subcategory: typeof service.subcategory === 'object' ? service.subcategory._id : service.subcategory,
+        basePrice: Number(service.basePrice) || 0,
+        priceType: service.priceType || 'fixed',
+        description: service.description || "",
+        duration: Number(service.duration) || 60,
+        isActive: service.isActive !== undefined ? service.isActive : true,
+      }));
+    
+    if ((editFormData.services || []).length > 0 && validServices.length === 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Services Validation Failed',
+        html: 'Please ensure all services have both <strong>Category</strong> and <strong>Subcategory</strong> selected before submitting.',
+        confirmButtonColor: '#013365'
+      });
+      // Go to services step
+      setEditFormStep(3);
+      return;
+    }
+    
+    const dataToSend = {
+      ...editFormData,
+      services: validServices
+    };
+    
     setFormLoading(true);
     try {
-      await vendorService.updateVendor(editFormData);
+      await vendorService.updateVendor(dataToSend);
       setMode('list');
       fetchVendors();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating vendor:", error);
+      // Show error message if backend validation fails
+      const errorMessage = error?.message || 'An error occurred while updating the vendor';
+      if (errorMessage.includes('subcategory') || errorMessage.includes('validation failed')) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Validation Error',
+          html: `
+            <div class="text-left">
+              <p class="mb-2">Please ensure all services have both <strong>Category</strong> and <strong>Subcategory</strong> selected.</p>
+              <p class="text-sm text-gray-600">Error: ${errorMessage}</p>
+            </div>
+          `,
+          confirmButtonColor: '#013365'
+        });
+        // Go to services step
+        setEditFormStep(3);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+          confirmButtonColor: '#013365'
+        });
+      }
     } finally {
       setFormLoading(false);
     }
@@ -374,13 +703,21 @@ export default function VendorManagement() {
   };
 
   // Navigation handlers for edit form
-  const handleEditNextStep = () => {
+  const handleEditNextStep = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (editFormStep < editFormSteps.length - 1) {
       setEditFormStep(editFormStep + 1);
     }
   };
 
-  const handleEditPrevStep = () => {
+  const handleEditPrevStep = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (editFormStep > 0) {
       setEditFormStep(editFormStep - 1);
     }
@@ -429,12 +766,29 @@ export default function VendorManagement() {
                 <input
                   type="tel"
                   required
+                  maxLength={10}
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                    if (value.length <= 10) {
+                      setFormData({ ...formData, phone: value });
+                      // Clear error when user types
+                      if (errors.phone) {
+                        const newErrors = { ...errors };
+                        delete newErrors.phone;
+                        setErrors(newErrors);
+                      }
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="Enter phone number"
+                  placeholder="Enter 10 digit phone number"
                 />
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+                {formData.phone && formData.phone.length > 0 && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {formData.phone.length}/10 digits
+                  </p>
+                )}
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -560,7 +914,186 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 3: // Business Address
+      case 3: // Services
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Services</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Add services that this partner offers. Select category and subcategory for each service.
+            </p>
+            {formData.services.map((service, index) => (
+              <div key={index} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <div className="mb-4 flex items-center justify-between">
+                  <h5 className="font-semibold text-gray-900 dark:text-white">Service {index + 1}</h5>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newServices = formData.services.filter((_, i) => i !== index);
+                      setFormData({ ...formData, services: newServices });
+                    }}
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Category <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={service.category || ""}
+                      onChange={(e) => {
+                        const newServices = [...formData.services];
+                        newServices[index] = {
+                          ...newServices[index],
+                          category: e.target.value,
+                          subcategory: "" // Reset subcategory when category changes
+                        };
+                        setFormData({ ...formData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Select Category</option>
+                      {services.map((s) => (
+                        <option key={s._id} value={s._id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors[`service_${index}_category`] && (
+                      <p className="mt-1 text-xs text-red-500">{errors[`service_${index}_category`]}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Subcategory <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={service.subcategory || ""}
+                      onChange={(e) => {
+                        const newServices = [...formData.services];
+                        newServices[index] = { ...newServices[index], subcategory: e.target.value };
+                        setFormData({ ...formData, services: newServices });
+                        // Clear error when subcategory is selected
+                        if (errors[`service_${index}_subcategory`]) {
+                          const newErrors = { ...errors };
+                          delete newErrors[`service_${index}_subcategory`];
+                          setErrors(newErrors);
+                        }
+                      }}
+                      disabled={!service.category}
+                      className={`w-full rounded-lg border px-4 py-2.5 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:bg-gray-700 dark:text-white ${
+                        errors[`service_${index}_subcategory`] 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-gray-300 focus:border-[#013365] dark:border-gray-600'
+                      } ${!service.category ? 'bg-gray-100 cursor-not-allowed dark:bg-gray-800' : 'bg-white'}`}
+                    >
+                      <option value="">{service.category ? "Select Subcategory" : "Select category first"}</option>
+                      {service.category && subcategories[service.category]?.map((sub) => (
+                        <option key={sub._id} value={sub._id}>
+                          {sub.name}
+                        </option>
+                      ))}
+                      {service.category && (!subcategories[service.category] || subcategories[service.category].length === 0) && (
+                        <option value="">No subcategories available</option>
+                      )}
+                    </select>
+                    {errors[`service_${index}_subcategory`] && (
+                      <p className="mt-1 text-xs text-red-500">{errors[`service_${index}_subcategory`]}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Base Price
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={service.basePrice || ""}
+                      onChange={(e) => {
+                        const newServices = [...formData.services];
+                        newServices[index] = { ...newServices[index], basePrice: Number(e.target.value) || 0 };
+                        setFormData({ ...formData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter base price"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Price Type
+                    </label>
+                    <select
+                      value={service.priceType || "fixed"}
+                      onChange={(e) => {
+                        const newServices = [...formData.services];
+                        newServices[index] = { ...newServices[index], priceType: e.target.value as any };
+                        setFormData({ ...formData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="fixed">Fixed</option>
+                      <option value="hourly">Hourly</option>
+                      <option value="sqft">Per Sqft</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Duration (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={service.duration || ""}
+                      onChange={(e) => {
+                        const newServices = [...formData.services];
+                        newServices[index] = { ...newServices[index], duration: Number(e.target.value) || 60 };
+                        setFormData({ ...formData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Duration in minutes"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      value={service.description || ""}
+                      onChange={(e) => {
+                        const newServices = [...formData.services];
+                        newServices[index] = { ...newServices[index], description: e.target.value };
+                        setFormData({ ...formData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Service description"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setFormData({
+                  ...formData,
+                  services: [
+                    ...formData.services,
+                    { category: "", subcategory: "", basePrice: 0, priceType: "fixed", description: "", duration: 60, isActive: true }
+                  ]
+                });
+              }}
+              className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-[#013365] hover:bg-[#013365]/5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-[#013365]"
+            >
+              + Add Service
+            </button>
+          </div>
+        );
+      case 4: // Business Address
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
@@ -643,7 +1176,7 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 4: // Verification Details
+      case 5: // Verification Details
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
@@ -733,7 +1266,7 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 5: // Bank Details
+      case 6: // Bank Details
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
@@ -790,22 +1323,33 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 6: // Availability
+      case 7: // Availability
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Working Days (comma separated)
+                  Working Days
                 </label>
-                <input
-                  type="text"
-                  value={formData.availability.workingDays.join(', ')}
-                  onChange={(e) => setFormData({ ...formData, availability: { ...formData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="e.g., monday, tuesday"
-                />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                    <label key={day} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.availability.workingDays.includes(day)}
+                        onChange={(e) => {
+                          const newDays = e.target.checked
+                            ? [...formData.availability.workingDays, day]
+                            : formData.availability.workingDays.filter(d => d !== day);
+                          setFormData({ ...formData, availability: { ...formData.availability, workingDays: newDays } });
+                        }}
+                        className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{day}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -879,12 +1423,29 @@ export default function VendorManagement() {
                 <input
                   type="tel"
                   required
+                  maxLength={10}
                   value={editFormData.phone || ""}
-                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                    if (value.length <= 10) {
+                      setEditFormData({ ...editFormData, phone: value });
+                      // Clear error when user types
+                      if (errors.phone) {
+                        const newErrors = { ...errors };
+                        delete newErrors.phone;
+                        setErrors(newErrors);
+                      }
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="Enter phone number"
+                  placeholder="Enter 10 digit phone number"
                 />
                 {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
+                {editFormData.phone && editFormData.phone.length > 0 && (
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    {editFormData.phone.length}/10 digits
+                  </p>
+                )}
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -1010,7 +1571,186 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 3: // Business Address
+      case 3: // Services
+        return (
+          <div className="space-y-4">
+            <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Services</h4>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              Add services that this partner offers. Select category and subcategory for each service.
+            </p>
+            {(editFormData.services || []).map((service, index) => (
+              <div key={index} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                <div className="mb-4 flex items-center justify-between">
+                  <h5 className="font-semibold text-gray-900 dark:text-white">Service {index + 1}</h5>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newServices = (editFormData.services || []).filter((_, i) => i !== index);
+                      setEditFormData({ ...editFormData, services: newServices });
+                    }}
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Category <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={service.category || ""}
+                      onChange={(e) => {
+                        const newServices = [...(editFormData.services || [])];
+                        newServices[index] = {
+                          ...newServices[index],
+                          category: e.target.value,
+                          subcategory: "" // Reset subcategory when category changes
+                        };
+                        setEditFormData({ ...editFormData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Select Category</option>
+                      {services.map((s) => (
+                        <option key={s._id} value={s._id}>
+                          {s.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors[`service_${index}_category`] && (
+                      <p className="mt-1 text-xs text-red-500">{errors[`service_${index}_category`]}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Subcategory <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={service.subcategory || ""}
+                      onChange={(e) => {
+                        const newServices = [...(editFormData.services || [])];
+                        newServices[index] = { ...newServices[index], subcategory: e.target.value };
+                        setEditFormData({ ...editFormData, services: newServices });
+                        // Clear error when subcategory is selected
+                        if (errors[`service_${index}_subcategory`]) {
+                          const newErrors = { ...errors };
+                          delete newErrors[`service_${index}_subcategory`];
+                          setErrors(newErrors);
+                        }
+                      }}
+                      disabled={!service.category}
+                      className={`w-full rounded-lg border px-4 py-2.5 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:bg-gray-700 dark:text-white ${
+                        errors[`service_${index}_subcategory`] 
+                          ? 'border-red-500 focus:border-red-500' 
+                          : 'border-gray-300 focus:border-[#013365] dark:border-gray-600'
+                      } ${!service.category ? 'bg-gray-100 cursor-not-allowed dark:bg-gray-800' : 'bg-white'}`}
+                    >
+                      <option value="">{service.category ? "Select Subcategory" : "Select category first"}</option>
+                      {service.category && subcategories[service.category]?.map((sub) => (
+                        <option key={sub._id} value={sub._id}>
+                          {sub.name}
+                        </option>
+                      ))}
+                      {service.category && (!subcategories[service.category] || subcategories[service.category].length === 0) && (
+                        <option value="">No subcategories available</option>
+                      )}
+                    </select>
+                    {errors[`service_${index}_subcategory`] && (
+                      <p className="mt-1 text-xs text-red-500">{errors[`service_${index}_subcategory`]}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Base Price
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={service.basePrice || ""}
+                      onChange={(e) => {
+                        const newServices = [...(editFormData.services || [])];
+                        newServices[index] = { ...newServices[index], basePrice: Number(e.target.value) || 0 };
+                        setEditFormData({ ...editFormData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Enter base price"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Price Type
+                    </label>
+                    <select
+                      value={service.priceType || "fixed"}
+                      onChange={(e) => {
+                        const newServices = [...(editFormData.services || [])];
+                        newServices[index] = { ...newServices[index], priceType: e.target.value as any };
+                        setEditFormData({ ...editFormData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="fixed">Fixed</option>
+                      <option value="hourly">Hourly</option>
+                      <option value="sqft">Per Sqft</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Duration (minutes)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={service.duration || ""}
+                      onChange={(e) => {
+                        const newServices = [...(editFormData.services || [])];
+                        newServices[index] = { ...newServices[index], duration: Number(e.target.value) || 60 };
+                        setEditFormData({ ...editFormData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Duration in minutes"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Description
+                    </label>
+                    <input
+                      type="text"
+                      value={service.description || ""}
+                      onChange={(e) => {
+                        const newServices = [...(editFormData.services || [])];
+                        newServices[index] = { ...newServices[index], description: e.target.value };
+                        setEditFormData({ ...editFormData, services: newServices });
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                      placeholder="Service description"
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => {
+                setEditFormData({
+                  ...editFormData,
+                  services: [
+                    ...(editFormData.services || []),
+                    { category: "", subcategory: "", basePrice: 0, priceType: "fixed", description: "", duration: 60, isActive: true }
+                  ]
+                });
+              }}
+              className="w-full rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition-all hover:border-[#013365] hover:bg-[#013365]/5 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:border-[#013365]"
+            >
+              + Add Service
+            </button>
+          </div>
+        );
+      case 4: // Business Address
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Business Address</h4>
@@ -1093,7 +1833,7 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 4: // Verification Details
+      case 5: // Verification Details
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Verification Details</h4>
@@ -1194,7 +1934,7 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 5: // Bank Details
+      case 6: // Bank Details
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h4>
@@ -1207,6 +1947,12 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.accountNumber || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountNumber: e.target.value } })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && editFormStep < editFormSteps.length - 1) {
+                      e.preventDefault();
+                      handleEditNextStep();
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter account number"
                 />
@@ -1219,6 +1965,12 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.accountHolderName || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, accountHolderName: e.target.value } })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && editFormStep < editFormSteps.length - 1) {
+                      e.preventDefault();
+                      handleEditNextStep();
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter account holder name"
                 />
@@ -1231,6 +1983,12 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.ifscCode || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, ifscCode: e.target.value } })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && editFormStep < editFormSteps.length - 1) {
+                      e.preventDefault();
+                      handleEditNextStep();
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter IFSC code"
                 />
@@ -1244,6 +2002,12 @@ export default function VendorManagement() {
                   type="text"
                   value={editFormData.bankDetails?.bankName || ''}
                   onChange={(e) => setEditFormData({ ...editFormData, bankDetails: { ...editFormData.bankDetails, bankName: e.target.value } })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && editFormStep < editFormSteps.length - 1) {
+                      e.preventDefault();
+                      handleEditNextStep();
+                    }
+                  }}
                   className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                   placeholder="Enter bank name"
                 />
@@ -1251,22 +2015,34 @@ export default function VendorManagement() {
             </div>
           </div>
         );
-      case 6: // Availability
+      case 7: // Availability
         return (
           <div className="space-y-4">
             <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Availability</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Working Days (comma separated)
+                  Working Days
                 </label>
-                <input
-                  type="text"
-                  value={editFormData.availability?.workingDays.join(', ') || ''}
-                  onChange={(e) => setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingDays: e.target.value.split(',').map(s => s.trim().toLowerCase()) } })}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm transition-all focus:border-[#013365] focus:outline-none focus:ring-2 focus:ring-[#013365]/20 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="e.g., monday, tuesday"
-                />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                    <label key={day} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={(editFormData.availability?.workingDays || []).includes(day)}
+                        onChange={(e) => {
+                          const currentDays = editFormData.availability?.workingDays || [];
+                          const newDays = e.target.checked
+                            ? [...currentDays, day]
+                            : currentDays.filter(d => d !== day);
+                          setEditFormData({ ...editFormData, availability: { ...editFormData.availability, workingDays: newDays } });
+                        }}
+                        className="h-4 w-4 text-[#013365] focus:ring-[#013365] border-gray-300 rounded"
+                      />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 capitalize">{day}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -1641,7 +2417,32 @@ export default function VendorManagement() {
                 </svg>
               </button>
             </div>
-            <form onSubmit={handleEditVendor} className="space-y-6">
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                // Only allow submission on last step (step 7 - Availability)
+                if (editFormStep === editFormSteps.length - 1) {
+                  handleEditVendor(e);
+                } else {
+                  // If not on last step, prevent any submission
+                  console.log("Form submission prevented - not on last step. Current step:", editFormStep, "Last step:", editFormSteps.length - 1);
+                }
+              }} 
+              onKeyDown={(e) => {
+                // Prevent form submission on Enter key unless on last step
+                if (e.key === 'Enter') {
+                  if (editFormStep < editFormSteps.length - 1) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Go to next step instead
+                    handleEditNextStep(e);
+                  }
+                  // If on last step, allow Enter to submit
+                }
+              }}
+              className="space-y-6"
+            >
               {/* Progress Bar */}
               <div className="mb-6">
                 <div className="flex justify-between mb-4">
@@ -1679,7 +2480,11 @@ export default function VendorManagement() {
               <div className="flex justify-between gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
                 <button
                   type="button"
-                  onClick={handleEditPrevStep}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleEditPrevStep(e);
+                  }}
                   disabled={editFormStep === 0}
                   className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                 >
@@ -1696,7 +2501,11 @@ export default function VendorManagement() {
                   {editFormStep < editFormSteps.length - 1 ? (
                     <button
                       type="button"
-                      onClick={handleEditNextStep}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleEditNextStep(e);
+                      }}
                       className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl"
                     >
                       Next
@@ -1705,6 +2514,15 @@ export default function VendorManagement() {
                     <button
                       type="submit"
                       disabled={formLoading}
+                      onClick={(e) => {
+                        // Only submit if we're on the last step
+                        if (editFormStep === editFormSteps.length - 1) {
+                          // Let form submission handle it
+                          return;
+                        }
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
                       className="rounded-lg bg-[#013365] px-5 py-2.5 text-sm font-semibold text-white shadow-lg transition-all hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {formLoading ? "Updating..." : "Update Service Partner"}
@@ -1724,8 +2542,8 @@ export default function VendorManagement() {
               className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
               onClick={() => setShowModal(false)}
             ></div>
-            <div className="relative w-full max-w-3xl rounded-2xl bg-white p-6 shadow-2xl dark:bg-gray-800">
-              <div className="mb-6 flex items-center justify-between border-b border-gray-200 pb-4 dark:border-gray-700">
+            <div className="relative w-full max-w-5xl max-h-[90vh] rounded-2xl bg-white shadow-2xl dark:bg-gray-800 overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-700 flex-shrink-0">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Service Partner Details
                 </h3>
@@ -1738,7 +2556,8 @@ export default function VendorManagement() {
                   </svg>
                 </button>
               </div>
-              <div className="space-y-6">
+              <div className="overflow-y-auto p-6 space-y-6">
+                {/* Header */}
                 <div className="flex items-center gap-4 rounded-xl bg-[#013365]/10 p-6 dark:bg-[#013365]/20">
                   <div className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-[#013365] shadow-lg">
                     <span className="text-3xl font-bold text-white">
@@ -1755,6 +2574,8 @@ export default function VendorManagement() {
                     </div>
                   </div>
                 </div>
+
+                {/* Basic Info */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
                     <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -1799,14 +2620,277 @@ export default function VendorManagement() {
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">{selectedVendor.completedJobs || 0}</p>
                   </div>
                 </div>
-                <div className="flex justify-end gap-3 border-t border-gray-200 pt-6 dark:border-gray-700">
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                  >
-                    Close
-                  </button>
-                </div>
+
+                {/* Professional Info */}
+                {selectedVendor.professionalInfo && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Professional Information</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Experience
+                        </label>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {selectedVendor.professionalInfo.experience || 0} years
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Skills
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {(selectedVendor.professionalInfo.skills || []).map((skill, idx) => (
+                            <span key={idx} className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      {selectedVendor.professionalInfo.bio && (
+                        <div className="md:col-span-2">
+                          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            Bio
+                          </label>
+                          <p className="text-sm text-gray-700 dark:text-gray-300">
+                            {selectedVendor.professionalInfo.bio}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Services */}
+                {selectedVendor.services && selectedVendor.services.length > 0 && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Services ({selectedVendor.services.length})</h5>
+                    <div className="space-y-3 max-h-60 overflow-y-auto">
+                      {selectedVendor.services.map((service: any, idx: number) => (
+                        <div key={idx} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-semibold text-gray-900 dark:text-white">
+                                {service.category?.name || 'Unknown Category'}
+                              </p>
+                              {service.subcategory && (
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                  Subcategory: {service.subcategory.name}
+                                </p>
+                              )}
+                              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  Price: ₹{service.basePrice || 0} ({service.priceType || 'fixed'})
+                                </span>
+                                <span className="text-gray-600 dark:text-gray-400">
+                                  Duration: {service.duration || 60} min
+                                </span>
+                                {service.description && (
+                                  <span className="text-gray-600 dark:text-gray-400">
+                                    {service.description}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <span className={`ml-2 rounded-full px-2 py-1 text-xs font-medium ${
+                              service.isActive 
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                            }`}>
+                              {service.isActive ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Business Address */}
+                {selectedVendor.businessAddress && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Business Address</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Address
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.businessAddress.address || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          City
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.businessAddress.city || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          State
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.businessAddress.state || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Pincode
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.businessAddress.pincode || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Availability */}
+                {selectedVendor.availability && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Availability</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Working Days
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {(selectedVendor.availability.workingDays || []).length > 0 ? (
+                            (selectedVendor.availability.workingDays || []).map((day: string, idx: number) => (
+                              <span key={idx} className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800 dark:bg-blue-900 dark:text-blue-200 capitalize">
+                                {day}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-sm text-gray-500 dark:text-gray-400">No working days set</span>
+                          )}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Working Hours
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.availability.workingHours?.start || 'N/A'} - {selectedVendor.availability.workingHours?.end || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Online Status
+                        </label>
+                        <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
+                          selectedVendor.availability.isOnline 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                        }`}>
+                          {selectedVendor.availability.isOnline ? 'Online' : 'Offline'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Weekly Slots */}
+                {selectedVendor.weeklySlots && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Weekly Time Slots</h5>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'].map((day) => {
+                        const daySlots = (selectedVendor.weeklySlots as any)?.[day] || [];
+                        if (daySlots.length === 0) return null;
+                        return (
+                          <div key={day} className="rounded-lg bg-gray-50 p-3 dark:bg-gray-700/50">
+                            <p className="mb-2 font-semibold text-gray-900 dark:text-white capitalize">{day}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {daySlots.map((slot: any, idx: number) => (
+                                <span key={idx} className={`rounded-full px-3 py-1 text-xs font-medium ${
+                                  slot.isAvailable 
+                                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                }`}>
+                                  {slot.startTime} - {slot.endTime}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Bank Details */}
+                {selectedVendor.bankDetails && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Bank Details</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Account Holder Name
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.bankDetails.accountHolderName || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Bank Name
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.bankDetails.bankName || 'N/A'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          IFSC Code
+                        </label>
+                        <p className="text-sm text-gray-900 dark:text-white">
+                          {selectedVendor.bankDetails.ifscCode || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Verification */}
+                {selectedVendor.verification && (
+                  <div className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+                    <h5 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Verification Status</h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                          Verification Status
+                        </label>
+                        <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${
+                          selectedVendor.verification.isVerified 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                        }`}>
+                          {selectedVendor.verification.verificationStatus || 'Pending'}
+                        </span>
+                      </div>
+                      {selectedVendor.verification.rejectionReason && (
+                        <div className="md:col-span-2">
+                          <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            Rejection Reason
+                          </label>
+                          <p className="text-sm text-red-600 dark:text-red-400">
+                            {selectedVendor.verification.rejectionReason}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-end gap-3 border-t border-gray-200 p-6 dark:border-gray-700 flex-shrink-0">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="rounded-lg border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition-all hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>
