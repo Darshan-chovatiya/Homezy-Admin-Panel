@@ -31,13 +31,15 @@ export default function CouponManagement() {
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   // Form state for creating coupon
-  const [formData, setFormData] = useState<CreateCouponFormData>({
+  const [formData, setFormData] = useState<CreateCouponFormData & { discountValueInput?: string; maxDiscountAmountInput?: string }>({
     couponName: "",
     couponCode: "",
     description: "",
     discountType: "percentage",
     discountValue: 0,
+    discountValueInput: "0",
     maxDiscountAmount: undefined,
+    maxDiscountAmountInput: "",
     minOrderAmount: 0,
     startDate: "",
     endDate: "",
@@ -47,13 +49,15 @@ export default function CouponManagement() {
   });
 
   // Form state for editing coupon
-  const [editFormData, setEditFormData] = useState<UpdateCouponFormData>({
+  const [editFormData, setEditFormData] = useState<UpdateCouponFormData & { discountValueInput?: string; maxDiscountAmountInput?: string }>({
     couponId: "",
     couponName: "",
     description: "",
     discountType: "percentage",
     discountValue: 0,
+    discountValueInput: "0",
     maxDiscountAmount: undefined,
+    maxDiscountAmountInput: "",
     minOrderAmount: 0,
     startDate: "",
     endDate: "",
@@ -111,8 +115,43 @@ export default function CouponManagement() {
 
     if ('couponName' in data && !data.couponName) newErrors.couponName = "Coupon name is required";
     if (data.discountValue && data.discountValue <= 0) newErrors.discountValue = "Discount value must be greater than 0";
-    if (data.discountType === "percentage" && data.discountValue && data.discountValue > 100)
-      newErrors.discountValue = "Percentage discount cannot exceed 100";
+    
+    // Validate percentage discount cannot exceed 100%
+    if (data.discountType === "percentage") {
+      if (data.discountValue && data.discountValue > 100) {
+        newErrors.discountValue = "Percentage discount cannot exceed 100%";
+      }
+      if (data.discountValue && data.discountValue <= 0) {
+        newErrors.discountValue = "Percentage discount must be greater than 0";
+      }
+    }
+    
+    // Validate fixed discount value should be less than min order amount
+    if (data.discountType === "fixed") {
+      if (data.discountValue && data.minOrderAmount && data.minOrderAmount > 0) {
+        if (data.discountValue >= data.minOrderAmount) {
+          newErrors.discountValue = "Discount amount must be less than minimum order amount";
+        }
+      }
+      // Also validate discount value is reasonable (not too high)
+      if (data.discountValue && data.discountValue > 100000) {
+        newErrors.discountValue = "Discount value is too high";
+      }
+    }
+    
+    // For percentage type, validate max discount if provided
+    if (data.discountType === "percentage") {
+      if (data.maxDiscountAmount && data.minOrderAmount && data.minOrderAmount > 0) {
+        if (data.maxDiscountAmount >= data.minOrderAmount) {
+          newErrors.maxDiscountAmount = "Max discount amount must be less than minimum order amount";
+        }
+      }
+      // Validate max discount is reasonable
+      if (data.maxDiscountAmount && data.maxDiscountAmount > 100000) {
+        newErrors.maxDiscountAmount = "Max discount amount is too high";
+      }
+    }
+    
     if ('startDate' in data && !data.startDate) newErrors.startDate = "Start date is required";
     if ('endDate' in data && !data.endDate) newErrors.endDate = "End date is required";
     if (data.startDate && data.endDate && new Date(data.endDate) <= new Date(data.startDate))
@@ -137,7 +176,9 @@ export default function CouponManagement() {
         description: "",
         discountType: "percentage",
         discountValue: 0,
+        discountValueInput: "0",
         maxDiscountAmount: undefined,
+        maxDiscountAmountInput: "",
         minOrderAmount: 0,
         startDate: "",
         endDate: "",
@@ -162,7 +203,9 @@ export default function CouponManagement() {
       description: coupon.description,
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
+      discountValueInput: coupon.discountValue.toString(),
       maxDiscountAmount: coupon.maxDiscountAmount,
+      maxDiscountAmountInput: coupon.maxDiscountAmount ? coupon.maxDiscountAmount.toString() : "",
       minOrderAmount: coupon.minOrderAmount,
       startDate: coupon.startDate.split("T")[0],
       endDate: coupon.endDate.split("T")[0],
@@ -661,7 +704,16 @@ export default function CouponManagement() {
                   <select
                     required
                     value={formData.discountType}
-                    onChange={(e) => setFormData({ ...formData, discountType: e.target.value as "percentage" | "fixed" })}
+                    onChange={(e) => {
+                      const newType = e.target.value as "percentage" | "fixed";
+                      setFormData({ 
+                        ...formData, 
+                        discountType: newType,
+                        // Reset input fields when switching types
+                        discountValueInput: newType === "fixed" ? formData.discountValueInput : "0",
+                        maxDiscountAmountInput: newType === "percentage" ? formData.maxDiscountAmountInput : ""
+                      });
+                    }}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="percentage">Percentage (%)</option>
@@ -669,39 +721,158 @@ export default function CouponManagement() {
                   </select>
                 </div>
 
-                {/* Discount Value */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Discount Value <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={formData.discountValue}
-                    onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    placeholder={formData.discountType === "percentage" ? "10" : "100"}
-                  />
-                  {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
-                </div>
+                {/* Discount Value - Show only for Fixed type */}
+                {formData.discountType === "fixed" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Discount Value (₹) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      required
+                      value={formData.discountValueInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({ 
+                          ...formData, 
+                          discountValueInput: value,
+                          discountValue: value === '' || value === '-' ? 0 : (parseFloat(value) || 0)
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                          setFormData({ 
+                            ...formData, 
+                            discountValueInput: '0',
+                            discountValue: 0
+                          });
+                        } else {
+                          const numValue = Number(value);
+                          // Validate discount is less than min order amount
+                          if (formData.minOrderAmount && numValue >= formData.minOrderAmount) {
+                            setErrors({ ...errors, discountValue: "Discount amount must be less than minimum order amount" });
+                          }
+                          setFormData({ 
+                            ...formData, 
+                            discountValueInput: numValue.toString(),
+                            discountValue: numValue
+                          });
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      placeholder="100"
+                    />
+                    {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
+                  </div>
+                )}
 
-                {/* Max Discount Amount */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Max Discount <span className="text-gray-400 text-xs">(for % type)</span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.maxDiscountAmount || ""}
-                    onChange={(e) => setFormData({ ...formData, maxDiscountAmount: parseFloat(e.target.value) || undefined })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                    placeholder="500"
-                  />
-                </div>
+                {/* Discount Value - Show only for Percentage type */}
+                {formData.discountType === "percentage" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Discount Percentage (%) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      required
+                      value={formData.discountValueInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const numValue = value === '' || value === '-' ? 0 : (parseFloat(value) || 0);
+                        // Validate percentage cannot exceed 100
+                        if (numValue > 100) {
+                          setErrors({ ...errors, discountValue: "Percentage discount cannot exceed 100%" });
+                        } else {
+                          setErrors({ ...errors, discountValue: "" });
+                        }
+                        setFormData({ 
+                          ...formData, 
+                          discountValueInput: value,
+                          discountValue: numValue > 100 ? 100 : numValue
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                          setFormData({ 
+                            ...formData, 
+                            discountValueInput: '0',
+                            discountValue: 0
+                          });
+                        } else {
+                          const numValue = Number(value);
+                          if (numValue > 100) {
+                            setFormData({ 
+                              ...formData, 
+                              discountValueInput: '100',
+                              discountValue: 100
+                            });
+                            setErrors({ ...errors, discountValue: "Percentage discount cannot exceed 100%" });
+                          } else {
+                            setFormData({ 
+                              ...formData, 
+                              discountValueInput: numValue.toString(),
+                              discountValue: numValue
+                            });
+                            setErrors({ ...errors, discountValue: "" });
+                          }
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      placeholder="10"
+                    />
+                    {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
+                  </div>
+                )}
+
+                {/* Max Discount Amount - Show only for Percentage type */}
+                {formData.discountType === "percentage" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Max Discount (₹) <span className="text-gray-400 text-xs">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={formData.maxDiscountAmountInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setFormData({ 
+                          ...formData, 
+                          maxDiscountAmountInput: value,
+                          maxDiscountAmount: value === '' ? undefined : (parseFloat(value) || undefined)
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                          setFormData({ 
+                            ...formData, 
+                            maxDiscountAmountInput: '',
+                            maxDiscountAmount: undefined
+                          });
+                        } else {
+                          const numValue = Number(value);
+                          // Validate max discount is less than min order amount
+                          if (formData.minOrderAmount && numValue >= formData.minOrderAmount) {
+                            setErrors({ ...errors, maxDiscountAmount: "Max discount amount must be less than minimum order amount" });
+                          }
+                          setFormData({ 
+                            ...formData, 
+                            maxDiscountAmountInput: numValue.toString(),
+                            maxDiscountAmount: numValue
+                          });
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      placeholder="500"
+                    />
+                    {errors.maxDiscountAmount && <p className="mt-1 text-xs text-red-500">{errors.maxDiscountAmount}</p>}
+                  </div>
+                )}
 
                 {/* Min Order Amount */}
                 <div>
@@ -711,7 +882,27 @@ export default function CouponManagement() {
                     min="0"
                     step="0.01"
                     value={formData.minOrderAmount || ""}
-                    onChange={(e) => setFormData({ ...formData, minOrderAmount: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      const newMinOrder = parseFloat(e.target.value) || 0;
+                      setFormData({ ...formData, minOrderAmount: newMinOrder });
+                      // Clear errors when min order amount changes
+                      if (errors.discountValue || errors.maxDiscountAmount) {
+                        setErrors({ ...errors, discountValue: "", maxDiscountAmount: "" });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Re-validate discount values when min order amount changes
+                      if (formData.discountType === "fixed" && formData.discountValue && formData.minOrderAmount) {
+                        if (formData.discountValue >= formData.minOrderAmount) {
+                          setErrors({ ...errors, discountValue: "Discount amount must be less than minimum order amount" });
+                        }
+                      }
+                      if (formData.discountType === "percentage" && formData.maxDiscountAmount && formData.minOrderAmount) {
+                        if (formData.maxDiscountAmount >= formData.minOrderAmount) {
+                          setErrors({ ...errors, maxDiscountAmount: "Max discount amount must be less than minimum order amount" });
+                        }
+                      }
+                    }}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                     placeholder="0"
                   />
@@ -872,7 +1063,16 @@ export default function CouponManagement() {
                   <select
                     required
                     value={editFormData.discountType}
-                    onChange={(e) => setEditFormData({ ...editFormData, discountType: e.target.value as "percentage" | "fixed" })}
+                    onChange={(e) => {
+                      const newType = e.target.value as "percentage" | "fixed";
+                      setEditFormData({ 
+                        ...editFormData, 
+                        discountType: newType,
+                        // Reset input fields when switching types
+                        discountValueInput: newType === "fixed" ? editFormData.discountValueInput : editFormData.discountValueInput,
+                        maxDiscountAmountInput: newType === "percentage" ? editFormData.maxDiscountAmountInput : ""
+                      });
+                    }}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   >
                     <option value="percentage">Percentage (%)</option>
@@ -880,35 +1080,156 @@ export default function CouponManagement() {
                   </select>
                 </div>
 
-                {/* Discount Value */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Discount Value <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    step="0.01"
-                    value={editFormData.discountValue}
-                    onChange={(e) => setEditFormData({ ...editFormData, discountValue: parseFloat(e.target.value) || 0 })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  />
-                  {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
-                </div>
+                {/* Discount Value - Show only for Fixed type */}
+                {editFormData.discountType === "fixed" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Discount Value (₹) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      required
+                      value={editFormData.discountValueInput || editFormData.discountValue.toString()}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEditFormData({ 
+                          ...editFormData, 
+                          discountValueInput: value,
+                          discountValue: value === '' || value === '-' ? 0 : (parseFloat(value) || 0)
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                          setEditFormData({ 
+                            ...editFormData, 
+                            discountValueInput: '0',
+                            discountValue: 0
+                          });
+                        } else {
+                          const numValue = Number(value);
+                          if (editFormData.minOrderAmount && numValue >= editFormData.minOrderAmount) {
+                            setErrors({ ...errors, discountValue: "Discount amount must be less than minimum order amount" });
+                          }
+                          setEditFormData({ 
+                            ...editFormData, 
+                            discountValueInput: numValue.toString(),
+                            discountValue: numValue
+                          });
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      placeholder="100"
+                    />
+                    {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
+                  </div>
+                )}
 
-                {/* Max Discount Amount */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Max Discount</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={editFormData.maxDiscountAmount || ""}
-                    onChange={(e) => setEditFormData({ ...editFormData, maxDiscountAmount: parseFloat(e.target.value) || undefined })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-                  />
-                </div>
+                {/* Discount Percentage - Show only for Percentage type */}
+                {editFormData.discountType === "percentage" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Discount Percentage (%) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      required
+                      value={editFormData.discountValueInput || editFormData.discountValue.toString()}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const numValue = value === '' || value === '-' ? 0 : (parseFloat(value) || 0);
+                        // Validate percentage cannot exceed 100
+                        if (numValue > 100) {
+                          setErrors({ ...errors, discountValue: "Percentage discount cannot exceed 100%" });
+                        } else {
+                          setErrors({ ...errors, discountValue: "" });
+                        }
+                        setEditFormData({ 
+                          ...editFormData, 
+                          discountValueInput: value,
+                          discountValue: numValue > 100 ? 100 : numValue
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                          setEditFormData({ 
+                            ...editFormData, 
+                            discountValueInput: '0',
+                            discountValue: 0
+                          });
+                        } else {
+                          const numValue = Number(value);
+                          if (numValue > 100) {
+                            setEditFormData({ 
+                              ...editFormData, 
+                              discountValueInput: '100',
+                              discountValue: 100
+                            });
+                            setErrors({ ...errors, discountValue: "Percentage discount cannot exceed 100%" });
+                          } else {
+                            setEditFormData({ 
+                              ...editFormData, 
+                              discountValueInput: numValue.toString(),
+                              discountValue: numValue
+                            });
+                            setErrors({ ...errors, discountValue: "" });
+                          }
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      placeholder="10"
+                    />
+                    {errors.discountValue && <p className="mt-1 text-xs text-red-500">{errors.discountValue}</p>}
+                  </div>
+                )}
+
+                {/* Max Discount Amount - Show only for Percentage type */}
+                {editFormData.discountType === "percentage" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Max Discount (₹) <span className="text-gray-400 text-xs">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={editFormData.maxDiscountAmountInput || (editFormData.maxDiscountAmount ? editFormData.maxDiscountAmount.toString() : "")}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setEditFormData({ 
+                          ...editFormData, 
+                          maxDiscountAmountInput: value,
+                          maxDiscountAmount: value === '' ? undefined : (parseFloat(value) || undefined)
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value.trim();
+                        if (value === '' || value === '-' || isNaN(Number(value)) || Number(value) < 0) {
+                          setEditFormData({ 
+                            ...editFormData, 
+                            maxDiscountAmountInput: '',
+                            maxDiscountAmount: undefined
+                          });
+                        } else {
+                          const numValue = Number(value);
+                          if (editFormData.minOrderAmount && numValue >= editFormData.minOrderAmount) {
+                            setErrors({ ...errors, maxDiscountAmount: "Max discount amount must be less than minimum order amount" });
+                          }
+                          setEditFormData({ 
+                            ...editFormData, 
+                            maxDiscountAmountInput: numValue.toString(),
+                            maxDiscountAmount: numValue
+                          });
+                        }
+                      }}
+                      className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                      placeholder="500"
+                    />
+                    {errors.maxDiscountAmount && <p className="mt-1 text-xs text-red-500">{errors.maxDiscountAmount}</p>}
+                  </div>
+                )}
 
                 {/* Min Order Amount */}
                 <div>
@@ -918,7 +1239,27 @@ export default function CouponManagement() {
                     min="0"
                     step="0.01"
                     value={editFormData.minOrderAmount || ""}
-                    onChange={(e) => setEditFormData({ ...editFormData, minOrderAmount: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) => {
+                      const newMinOrder = parseFloat(e.target.value) || 0;
+                      setEditFormData({ ...editFormData, minOrderAmount: newMinOrder });
+                      // Clear errors when min order amount changes
+                      if (errors.discountValue || errors.maxDiscountAmount) {
+                        setErrors({ ...errors, discountValue: "", maxDiscountAmount: "" });
+                      }
+                    }}
+                    onBlur={() => {
+                      // Re-validate discount values when min order amount changes
+                      if (editFormData.discountType === "fixed" && editFormData.discountValue && editFormData.minOrderAmount) {
+                        if (editFormData.discountValue >= editFormData.minOrderAmount) {
+                          setErrors({ ...errors, discountValue: "Discount amount must be less than minimum order amount" });
+                        }
+                      }
+                      if (editFormData.discountType === "percentage" && editFormData.maxDiscountAmount && editFormData.minOrderAmount) {
+                        if (editFormData.maxDiscountAmount >= editFormData.minOrderAmount) {
+                          setErrors({ ...errors, maxDiscountAmount: "Max discount amount must be less than minimum order amount" });
+                        }
+                      }
+                    }}
                     className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm focus:border-[#013365] focus:ring-2 focus:ring-[#013365]/20 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                   />
                 </div>
