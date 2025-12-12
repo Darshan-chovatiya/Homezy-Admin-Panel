@@ -72,11 +72,11 @@ const navItems: NavItem[] = [
   //   name: "Orders",
   //   path: "/admin/bookings",
   // },
-  {
-    icon: <ChatIcon />,
-    name: "Support & Moderation",
-    path: "/admin/support",
-  },
+  // {
+  //   icon: <ChatIcon />,
+  //   name: "Support & Moderation",
+  //   path: "/admin/support",
+  // },
   {
     icon: <DocsIcon />,
     name: "FAQ Management",
