@@ -266,7 +266,6 @@ export default function CustomerManagement() {
               <tr>
                 <th scope="col" className="px-6 py-3">Customer</th>
                 <th scope="col" className="px-6 py-3">Mobile</th>
-                <th scope="col" className="px-6 py-3">Location</th>
                 <th scope="col" className="px-6 py-3">Status</th>
                 <th scope="col" className="px-6 py-3">Wallet</th>
                 <th scope="col" className="px-6 py-3 text-right">Actions</th>
@@ -274,7 +273,7 @@ export default function CustomerManagement() {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-6 text-center">Loading...</td></tr>
+                <tr><td colSpan={5} className="px-6 py-6 text-center">Loading...</td></tr>
               ) : (
                 customers.map((customer) => (
                   <tr key={customer._id} className="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
@@ -291,10 +290,6 @@ export default function CustomerManagement() {
                       </div>
                     </td>
                     <td className="px-6 py-4">{customer.mobileNo}</td>
-                    <td className="px-6 py-4">
-                      {customer.addressComponent?.city || 'N/A'}
-                      {customer.addressComponent?.state && `, ${customer.addressComponent.state}`}
-                    </td>
                     <td className="px-6 py-4">
                       <span
                         onClick={() => handleToggle(customer)}
@@ -401,11 +396,22 @@ export default function CustomerManagement() {
                     type="tel"
                     required
                     pattern="[0-9]{10}"
+                    maxLength={10}
                     value={formData.mobileNo}
-                    onChange={(e) => setFormData({ ...formData, mobileNo: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                      if (value.length <= 10) {
+                        setFormData({ ...formData, mobileNo: value });
+                      }
+                    }}
                     className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Enter 10-digit mobile number"
                   />
+                  {formData.mobileNo && formData.mobileNo.length > 0 && (
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {formData.mobileNo.length}/10 digits
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email (Optional)</label>
@@ -466,11 +472,22 @@ export default function CustomerManagement() {
                     type="tel"
                     required
                     pattern="[0-9]{10}"
+                    maxLength={10}
                     value={editFormData.mobileNo}
-                    onChange={(e) => setEditFormData({ ...editFormData, mobileNo: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+                      if (value.length <= 10) {
+                        setEditFormData({ ...editFormData, mobileNo: value });
+                      }
+                    }}
                     className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="Enter 10-digit mobile number"
                   />
+                  {editFormData.mobileNo && editFormData.mobileNo.length > 0 && (
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {editFormData.mobileNo.length}/10 digits
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
@@ -488,8 +505,15 @@ export default function CustomerManagement() {
                     type="number"
                     min="0"
                     step="0.01"
-                    value={editFormData.walletBalance}
-                    onChange={(e) => setEditFormData({ ...editFormData, walletBalance: parseFloat(e.target.value) || 0 })}
+                    value={editFormData.walletBalance === 0 ? "" : editFormData.walletBalance}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "") {
+                        setEditFormData({ ...editFormData, walletBalance: 0 });
+                      } else {
+                        setEditFormData({ ...editFormData, walletBalance: parseFloat(value) || 0 });
+                      }
+                    }}
                     className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                     placeholder="0.00"
                   />
@@ -562,31 +586,6 @@ export default function CustomerManagement() {
                       })}
                     </p>
                   </div>
-                  {selectedCustomer.addressComponent && (
-                    <div>
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">Address</label>
-                      <div className="text-sm text-gray-900 dark:text-white">
-                        {selectedCustomer.addressComponent.fullAddress && (
-                          <p>{selectedCustomer.addressComponent.fullAddress}</p>
-                        )}
-                        <div className="flex gap-1">
-                          {selectedCustomer.addressComponent.city && (
-                            <span>{selectedCustomer.addressComponent.city}</span>
-                          )}
-                          {selectedCustomer.addressComponent.state && (
-                            <span>, {selectedCustomer.addressComponent.state}</span>
-                          )}
-                          {selectedCustomer.addressComponent.pincode && (
-                            <span>- {selectedCustomer.addressComponent.pincode}</span>
-                          )}
-                        </div>
-                        {!selectedCustomer.addressComponent.fullAddress && 
-                         !selectedCustomer.addressComponent.city && (
-                          <p className="text-gray-500 dark:text-gray-400">No address available</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
