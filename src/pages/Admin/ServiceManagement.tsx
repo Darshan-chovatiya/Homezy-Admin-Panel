@@ -26,12 +26,16 @@ interface ServiceUI {
 
 // Helper function to convert API data to UI format
 const convertServiceToUI = (service: Service): ServiceUI => {
+  // Always resolve image URL with VITE_IMAGE_BASE_URL prefix
+  // Paths like "uploads/services/..." will become "VITE_IMAGE_BASE_URL/uploads/services/..."
+  const resolvedImage = service.image ? apiService.resolveImageUrl(service.image) : undefined;
+  
   return {
     id: service._id,
     name: service.name,
     description: service.description,
     status: service.isActive ? "active" : "inactive",
-    image: apiService.resolveImageUrl(service.image),
+    image: resolvedImage || undefined,
     subCategories: (service.subCategories || []).map(sub => ({
       id: sub._id,
       name: sub.name,
@@ -39,7 +43,10 @@ const convertServiceToUI = (service: Service): ServiceUI => {
       duration: `${Math.floor(sub.duration / 60)}h ${sub.duration % 60}m`,
       status: sub.isActive ? "active" : "inactive",
       price: sub.basePrice,
-      images: (sub.images || []).map(img => apiService.resolveImageUrl(img) || img)
+      // Resolve all image URLs with VITE_IMAGE_BASE_URL prefix
+      images: (sub.images || [])
+        .map(img => img ? apiService.resolveImageUrl(img) : undefined)
+        .filter((img): img is string => img !== undefined && img !== null)
     }))
   };
 };
@@ -59,6 +66,12 @@ export default function ServiceManagement() {
   const [imageErrors, setImageErrors] = useState<{[key: string]: boolean}>({});
   const [modalImageError, setModalImageError] = useState(false);
   const [subcategoryImageErrors, setSubcategoryImageErrors] = useState<{[key: string]: boolean}>({});
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalDocs, setTotalDocs] = useState(0);
+  const [limit] = useState(10);
 
   // SweetAlert helpers (fallback to alert)
   const showSuccess = async (title: string, text?: string) => {
@@ -80,10 +93,10 @@ export default function ServiceManagement() {
     }
   };
 
-  // Load services on component mount
+  // Load services on component mount and when page changes
   useEffect(() => {
     loadServices();
-  }, []);
+  }, [currentPage]);
 
   // Generate initials from name
   const getInitials = (name: string) => {
@@ -135,9 +148,13 @@ export default function ServiceManagement() {
     try {
       setLoading(true);
       setError(null);
-      const response = await apiService.getServices({ page: 1, limit: 100 });
-      const uiServices = response.data.docs.map(convertServiceToUI);
-      setServices(uiServices);
+      const response = await apiService.getServices({ page: currentPage, limit: limit });
+      if (response.data) {
+        const uiServices = response.data.docs.map(convertServiceToUI);
+        setServices(uiServices);
+        setTotalPages(response.data.totalPages || 1);
+        setTotalDocs(response.data.totalDocs || 0);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load services');
       console.error('Error loading services:', err);
@@ -145,6 +162,11 @@ export default function ServiceManagement() {
       setLoading(false);
     }
   };
+
+  // Reset to page 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus]);
 
   const filteredServices = services.filter((service) => {
     const text = searchTerm.toLowerCase();
@@ -166,28 +188,96 @@ export default function ServiceManagement() {
 
   const handleStatusChange = async (serviceId: string, newStatus: Status) => {
     try {
-      await apiService.updateServiceStatus(serviceId, newStatus);
-      setServices(services.map(service => 
-        service.id === serviceId ? { ...service, status: newStatus } : service
-      ));
+      const Swal = (await import('sweetalert2')).default;
+      const result = await Swal.fire({
+        title: `Are you sure?`,
+        text: `Do you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} this service?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#013365',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No'
+      });
+
+      if (result.isConfirmed) {
+        await apiService.updateServiceStatus(serviceId, newStatus);
+        setServices(services.map(service => 
+          service.id === serviceId ? { ...service, status: newStatus } : service
+        ));
+        // Update selected service if it's the one being changed
+        if (selectedService && selectedService.id === serviceId) {
+          setSelectedService({ ...selectedService, status: newStatus });
+        }
+        await Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: `Service ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update service status');
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err instanceof Error ? err.message : 'Failed to update service status'
+      });
       console.error('Error updating service status:', err);
     }
   };
 
   const handleSubcategoryStatusChange = async (subcategoryId: string, newStatus: 'active' | 'inactive') => {
     try {
-      await apiService.updateSubcategoryStatus(subcategoryId, newStatus);
-      // Update the subcategory in the selected service's subcategories
-      if (selectedService) {
-        const updatedSubcategories = selectedService.subCategories.map(sub => 
-          sub.id === subcategoryId ? { ...sub, status: newStatus } : sub
-        );
-        setSelectedService({ ...selectedService, subCategories: updatedSubcategories });
+      const Swal = (await import('sweetalert2')).default;
+      const result = await Swal.fire({
+        title: `Are you sure?`,
+        text: `Do you want to ${newStatus === 'active' ? 'activate' : 'deactivate'} this subcategory?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#013365',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes',
+        cancelButtonText: 'No'
+      });
+
+      if (result.isConfirmed) {
+        await apiService.updateSubcategoryStatus(subcategoryId, newStatus);
+        // Update the subcategory in the selected service's subcategories
+        if (selectedService) {
+          const updatedSubcategories = selectedService.subCategories.map(sub => 
+            sub.id === subcategoryId ? { ...sub, status: newStatus } : sub
+          );
+          setSelectedService({ ...selectedService, subCategories: updatedSubcategories });
+        }
+        // Also update in services list
+        setServices(services.map(service => {
+          if (service.id === selectedService?.id) {
+            return {
+              ...service,
+              subCategories: service.subCategories.map(sub =>
+                sub.id === subcategoryId ? { ...sub, status: newStatus } : sub
+              )
+            };
+          }
+          return service;
+        }));
+        await Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: `Subcategory ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully`,
+          timer: 1500,
+          showConfirmButton: false
+        });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update subcategory status');
+      const Swal = (await import('sweetalert2')).default;
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err instanceof Error ? err.message : 'Failed to update subcategory status'
+      });
       console.error('Error updating subcategory status:', err);
     }
   };
@@ -324,7 +414,7 @@ export default function ServiceManagement() {
                       <div className="text-right mb-3" onClick={(e) => e.stopPropagation()}>
                         {getStatusBadge(service)}
                       </div>
-                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300 overflow-hidden">
                         {service.image && !imageErrors[service.id] ? (
                           <img
                             src={service.image}
@@ -361,6 +451,32 @@ export default function ServiceManagement() {
                 <div className="text-gray-500 dark:text-gray-400">No services found matching your criteria.</div>
               </div>
             )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700">
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  Showing page <span className="font-semibold">{currentPage}</span> of <span className="font-semibold">{totalPages}</span>
+                  <span className="ml-2">({totalDocs} total services)</span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
@@ -392,13 +508,19 @@ export default function ServiceManagement() {
                         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                       ).join(' ')}
                     </h4>
-                    <div className="mt-2 flex items-center gap-2">
-                      {getStatusBadge(selectedService)}
+                    <div className="mt-2">
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                        selectedService.status === 'active'
+                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                      }`}>
+                        {selectedService.status === 'active' ? "Active" : "Inactive"}
+                      </span>
                     </div>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">{selectedService.description}</p>
                   </div>
                   <div className="flex-shrink-0">
-                    <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
+                    <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300 overflow-hidden">
                       {selectedService.image && !modalImageError ? (
                         <img
                           src={selectedService.image}
@@ -453,13 +575,21 @@ export default function ServiceManagement() {
                                 )}
                               </td>
                               <td className="whitespace-nowrap px-4 py-2 text-sm text-gray-600 dark:text-gray-400">{s.duration}</td>
-                              <td className="whitespace-nowrap px-4 py-2">{getSubcategoryStatusBadge(s)}</td>
+                              <td className="whitespace-nowrap px-4 py-2">
+                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                                  s.status === 'active'
+                                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                                    : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                }`}>
+                                  {s.status === 'active' ? "Active" : "Inactive"}
+                                </span>
+                              </td>
                               <td className="px-4 py-2">
                                 {s.images && s.images.length > 0 ? (
                                   <div className="flex gap-1">
                                     {s.images.slice(0, 3).map((img, idx) => (
-                                      <div key={idx} className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300">
-                                        {!subcategoryImageErrors[`${s.id}-${idx}`] ? (
+                                      <div key={idx} className="flex h-8 w-8 items-center justify-center rounded bg-blue-100 text-[#013365] dark:bg-blue-900 dark:text-blue-300 overflow-hidden">
+                                        {!subcategoryImageErrors[`${s.id}-${idx}`] && img ? (
                                           <img 
                                             src={img} 
                                             alt={`${s.name} ${idx + 1}`} 

@@ -181,11 +181,17 @@ class ApiService {
 
   // Resolve relative paths from backend to absolute URLs
   resolveImageUrl(path?: string | null): string | undefined {
-    if (!path) return undefined;
-    if (path.startsWith('blob:')) return undefined;
+    if (!path || path.trim() === '') return undefined;
+    if (path.startsWith('blob:')) return path; // Keep blob URLs as is
     if (path.startsWith('http://') || path.startsWith('https://')) return path;
-    if (path.startsWith('/')) return `${IMAGE_BASE_URL}${path}`;
-    return `${IMAGE_BASE_URL}/${path}`;
+    // Ensure IMAGE_BASE_URL is set
+    if (!IMAGE_BASE_URL) {
+      console.warn('VITE_IMAGE_BASE_URL is not set');
+      return undefined;
+    }
+    // Remove leading slash if present, then add base URL
+    const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+    return `${IMAGE_BASE_URL}/${cleanPath}`;
   }
 
   // Authentication
